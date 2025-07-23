@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+    <Operation Class="PatchOperationReplace">        <!-- Replace the existing ThingDef with the new one from ModB -->
+        <xpath>Defs/ThingDef[defID='WoodenSword']/weaponPro</xpath>
+        <value>
+            <damage>100</damage>
+        </value>
+    </Operation>
+</Patch>

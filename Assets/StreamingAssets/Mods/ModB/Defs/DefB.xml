@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+    <ThingDef>
+        <defID>WoodenSword</defID>
+        <label>木劍 ModA</label>
+        <description>一把用木頭製作的劍，適合初學者使用。現在更堅固。</description>
+        <tags>
+            <tag>Weapon</tag>
+            <tag>Wood</tag>
+            <tag>Starter</tag>
+        </tags>
+        <weaponProps>
+            <type>Melee</type>
+            <damage>7</damage>
+            <range>1.7</range>
+        </weaponProps>
+    </ThingDef>
+    <ThingDef>
+        <defID>IronAxe</defID>
+        <label>鐵斧 ModB</label>
+        <description>一把沉重的鐵斧，適合伐木和戰鬥。</description>
+        <tags>
+            <tag>Weapon</tag>
+            <tag>Iron</tag>
+            <tag>Tool</tag>
+        </tags>
+        <weaponProps>
+            <type>Melee</type>
+            <damage>12</damage>
+            <range>1.2</range>
+        </weaponProps>
+    </ThingDef>
+</Defs>

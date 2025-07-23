@@ -1,21 +1,34 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Linq;
+using ModdableArchitecture.Utils;
+
+
 
 namespace ModdableArchitecture
 {
-    public class PatchService
+    public class DefinitionPatcher
     {
+        ILogger logger;
+
         private readonly PatchOperationFactory factory = new PatchOperationFactory();
 
-        public void ApplyPatches(string directoryPath, XDocument doc)
+        public DefinitionPatcher(ILogger logger)
         {
+            this.logger = logger;
+        }
+        public void ApplyPatches(string directory, XDocument xmlDocument)
+        {
+            if (!Directory.Exists(directory))
+            {
+                logger.LogWarning($"Patch directory does not exist: {directory}");
+                return;
+            }
+
             List<IPatchOperation> operations = new List<IPatchOperation>();
 
-            foreach (string file in Directory.GetFiles(directoryPath, "*.xml", SearchOption.AllDirectories))
+            foreach (string file in Directory.GetFiles(directory, "*.xml", SearchOption.AllDirectories))
             {
-                if (Path.GetDirectoryName(file)?.EndsWith("Patch") != true) continue;
-
                 XDocument patchDoc = XDocument.Load(file);
                 foreach (XElement operationElement in patchDoc.Root.Elements("Operation"))
                 {
@@ -26,15 +39,16 @@ namespace ModdableArchitecture
                     }
                     catch (System.Exception ex)
                     {
-                        UnityEngine.Debug.LogError($"Failed to create patch operation from {file}: {ex.Message}");
+                        logger.LogError($"Failed to create patch operation from {file}: {ex.Message}");
                     }
                 }
             }
 
             foreach (IPatchOperation operation in operations)
             {
-                operation.Apply(doc);
+                operation.Apply(xmlDocument);
             }
         }
+
     }
 }

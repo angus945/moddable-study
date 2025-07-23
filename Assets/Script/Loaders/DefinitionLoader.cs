@@ -1,26 +1,28 @@
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
-using ModdableArchitecture.Loaders;
 
 using ModdableArchitecture.Utils;
 
-public class XMLLoader : IXMLLoader
+public class DefinitionLoader
 {
     private readonly ILogger _logger;
 
-    public XMLLoader(ILogger logger = null)
+    public DefinitionLoader(ILogger logger)
     {
-        _logger = logger ?? new NullLogger();
+        _logger = logger;
     }
 
-    public XDocument LoadAll(string directoryPath)
+    public void LoadDirectory(string directoryPath, XDocument xmlDocument)
     {
-        XDocument mergeDoc = new XDocument(new XElement("Defs"));
+        if (!Directory.Exists(directoryPath))
+        {
+            _logger.LogWarning($"Definition directory does not exist: {directoryPath}");
+            return;
+        }
+
         foreach (string file in Directory.GetFiles(directoryPath, "*.xml", SearchOption.AllDirectories))
         {
-            if (Path.GetDirectoryName(file)?.EndsWith("Patch") == true) continue;
-
             _logger.Log($"Loading XML file: {file}");
             XDocument tempDoc = XDocument.Load(file);
             XElement root = tempDoc.Root;
@@ -29,16 +31,13 @@ public class XMLLoader : IXMLLoader
 
             foreach (XElement element in root.Elements())
             {
-                RemoveExisting(mergeDoc, element);
-                mergeDoc.Root.Add(element);
+                RemoveExisting(xmlDocument, element);
+                xmlDocument.Root.Add(element);
 
-                _logger.Log($"Merge element: {element.Name} with defID: {element.Element("defID")?.Value}");
+                _logger.Log($"Merge Definition: {element.Name} with defID: {element.Element("defID")?.Value}");
             }
         }
-
-        return mergeDoc;
     }
-
     void RemoveExisting(XDocument mergeDoc, XElement newElement)
     {
         string defID = newElement.Element("defID")?.Value;
@@ -52,7 +51,7 @@ public class XMLLoader : IXMLLoader
 
         if (existing != null)
         {
-            _logger.Log($"Overriding definition: {defType} with defID: {defID}");
+            _logger.Log($"Overriding Definition: {defType} with defID: {defID}");
             existing.Remove();
         }
     }

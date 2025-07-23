@@ -45,7 +45,7 @@ public class DefinitionLoader
 
         if (string.IsNullOrEmpty(defID)) return;
 
-        XElement? existing = mergeDoc.Root
+        XElement existing = mergeDoc.Root
             .Elements(defType)
             .FirstOrDefault(e => e.Element("defID")?.Value == defID);
 

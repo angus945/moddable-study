@@ -14,4 +14,11 @@
             <range>1.5</range>
         </weaponProps>
     </ThingDef>
+    <CharacterDef>
+        <defID>PlayerCharacter</defID>
+        <label>玩家角色 ModA</label>
+        <description>玩家在遊戲中的角色。</description>
+        <health>100</health>
+        <speed>5</speed>
+    </CharacterDef>
 </Defs>

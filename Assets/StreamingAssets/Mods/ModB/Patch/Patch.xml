@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Patch>
-    <Operation Class="PatchOperationReplace">
+    <Operation Class="PatchOperationReplace">        <!-- Replace the existing ThingDef with the new one from ModB -->
         <xpath>Defs/ThingDef[defID='WoodenSword']/weaponProps/damage</xpath>
         <value>
             <damage>100</damage>
         </value>
     </Operation>
-    <Operation Class="PatchOperationAdd">
+    <Operation Class="PatchOperationAdd">        <!-- Add the mageProp to the existing ThingDef -->
         <xpath>Defs/ThingDef[defID='WoodenSword']/weaponProps</xpath>
         <value>
-            <mergeProp>
+            <mageProp>
                 <damage>100</damage>
                 <type>Magic</type>
                 <range>5.0</range>
-            </mergeProp>
+            </mageProp>
         </value>
     </Operation>
 </Patch>

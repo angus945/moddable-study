@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+    <Operation Class="PatchOperationReplace">
+        <xpath>Defs/ThingDef[defID='WoodenSword']/weaponProps/damage</xpath>
+        <value>
+            <damage>100</damage>
+        </value>
+    </Operation>
+    <Operation Class="PatchOperationAdd">
+        <xpath>Defs/ThingDef[defID='WoodenSword']/weaponProps</xpath>
+        <value>
+            <mergeProp>
+                <damage>100</damage>
+                <type>Magic</type>
+                <range>5.0</range>
+            </mergeProp>
+        </value>
+    </Operation>
+</Patch>

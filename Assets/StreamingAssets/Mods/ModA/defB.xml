@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+    <ThingDef>
+        <defID>WoodenSword</defID>
+        <label>木劍 ModA</label>
+        <description>一把用木頭製作的劍，適合初學者使用。</description>
+        <tags>
+            <tag>Weapon</tag>
+            <tag>Wood</tag>
+        </tags>
+        <weaponProps>
+            <type>Melee</type>
+            <damage>5</damage>
+            <range>1.5</range>
+        </weaponProps>
+    </ThingDef>
+</Defs>

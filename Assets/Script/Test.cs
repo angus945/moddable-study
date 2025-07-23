@@ -6,6 +6,7 @@ using ModdableArchitecture.Utils;
 using System.Collections.Generic;
 using System;
 using Sirenix.OdinInspector;
+using ModdableArchitecture.Definition;
 
 public class Test : MonoBehaviour
 {
@@ -44,7 +45,7 @@ public class Test : MonoBehaviour
         // Save the final result for verification
         string checkFilePath = $"{Application.dataPath}/Check.xml";
         File.WriteAllText(checkFilePath, mergeDoc.PrintAsString());
-        Debug.Log($"Final XML saved to {checkFilePath}");
+        logger.Log($"Final XML saved to {checkFilePath}");
 
         // Deserialize definitions
         DefinitionInstanter deserializer = new DefinitionInstanter(logger);
@@ -52,5 +53,33 @@ public class Test : MonoBehaviour
 
         DefinitionDatabase definitionDatabase = new DefinitionDatabase();
         definitionDatabase.AddDefinition(definitions);
+
+        // Log instantiated definitions for verification
+        LogDefinitions(definitions, logger);
+    }
+
+    void LogDefinitions(Dictionary<Type, List<Definition>> definitions, ModdableArchitecture.Utils.ILogger logger)
+    {
+        logger.Log("--- Instantiated Definitions ---");
+        foreach (var kvp in definitions)
+        {
+            logger.Log($"Type: {kvp.Key.Name} ({kvp.Value.Count} instances)");
+            foreach (var def in kvp.Value)
+            {
+                if (def is ThingDef thingDef)
+                {
+                    logger.Log($"  - defID: {thingDef.defID}, Label: {thingDef.label}, Damage: {thingDef.damage}, Tags: {(thingDef.tags != null ? string.Join(", ", thingDef.tags) : "None")}, Weapon Range: {thingDef.weaponProps?.range}");
+                }
+                else if (def is CharacterDef charDef)
+                {
+                    logger.Log($"  - defID: {charDef.defID}, Label: {charDef.label}, Health: {charDef.health}, Speed: {charDef.speed}");
+                }
+                else
+                {
+                    logger.Log($"  - defID: {def.defID}, Label: {def.label}");
+                }
+            }
+        }
+        logger.Log("--------------------------------");
     }
 }

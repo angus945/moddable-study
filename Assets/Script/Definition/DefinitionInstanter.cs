@@ -1,52 +1,81 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Xml.Linq;
+using ModdableArchitecture.Definition;
+using ModdableArchitecture.Definition.Deserializers;
 using ModdableArchitecture.Utils;
 
 public class DefinitionInstanter
 {
-    readonly Dictionary<string, Type> defTypeMap = new Dictionary<string, Type>
-    {
-        { "CharacterDef", typeof(CharacterDef) },
-        { "ThingDef", typeof(ThingDef) },
-        // Add other definition types here
-    };
+    private readonly ILogger logger;
+    private readonly Dictionary<string, IDefinitionDeserializer> deserializers = new Dictionary<string, IDefinitionDeserializer>();
 
-    ILogger logger;
     public DefinitionInstanter(ILogger logger)
     {
         this.logger = logger;
+        RegisterDeserializers();
     }
+
+    private void RegisterDeserializers()
+    {
+        var deserializerTypes = Assembly.GetExecutingAssembly().GetTypes()
+            .Where(t => typeof(IDefinitionDeserializer).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+
+        foreach (var type in deserializerTypes)
+        {
+            try
+            {
+                IDefinitionDeserializer deserializer = (IDefinitionDeserializer)Activator.CreateInstance(type);
+                if (!deserializers.ContainsKey(deserializer.HandlesNode))
+                {
+                    deserializers.Add(deserializer.HandlesNode, deserializer);
+                    logger.Log($"Registered deserializer: {type.Name} for node <{deserializer.HandlesNode}>");
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Failed to register deserializer {type.Name}: {ex.Message}");
+            }
+        }
+    }
+
     public Dictionary<Type, List<Definition>> InstanceDefinitions(XDocument xmlDocument)
     {
-        Dictionary<Type, List<Definition>> definitions = new Dictionary<Type, List<Definition>>();
-        foreach (var defType in defTypeMap.Values)
-        {
-            definitions[defType] = new List<Definition>();
-        }
+        var definitions = new Dictionary<Type, List<Definition>>();
 
         foreach (XElement element in xmlDocument.Root.Elements())
         {
-            string defTypeName = element.Name.LocalName;
-            if (!defTypeMap.TryGetValue(defTypeName, out Type defType))
+            string nodeName = element.Name.LocalName;
+            if (deserializers.TryGetValue(nodeName, out var deserializer))
             {
-                logger.LogWarning($"Unknown definition type: {defTypeName}");
-                continue;
+                try
+                {
+                    Definition def = deserializer.Deserialize(element);
+                    if (def != null)
+                    {
+                        Type defType = def.GetType();
+                        if (!definitions.ContainsKey(defType))
+                        {
+                            definitions[defType] = new List<Definition>();
+                        }
+                        definitions[defType].Add(def);
+                        logger.Log($"Instantiated definition: {def.defID} of type {defType.Name}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError($"Error deserializing element <{nodeName}> with {deserializer.GetType().Name}: {ex.Message}");
+                }
             }
-
-            Definition definition = (Definition)Activator.CreateInstance(defType);
-            using (var reader = element.CreateReader())
+            else
             {
-                var serializer = new System.Xml.Serialization.XmlSerializer(defType);
-                var deserializedDef = (Definition)serializer.Deserialize(reader);
-                // Example: Add to definitions if it's a ThingDef
-                definitions[defType].Add(deserializedDef);
-                logger.Log($"Deserialized definition: {deserializedDef.defID} of type {defTypeName}");
+                logger.LogWarning($"No deserializer found for node type: <{nodeName}>");
             }
         }
 
         return definitions;
     }
-
 }
 

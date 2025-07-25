@@ -19,8 +19,7 @@ public class ModAssetsDatabase
             assets[key] = asset;
         }
     }
-    public static T GetAsset<T>(string assetId)
-        where T : class
+    public static T GetAsset<T>(string assetId) where T : class
     {
         // Implement logic to retrieve the asset by its ID
         string key = KeyForAsset<T>(assetId);

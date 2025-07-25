@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace ModArchitecture
 {
+    // TODO 有時載入後不會正確寫入 AssetsDatabase，可能是因為 UnityWebRequest 的異步特性
     public class SoundLoader : IAssetLoader
     {
         public string[] HandlesFileExtensions => new[] { ".ogg", ".wav", ".mp3" };
@@ -25,7 +26,7 @@ namespace ModArchitecture
                 {
                     AudioClip clip = UnityEngine.Networking.DownloadHandlerAudioClip.GetContent(request);
                     ModLogger.Log($"Loaded sound: {clip}");
-                    string assetKey = GetRelativePath(folder, file);
+                    string assetKey = ModAssetLoaderUtils.GetRelativePath(folder, file);
                     ModAssetsDatabase.RegisterAsset<AudioClip>(assetKey, clip);
                 }
                 else
@@ -34,10 +35,5 @@ namespace ModArchitecture
                 }
             }
         }
-        private string GetRelativePath(string folderPath, string file)
-        {
-            return file.Substring(folderPath.Length + 1).Replace("\\", "/");
-        }
-
     }
 }

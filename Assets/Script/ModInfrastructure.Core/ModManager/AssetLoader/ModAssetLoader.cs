@@ -36,7 +36,7 @@ namespace ModArchitecture
                 }
             }
         }
-        public void LoadAssets(string[] paths)
+        public void LoadAssets(string modDirectory, string[] paths)
         {
             foreach (var path in paths)
             {
@@ -44,7 +44,7 @@ namespace ModArchitecture
                 string extension = Path.GetExtension(path);
                 if (assetLoaders.TryGetValue(extension, out var loader))
                 {
-                    loader.LoadAsset(Path.GetDirectoryName(path), path);
+                    loader.LoadAsset(modDirectory, path);
                 }
                 else
                 {

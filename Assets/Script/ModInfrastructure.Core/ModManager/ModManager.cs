@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Xml.Linq;
 using ModArchitecture;
 
@@ -85,10 +86,11 @@ public class ModManager
         foreach (var mod in sorter.modOrder)
         {
             ModMetaData modData = modMap[mod];
+            string modDirectory = modData.directory;
 
-            assetsLoader.LoadAssets(modData.textures);
-            assetsLoader.LoadAssets(modData.sounds);
-            assetsLoader.LoadAssets(modData.custom);
+            assetsLoader.LoadAssets(Path.Combine(modDirectory, ModStructure.Textures), modData.textures);
+            assetsLoader.LoadAssets(Path.Combine(modDirectory, ModStructure.Sounds), modData.sounds);
+            assetsLoader.LoadAssets(Path.Combine(modDirectory, ModStructure.Custom), modData.custom);
         }
     }
     public void ModsInitialization()

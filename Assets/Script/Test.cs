@@ -25,11 +25,6 @@ public class Test : MonoBehaviour
     void Awake()
     {
         DefinitionDatabase.Clear();
-
-        Assembly[] loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
-        bool alreadyLoaded = loadedAssemblies.Any(a => a.FullName.Contains("ModA"));
-
-        Debug.Log($"ModA 已被自動載入？：{alreadyLoaded}");
     }
     void Start()
     {
@@ -46,6 +41,7 @@ public class Test : MonoBehaviour
 
         modManager.FindMods();
         modManager.SetModsOrder(modOrder);
+        modManager.LoadModsAssemblies();
         modManager.LoadModsDefinition();
         modManager.ModsInitialization();
 
@@ -61,6 +57,11 @@ public class Test : MonoBehaviour
 
         definitions = DefinitionDatabase.GetDefinitions();
         LogDefinitions(definitions, logger);
+
+        Assembly[] loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+        bool alreadyLoaded = loadedAssemblies.Any(a => a.FullName.Contains("ModA"));
+
+        Debug.Log($"ModA 已被自動載入？：{alreadyLoaded}");
     }
 
     void LogDefinitions(Dictionary<Type, List<Definition>> definitions, ModArchitecture.Utils.ILogger logger)

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
 using ModArchitecture;
@@ -40,6 +41,15 @@ public class ModManager
     {
         sorter.SetModsOrder(order, modMap);
     }
+    public void LoadModsAssemblies()
+    {
+        foreach (var mod in sorter.modOrder)
+        {
+            ModMetaData modData = modMap[mod];
+            initializer.LoadModAssembly(modData.assemblies);
+        }
+        initializer.RegisterInitializer();
+    }
     public void LoadModsDefinition()
     {
         List<string> order = sorter.modOrder;
@@ -69,4 +79,6 @@ public class ModManager
     {
         return definitionDocument;
     }
+
+
 }

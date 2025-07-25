@@ -2,17 +2,29 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using ModArchitecture;
+using UnityEngine;
 
 public class ModInitializer
 {
     private readonly Dictionary<string, IModInitializer> modInitializers = new Dictionary<string, IModInitializer>();
 
-    public ModInitializer()
+    internal void LoadModAssembly(string[] assemblies)
     {
-        RegisterInitializer();
+        foreach (var assemblyPath in assemblies)
+        {
+            try
+            {
+                Assembly.LoadFrom(assemblyPath);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to load assembly from path: {assemblyPath}", ex);
+            }
+        }
     }
-    void RegisterInitializer()
+    public void RegisterInitializer()
     {
         var initializerTypes = AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(assembly => assembly.GetTypes())
@@ -22,6 +34,7 @@ public class ModInitializer
         {
             var initializer = (IModInitializer)Activator.CreateInstance(type);
             modInitializers[type.FullName] = initializer;
+            Debug.Log($"Registered mod initializer: {type.FullName}");
         }
     }
 
@@ -29,7 +42,10 @@ public class ModInitializer
     {
         foreach (var initializer in modInitializers.Values)
         {
+            Debug.Log($"Initializing mod: {initializer.GetType().FullName}");
             initializer.Initialize();
         }
     }
+
+
 }

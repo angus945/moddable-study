@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using ModdableArchitecture.Definition;
+using ModArchitecture.Definition;
 
 public class DefinitionDatabase
 {

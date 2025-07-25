@@ -3,7 +3,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
-using ModdableArchitecture.Utils;
+using ModArchitecture.Utils;
 
 public class ModFinder
 {

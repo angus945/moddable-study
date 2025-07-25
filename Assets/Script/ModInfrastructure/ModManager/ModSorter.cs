@@ -2,28 +2,32 @@
 
 using System.Collections.Generic;
 
-public class ModSorter
+namespace ModArchitecture
 {
-    public List<string> modOrder = new List<string>();
-    public void SetModsOrder(List<string> order, Dictionary<string, ModMetaData> modMap)
+    public class ModSorter
     {
-        modOrder.Clear();
-        HashSet<string> orderSet = new HashSet<string>(order);
-
-        // Add mods in the order specified by 'order'
-        foreach (var modId in order)
+        public List<string> modOrder = new List<string>();
+        public void SetModsOrder(List<string> order, Dictionary<string, ModMetaData> modMap)
         {
-            if (!modMap.ContainsKey(modId)) continue;
+            modOrder.Clear();
+            HashSet<string> orderSet = new HashSet<string>(order);
 
-            modOrder.Add(modId);
-        }
+            // Add mods in the order specified by 'order'
+            foreach (var modId in order)
+            {
+                if (!modMap.ContainsKey(modId)) continue;
 
-        // Add remaining mods that are not in 'order'
-        foreach (var mod in modMap.Values)
-        {
-            if (orderSet.Contains(mod.id)) continue;
+                modOrder.Add(modId);
+            }
 
-            modOrder.Add(mod.id);
+            // Add remaining mods that are not in 'order'
+            foreach (var mod in modMap.Values)
+            {
+                if (orderSet.Contains(mod.id)) continue;
+
+                modOrder.Add(mod.id);
+            }
         }
     }
+
 }

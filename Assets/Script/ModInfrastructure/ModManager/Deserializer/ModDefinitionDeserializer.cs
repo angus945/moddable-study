@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Linq;
-using ModdableArchitecture.Definition;
-using ModdableArchitecture.Definition.Deserializers;
-using ModdableArchitecture.Utils;
+using ModArchitecture.Definition;
+using ModArchitecture.Definition.Deserializers;
+using ModArchitecture.Utils;
 
 public class ModDefinitionDeserializer
 {
@@ -20,7 +20,8 @@ public class ModDefinitionDeserializer
 
     private void RegisterDeserializers()
     {
-        var deserializerTypes = Assembly.GetExecutingAssembly().GetTypes()
+        var deserializerTypes = AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(assembly => assembly.GetTypes())
             .Where(t => typeof(IDefinitionDeserializer).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
 
         foreach (var type in deserializerTypes)

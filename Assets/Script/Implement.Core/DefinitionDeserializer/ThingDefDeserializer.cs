@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
-using ModdableArchitecture.Definition.Deserializers;
+using ModArchitecture.Definition.Deserializers;
 
 public class ThingDefDeserializer : DefinitionDeserializerBase<ThingDef>
 {

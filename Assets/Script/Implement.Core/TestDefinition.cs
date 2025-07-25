@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using ModdableArchitecture.Definition;
+using ModArchitecture.Definition;
 
 [System.Serializable]
 public class CharacterDef : Definition

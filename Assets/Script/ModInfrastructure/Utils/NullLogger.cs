@@ -1,4 +1,4 @@
-namespace ModdableArchitecture.Utils
+namespace ModArchitecture.Utils
 {
     public class NullLogger : ILogger
     {

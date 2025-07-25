@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace ModdableArchitecture.Definition
+namespace ModArchitecture.Definition
 {
     [System.Serializable]
     public abstract class Definition

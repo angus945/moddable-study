@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Linq;
-using ModdableArchitecture.Utils;
+using ModArchitecture.Utils;
 
 
 
-namespace ModdableArchitecture
+namespace ModArchitecture
 {
     public class ModDefinitionPatcher
     {

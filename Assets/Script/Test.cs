@@ -1,12 +1,14 @@
 using System.IO;
 using System.Xml.Linq;
-using UnityEngine;
-using ModdableArchitecture;
-using ModdableArchitecture.Utils;
 using System.Collections.Generic;
 using System;
 using Sirenix.OdinInspector;
-using ModdableArchitecture.Definition;
+using UnityEngine;
+using ModArchitecture;
+using ModArchitecture.Utils;
+using ModArchitecture.Definition;
+using System.Reflection;
+using System.Linq;
 
 public class Test : MonoBehaviour
 {
@@ -23,22 +25,29 @@ public class Test : MonoBehaviour
     void Awake()
     {
         DefinitionDatabase.Clear();
+
+        Assembly[] loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+        bool alreadyLoaded = loadedAssemblies.Any(a => a.FullName.Contains("ModA"));
+
+        Debug.Log($"ModA 已被自動載入？：{alreadyLoaded}");
     }
     void Start()
     {
         //logger and mod manager setup
-        ModdableArchitecture.Utils.ILogger logger = new UnityDebugLogger();
+        ModArchitecture.Utils.ILogger logger = new UnityDebugLogger();
 
         ModFinder modFinder = new ModFinder(logger, $"{Application.streamingAssetsPath}/Mods/");
         ModSorter modSorter = new ModSorter();
         ModDefinitionLoader definitionLoader = new ModDefinitionLoader(logger);
         ModDefinitionPatcher patcher = new ModDefinitionPatcher(logger);
         ModDefinitionDeserializer deserializer = new ModDefinitionDeserializer(logger);
-        ModManager modManager = new ModManager(modFinder, modSorter, definitionLoader, patcher, deserializer);
+        ModInitializer initializer = new ModInitializer();
+        ModManager modManager = new ModManager(modFinder, modSorter, definitionLoader, patcher, deserializer, initializer);
 
         modManager.FindMods();
         modManager.SetModsOrder(modOrder);
         modManager.LoadModsDefinition();
+        modManager.ModsInitialization();
 
         // Inspector display
         modOrder = modSorter.modOrder;
@@ -54,7 +63,7 @@ public class Test : MonoBehaviour
         LogDefinitions(definitions, logger);
     }
 
-    void LogDefinitions(Dictionary<Type, List<Definition>> definitions, ModdableArchitecture.Utils.ILogger logger)
+    void LogDefinitions(Dictionary<Type, List<Definition>> definitions, ModArchitecture.Utils.ILogger logger)
     {
         logger.Log("--- Instantiated Definitions ---");
         foreach (var kvp in definitions)

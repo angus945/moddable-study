@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace ModdableArchitecture.Utils
+namespace ModArchitecture.Utils
 {
     public class UnityDebugLogger : ILogger
     {

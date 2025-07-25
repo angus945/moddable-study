@@ -1,8 +1,9 @@
 using System;
+using System.Linq;
 using System.Xml.Linq;
 using System.Reflection;
 
-namespace ModdableArchitecture
+namespace ModArchitecture
 {
     public class PatchOperationFactory
     {
@@ -14,9 +15,12 @@ namespace ModdableArchitecture
                 throw new ArgumentException("Operation element must have a 'Class' attribute.");
             }
 
-            // Assuming the class is in the same assembly and namespace
-            Type type = Type.GetType("ModdableArchitecture." + className);
-            if (type == null || !typeof(IPatchOperation).IsAssignableFrom(type))
+            // Search for the patch operation class in all loaded assemblies
+            Type type = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(assembly => assembly.GetTypes())
+                .FirstOrDefault(t => t.Name == className && typeof(IPatchOperation).IsAssignableFrom(t));
+
+            if (type == null)
             {
                 throw new ArgumentException($"Could not find a patch operation class named '{className}'.");
             }

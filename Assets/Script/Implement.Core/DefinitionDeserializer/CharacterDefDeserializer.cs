@@ -1,6 +1,6 @@
 using System.Xml.Linq;
-using ModdableArchitecture.Definition;
-using ModdableArchitecture.Definition.Deserializers;
+using ModArchitecture.Definition;
+using ModArchitecture.Definition.Deserializers;
 
 public class CharacterDefDeserializer : DefinitionDeserializerBase<CharacterDef>
 {

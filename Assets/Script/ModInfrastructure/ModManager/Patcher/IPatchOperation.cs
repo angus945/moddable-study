@@ -1,6 +1,6 @@
 using System.Xml.Linq;
 
-namespace ModdableArchitecture
+namespace ModArchitecture
 {
     public interface IPatchOperation
     {

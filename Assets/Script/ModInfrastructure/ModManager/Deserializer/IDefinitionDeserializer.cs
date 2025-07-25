@@ -1,6 +1,6 @@
 using System.Xml.Linq;
 
-namespace ModdableArchitecture.Definition.Deserializers
+namespace ModArchitecture.Definition.Deserializers
 {
     public interface IDefinitionDeserializer
     {

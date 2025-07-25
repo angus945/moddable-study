@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Xml.Linq;
-using ModdableArchitecture;
+using ModArchitecture;
 
 public class ModManager
 {
@@ -11,16 +11,18 @@ public class ModManager
     ModDefinitionLoader definitionLoader;
     ModDefinitionPatcher definitionPatcher;
     ModDefinitionDeserializer deserializer;
+    ModInitializer initializer;
 
     XDocument definitionDocument = new XDocument(new XElement("Defs"));
 
-    public ModManager(ModFinder finder, ModSorter sorter, ModDefinitionLoader definitionLoader, ModDefinitionPatcher patcher, ModDefinitionDeserializer deserializer)
+    public ModManager(ModFinder finder, ModSorter sorter, ModDefinitionLoader definitionLoader, ModDefinitionPatcher patcher, ModDefinitionDeserializer deserializer, ModInitializer initializer)
     {
         this.finder = finder;
         this.sorter = sorter;
         this.definitionLoader = definitionLoader;
         this.definitionPatcher = patcher;
         this.deserializer = deserializer;
+        this.initializer = initializer;
     }
 
     public void FindMods()
@@ -51,6 +53,10 @@ public class ModManager
 
         var definitions = deserializer.InstanceDefinitions(definitionDocument);
         DefinitionDatabase.SetDefinitions(definitions);
+    }
+    public void ModsInitialization()
+    {
+        initializer.InitializeMods(); // TODO: 這裡應該要有個順序，依照 mod 的依賴關係來初始化
     }
 
 

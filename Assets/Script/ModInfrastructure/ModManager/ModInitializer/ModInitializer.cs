@@ -12,20 +12,7 @@ namespace ModArchitecture
     {
         readonly Dictionary<string, IModInitializer> modInitializers = new Dictionary<string, IModInitializer>();
 
-        public void LoadModAssembly(string[] assemblies)
-        {
-            foreach (var assemblyPath in assemblies)
-            {
-                try
-                {
-                    Assembly.LoadFrom(assemblyPath);
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception($"Failed to load assembly from path: {assemblyPath}", ex);
-                }
-            }
-        }
+
         public void RegisterInitializer()
         {
             var initializerTypes = AppDomain.CurrentDomain.GetAssemblies()

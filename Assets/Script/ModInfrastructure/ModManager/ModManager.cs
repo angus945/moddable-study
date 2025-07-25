@@ -9,6 +9,7 @@ public class ModManager
 
     ModFinder finder;
     ModSorter sorter;
+    ModAssemblyLoader assemblyLoader;
     ModDefinitionLoader definitionLoader;
     ModDefinitionPatcher definitionPatcher;
     ModDefinitionDeserializer deserializer;
@@ -16,10 +17,11 @@ public class ModManager
 
     XDocument definitionDocument = new XDocument(new XElement("Defs"));
 
-    public ModManager(ModFinder finder, ModSorter sorter, ModDefinitionLoader definitionLoader, ModDefinitionPatcher patcher, ModDefinitionDeserializer deserializer, ModInitializer initializer)
+    public ModManager(ModFinder finder, ModSorter sorter, ModAssemblyLoader assemblyLoader, ModDefinitionLoader definitionLoader, ModDefinitionPatcher patcher, ModDefinitionDeserializer deserializer, ModInitializer initializer)
     {
         this.finder = finder;
         this.sorter = sorter;
+        this.assemblyLoader = assemblyLoader;
         this.definitionLoader = definitionLoader;
         this.definitionPatcher = patcher;
         this.deserializer = deserializer;
@@ -46,9 +48,8 @@ public class ModManager
         foreach (var mod in sorter.modOrder)
         {
             ModMetaData modData = modMap[mod];
-            initializer.LoadModAssembly(modData.assemblies);
+            assemblyLoader.LoadModAssembly(modData.assemblies);
         }
-        initializer.RegisterInitializer();
     }
     public void LoadModsDefinition()
     {
@@ -68,6 +69,7 @@ public class ModManager
     }
     public void ModsInitialization()
     {
+        initializer.RegisterInitializer();
         initializer.InitializeMods(); // TODO: 這裡應該要有個順序，依照 mod 的依賴關係來初始化
     }
 

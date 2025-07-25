@@ -34,11 +34,12 @@ public class Test : MonoBehaviour
 
         ModFinder modFinder = new ModFinder($"{Application.streamingAssetsPath}/Mods/");
         ModSorter modSorter = new ModSorter();
+        ModAssemblyLoader assemblyLoader = new ModAssemblyLoader();
         ModDefinitionLoader definitionLoader = new ModDefinitionLoader();
         ModDefinitionPatcher patcher = new ModDefinitionPatcher();
         ModDefinitionDeserializer deserializer = new ModDefinitionDeserializer();
         ModInitializer initializer = new ModInitializer();
-        ModManager modManager = new ModManager(modFinder, modSorter, definitionLoader, patcher, deserializer, initializer);
+        ModManager modManager = new ModManager(modFinder, modSorter, assemblyLoader, definitionLoader, patcher, deserializer, initializer);
 
         modManager.FindMods();
         modManager.SetModsOrder(modOrder);

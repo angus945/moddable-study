@@ -5,10 +5,10 @@ using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using ModArchitecture;
-using ModArchitecture.Utils;
 using ModArchitecture.Definition;
 using System.Reflection;
 using System.Linq;
+using ModArchitecture.Logger;
 
 public class Test : MonoBehaviour
 {
@@ -25,17 +25,18 @@ public class Test : MonoBehaviour
     void Awake()
     {
         DefinitionDatabase.Clear();
+
+        ModLogger logger = new ModLogger(new UnityDebugLogger());
     }
     void Start()
     {
         //logger and mod manager setup
-        ModArchitecture.Utils.ILogger logger = new UnityDebugLogger();
 
-        ModFinder modFinder = new ModFinder(logger, $"{Application.streamingAssetsPath}/Mods/");
+        ModFinder modFinder = new ModFinder($"{Application.streamingAssetsPath}/Mods/");
         ModSorter modSorter = new ModSorter();
-        ModDefinitionLoader definitionLoader = new ModDefinitionLoader(logger);
-        ModDefinitionPatcher patcher = new ModDefinitionPatcher(logger);
-        ModDefinitionDeserializer deserializer = new ModDefinitionDeserializer(logger);
+        ModDefinitionLoader definitionLoader = new ModDefinitionLoader();
+        ModDefinitionPatcher patcher = new ModDefinitionPatcher();
+        ModDefinitionDeserializer deserializer = new ModDefinitionDeserializer();
         ModInitializer initializer = new ModInitializer();
         ModManager modManager = new ModManager(modFinder, modSorter, definitionLoader, patcher, deserializer, initializer);
 
@@ -56,7 +57,7 @@ public class Test : MonoBehaviour
 
 
         definitions = DefinitionDatabase.GetDefinitions();
-        LogDefinitions(definitions, logger);
+        LogDefinitions(definitions);
 
         Assembly[] loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
         bool alreadyLoaded = loadedAssemblies.Any(a => a.FullName.Contains("ModA"));
@@ -64,28 +65,28 @@ public class Test : MonoBehaviour
         Debug.Log($"ModA 已被自動載入？：{alreadyLoaded}");
     }
 
-    void LogDefinitions(Dictionary<Type, List<Definition>> definitions, ModArchitecture.Utils.ILogger logger)
+    void LogDefinitions(Dictionary<Type, List<Definition>> definitions)
     {
-        logger.Log("--- Instantiated Definitions ---");
+        ModLogger.Log("--- Instantiated Definitions ---");
         foreach (var kvp in definitions)
         {
-            logger.Log($"Type: {kvp.Key.Name} ({kvp.Value.Count} instances)");
+            ModLogger.Log($"Type: {kvp.Key.Name} ({kvp.Value.Count} instances)");
             foreach (var def in kvp.Value)
             {
                 if (def is ThingDef thingDef)
                 {
-                    logger.Log($"  - defID: {thingDef.defID}, Label: {thingDef.label}, Damage: {thingDef.damage}, Tags: {(thingDef.tags != null ? string.Join(", ", thingDef.tags) : "None")}, Weapon Range: {thingDef.weaponProps?.range}");
+                    ModLogger.Log($"  - defID: {thingDef.defID}, Label: {thingDef.label}, Damage: {thingDef.damage}, Tags: {(thingDef.tags != null ? string.Join(", ", thingDef.tags) : "None")}, Weapon Range: {thingDef.weaponProps?.range}");
                 }
                 else if (def is CharacterDef charDef)
                 {
-                    logger.Log($"  - defID: {charDef.defID}, Label: {charDef.label}, Health: {charDef.health}, Speed: {charDef.speed}");
+                    ModLogger.Log($"  - defID: {charDef.defID}, Label: {charDef.label}, Health: {charDef.health}, Speed: {charDef.speed}");
                 }
                 else
                 {
-                    logger.Log($"  - defID: {def.defID}, Label: {def.label}");
+                    ModLogger.Log($"  - defID: {def.defID}, Label: {def.label}");
                 }
             }
         }
-        logger.Log("--------------------------------");
+        ModLogger.Log("--------------------------------");
     }
 }

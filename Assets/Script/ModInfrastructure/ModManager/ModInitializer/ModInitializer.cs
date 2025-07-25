@@ -3,49 +3,52 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using ModArchitecture;
-using UnityEngine;
+using ModArchitecture.Logger;
 
-public class ModInitializer
+namespace ModArchitecture
 {
-    private readonly Dictionary<string, IModInitializer> modInitializers = new Dictionary<string, IModInitializer>();
 
-    internal void LoadModAssembly(string[] assemblies)
+    public class ModInitializer
     {
-        foreach (var assemblyPath in assemblies)
+        readonly Dictionary<string, IModInitializer> modInitializers = new Dictionary<string, IModInitializer>();
+
+        public void LoadModAssembly(string[] assemblies)
         {
-            try
+            foreach (var assemblyPath in assemblies)
             {
-                Assembly.LoadFrom(assemblyPath);
+                try
+                {
+                    Assembly.LoadFrom(assemblyPath);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Failed to load assembly from path: {assemblyPath}", ex);
+                }
             }
-            catch (Exception ex)
+        }
+        public void RegisterInitializer()
+        {
+            var initializerTypes = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(assembly => assembly.GetTypes())
+                .Where(type => typeof(IModInitializer).IsAssignableFrom(type) && !type.IsInterface && !type.IsAbstract);
+
+            foreach (var type in initializerTypes)
             {
-                throw new Exception($"Failed to load assembly from path: {assemblyPath}", ex);
+                var initializer = (IModInitializer)Activator.CreateInstance(type);
+                modInitializers[type.FullName] = initializer;
+                ModLogger.Log($"Registered mod initializer: {type.FullName}");
             }
         }
-    }
-    public void RegisterInitializer()
-    {
-        var initializerTypes = AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(assembly => assembly.GetTypes())
-            .Where(type => typeof(IModInitializer).IsAssignableFrom(type) && !type.IsInterface && !type.IsAbstract);
 
-        foreach (var type in initializerTypes)
+        public void InitializeMods()
         {
-            var initializer = (IModInitializer)Activator.CreateInstance(type);
-            modInitializers[type.FullName] = initializer;
-            Debug.Log($"Registered mod initializer: {type.FullName}");
+            foreach (var initializer in modInitializers.Values)
+            {
+                ModLogger.Log($"Initializing mod: {initializer.GetType().FullName}");
+                initializer.Initialize();
+            }
         }
+
+
     }
-
-    public void InitializeMods()
-    {
-        foreach (var initializer in modInitializers.Values)
-        {
-            Debug.Log($"Initializing mod: {initializer.GetType().FullName}");
-            initializer.Initialize();
-        }
-    }
-
-
 }

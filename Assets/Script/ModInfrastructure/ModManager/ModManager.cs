@@ -61,6 +61,8 @@ public class ModManager
             // TODO 應該要每個 mod 做完自己的 patch? 還是先合併完最後再一次 patch?
         }
 
+        deserializer.RegisterDeserializers();
+
         var definitions = deserializer.InstanceDefinitions(definitionDocument);
         DefinitionDatabase.SetDefinitions(definitions);
     }

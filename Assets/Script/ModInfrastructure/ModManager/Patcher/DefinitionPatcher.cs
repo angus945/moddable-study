@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Linq;
-using ModArchitecture.Utils;
+using ModArchitecture.Logger;
 
 
 
@@ -9,14 +9,10 @@ namespace ModArchitecture
 {
     public class ModDefinitionPatcher
     {
-        ILogger logger;
 
         private readonly PatchOperationFactory factory = new PatchOperationFactory();
 
-        public ModDefinitionPatcher(ILogger logger)
-        {
-            this.logger = logger;
-        }
+
         public void ApplyPatches(string[] patchPaths, XDocument xmlDocument)
         {
             foreach (string patchPath in patchPaths)
@@ -36,7 +32,7 @@ namespace ModArchitecture
                 }
                 catch (System.Exception ex)
                 {
-                    logger.LogError($"Failed to create patch operation from {filePath}: {ex.Message}");
+                    ModLogger.LogError($"Failed to create patch operation from {filePath}: {ex.Message}");
                 }
             }
         }

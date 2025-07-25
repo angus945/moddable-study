@@ -20,11 +20,11 @@ public class ModManager
     ModDefinitionPatcher definitionPatcher;
     ModDefinitionDeserializer deserializer;
     ModAssetsLoader assetsLoader;
-    ModInitializer initializer;
+    ModInstancer initializer;
 
     ModLoadingRecord loadingRecord = new ModLoadingRecord();
 
-    public ModManager(ModFinder finder, ModSorter sorter, ModAssemblyLoader assemblyLoader, ModDefinitionLoader definitionLoader, ModDefinitionPatcher patcher, ModDefinitionDeserializer deserializer, ModAssetsLoader assetsLoader, ModInitializer initializer)
+    public ModManager(ModFinder finder, ModSorter sorter, ModAssemblyLoader assemblyLoader, ModDefinitionLoader definitionLoader, ModDefinitionPatcher patcher, ModDefinitionDeserializer deserializer, ModAssetsLoader assetsLoader, ModInstancer initializer)
     {
         this.finder = finder;
         this.sorter = sorter;
@@ -36,6 +36,7 @@ public class ModManager
         this.initializer = initializer;
     }
 
+    // Initialization methods
     public void FindMods()
     {
         ModMetaData[] mods = finder.FindMods();
@@ -95,10 +96,21 @@ public class ModManager
     }
     public void ModsInitialization()
     {
-        initializer.RegisterInitializer();
+        initializer.InstanceMod();
         initializer.InitializeMods(); // TODO: 這裡應該要有個順序，依照 mod 的依賴關係來初始化
     }
 
+    public void GameStart()
+    {
+        initializer.StartGame(); // TODO: 這裡應該要有個順序，依照 mod 的依賴關係來開始遊戲
+    }
+
+    //
+    public void UnloadMods()
+    {
+        // assemblyLoader.UnloadAssembly();
+
+    }
 
     //
     public Dictionary<string, ModMetaData> GetModsMap()

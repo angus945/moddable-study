@@ -26,12 +26,18 @@ public class Test : MonoBehaviour
     [DictionaryDrawerSettings(KeyLabel = "ID")]
     Dictionary<string, object> assets = new Dictionary<string, object>();
 
+    ModManager modManager;
+
     void Awake()
     {
         DefinitionDatabase.Clear();
         ModAssetsDatabase.Clear();
 
         ModLogger logger = new ModLogger(new UnityDebugLogger());
+
+        // TODO: mod manager 載入的 assemblies 不會被釋放
+        // TODO: mod a initial 的 14 15 一直有問題
+        //
     }
     void Start()
     {
@@ -43,9 +49,9 @@ public class Test : MonoBehaviour
         ModDefinitionLoader definitionLoader = new ModDefinitionLoader();
         ModDefinitionPatcher patcher = new ModDefinitionPatcher();
         ModDefinitionDeserializer deserializer = new ModDefinitionDeserializer();
-        ModInitializer initializer = new ModInitializer();
+        ModInstancer initializer = new ModInstancer();
         ModAssetsLoader assetsLoader = new ModAssetsLoader();
-        ModManager modManager = new ModManager(modFinder, modSorter, assemblyLoader, definitionLoader, patcher, deserializer, assetsLoader, initializer);
+        modManager = new ModManager(modFinder, modSorter, assemblyLoader, definitionLoader, patcher, deserializer, assetsLoader, initializer);
 
         modManager.FindMods();
         modManager.SetModsOrder(modOrder);
@@ -54,7 +60,11 @@ public class Test : MonoBehaviour
         modManager.LoadModsAssets();
         modManager.ModsInitialization();
 
+        ModLogger.Log($"============= Game Start =============");
+        modManager.GameStart();
+
         // Inspector display
+        ModLogger.Log($"============= Debug Print in Test.cs =============");
         modOrder = modSorter.modOrder;
         modMap = modManager.GetModsMap();
 
@@ -73,6 +83,11 @@ public class Test : MonoBehaviour
         bool alreadyLoaded = loadedAssemblies.Any(a => a.FullName.Contains("ModA"));
 
         Debug.Log($"ModA 已被自動載入？：{alreadyLoaded}");
+    }
+    void OnDestroy()
+    {
+        modManager.UnloadMods();
+        ModLogger.Log($"============= Game End =============");
     }
 
     void LogDefinitions(Dictionary<Type, List<Definition>> definitions)

@@ -20,6 +20,10 @@ public class ThingDef : Definition
 
     public WeaponProperties weaponProps;
 
+    public override string ToString()
+    {
+        return $"ThingDef: {defID}, Damage: {damage}, Stack: {stack}, Tags: {string.Join(", ", tags)}, WeaponProps: {weaponProps?.type ?? "None"}";
+    }
 }
 
 [System.Serializable]

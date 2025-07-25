@@ -7,34 +7,39 @@ using ModArchitecture.Utils;
 namespace ModArchitecture
 {
 
-    public class ModInitializer
+    public class ModInstancer
     {
-        readonly Dictionary<string, IModInitializer> modInitializers = new Dictionary<string, IModInitializer>();
+        readonly Dictionary<string, IModInstance> modInstances = new Dictionary<string, IModInstance>();
 
 
-        public void RegisterInitializer()
+        public void InstanceMod()
         {
-            var initializerTypes = ReflectionUtils.GetTypesAssignableFrom<IModInitializer>();
+            var instanceTypes = ReflectionUtils.GetTypesAssignableFrom<IModInstance>();
 
-            foreach (var type in initializerTypes)
+            foreach (var type in instanceTypes)
             {
-                var initializer = ReflectionUtils.SafeCreateInstance<IModInitializer>(type);
-                if (initializer != null)
+                var instance = ReflectionUtils.SafeCreateInstance<IModInstance>(type);
+                if (instance != null)
                 {
-                    modInitializers[type.FullName] = initializer;
-                    ModLogger.Log($"Registered mod initializer: {type.FullName}");
+                    modInstances[type.FullName] = instance;
+                    ModLogger.Log($"Registered mod instance: {type.FullName}");
                 }
             }
         }
         public void InitializeMods()
         {
-            foreach (var initializer in modInitializers.Values)
+            foreach (var instance in modInstances.Values)
             {
-                ModLogger.Log($"Initializing mod: {initializer.GetType().FullName}");
-                initializer.Initialize();
+                ModLogger.Log($"Initializing mod: {instance.GetType().FullName}");
+                instance.Initialize();
             }
         }
-
-
+        internal void StartGame()
+        {
+            foreach (var instance in modInstances.Values)
+            {
+                instance.OnGameStart();
+            }
+        }
     }
 }

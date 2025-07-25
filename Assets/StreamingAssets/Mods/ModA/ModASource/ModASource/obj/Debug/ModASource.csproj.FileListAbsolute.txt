@@ -1,0 +1,6 @@
+P:\MainProjects\moddable-architecture-study\Assets\StreamingAssets\Mods\ModA\Assemblies\ModASource.dll
+P:\MainProjects\moddable-architecture-study\Assets\StreamingAssets\Mods\ModA\Assemblies\ModASource.pdb
+P:\MainProjects\moddable-architecture-study\Assets\StreamingAssets\Mods\ModA\ModASource\ModASource\obj\Debug\ModASource.csproj.AssemblyReference.cache
+P:\MainProjects\moddable-architecture-study\Assets\StreamingAssets\Mods\ModA\ModASource\ModASource\obj\Debug\ModASource.csproj.CoreCompileInputs.cache
+P:\MainProjects\moddable-architecture-study\Assets\StreamingAssets\Mods\ModA\ModASource\ModASource\obj\Debug\ModASource.dll
+P:\MainProjects\moddable-architecture-study\Assets\StreamingAssets\Mods\ModA\ModASource\ModASource\obj\Debug\ModASource.pdb

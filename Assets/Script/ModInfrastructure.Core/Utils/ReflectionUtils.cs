@@ -194,7 +194,7 @@ namespace ModArchitecture.Utils
             // 如果是 Mod 相關組件，不跳過
             if (keepPrefixes.Any(prefix => assemblySimpleName.StartsWith(prefix)))
             {
-                ModLogger.Log($"Keeping mod-related assembly: {assemblySimpleName}");
+                // ModLogger.Log($"Keeping mod-related assembly: {assemblySimpleName}");
                 return false;
             }
 

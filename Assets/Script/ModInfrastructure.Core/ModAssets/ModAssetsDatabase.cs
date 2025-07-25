@@ -14,10 +14,12 @@ public class ModAssetsDatabase
     {
         // Implement logic to register the asset with its ID
         string key = KeyForAsset<T>(assetId);
-        if (!assets.ContainsKey(key))
+        if (assets.ContainsKey(key))
         {
-            assets[key] = asset;
+            ModLogger.Log($"Asset override: {key} already exists, replacing with new asset.");
         }
+
+        assets[key] = asset;
     }
     public static T GetAsset<T>(string assetId) where T : class
     {

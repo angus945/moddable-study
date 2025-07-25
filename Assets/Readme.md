@@ -15,6 +15,8 @@ Mods/
      └─ Languages/           ← 語言翻譯檔（可選
 ```
 
+## Assemblies
+
 ## 未完成項目
 
 ### 第一章
@@ -25,3 +27,6 @@ Mods/
 ### 第二章
 
 - [ ] 兼容 Lua 方案
+- [ ] async Load 的方案
+- [ ] lazy load 的方案
+- [ ] addressable 的方案

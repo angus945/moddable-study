@@ -21,6 +21,21 @@ public class DefinitionDatabase
             thingDefs[kvp.Key].AddRange(kvp.Value);
         }
     }
+    public static T GetDefinition<T>(string defID) where T : Definition
+    {
+        if (thingDefs.TryGetValue(typeof(T), out var definitions))
+        {
+            foreach (var def in definitions)
+            {
+                if (def.defID == defID)
+                {
+                    return def as T;
+                }
+            }
+        }
+        return null;
+    }
+
     public static Dictionary<Type, List<Definition>> GetDefinitions()
     {
         return new Dictionary<Type, List<Definition>>(thingDefs);

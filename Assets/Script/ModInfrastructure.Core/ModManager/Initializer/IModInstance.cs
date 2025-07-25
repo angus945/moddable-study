@@ -5,8 +5,10 @@ namespace ModArchitecture
     /// <summary>
     /// Interface for mod initializers.
     /// </summary>
-    public interface IModInitializer
+    public interface IModInstance
     {
         void Initialize();
+        void OnGameStart();
+        void OnGameEnd();
     }
 }

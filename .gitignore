@@ -52,6 +52,10 @@ ExportedObj/
 *.pdb.meta
 *.mdb.meta
 
+# 忽略 StreamingAssets 資料夾底下的所有 .meta 檔案
+/Assets/StreamingAssets/*.meta
+/Assets/StreamingAssets/**/*.meta
+
 # Unity3D generated file on crash reports
 sysinfo.txt
 

@@ -7,12 +7,12 @@ using ModdableArchitecture.Definition;
 using ModdableArchitecture.Definition.Deserializers;
 using ModdableArchitecture.Utils;
 
-public class DefinitionInstanter
+public class ModDefinitionDeserializer
 {
     private readonly ILogger logger;
     private readonly Dictionary<string, IDefinitionDeserializer> deserializers = new Dictionary<string, IDefinitionDeserializer>();
 
-    public DefinitionInstanter(ILogger logger)
+    public ModDefinitionDeserializer(ILogger logger)
     {
         this.logger = logger;
         RegisterDeserializers();

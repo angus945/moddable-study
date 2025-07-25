@@ -7,9 +7,10 @@ Mods/
      │   ├─ About.xml        ← 模組描述與定義檔案
      │   └─ Preview.png      ← 模組預覽圖片
      ├─ Assemblies/          ← 編譯後的 DLL 程式碼
+     ├─ Custom/              ← 自定義的資源（可選）
      ├─ Defs/                ← 定義(Def)檔案（XML 等）
-     ├─ Textures/            ← 圖片資源
      ├─ Sounds/              ← 聲音資源
+     ├─ Textures/            ← 圖片資源
      ├─ Patches/             ← Def 修改檔(XML Patch，可選)
      └─ Languages/           ← 語言翻譯檔（可選
 ```

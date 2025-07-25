@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Xml.Linq;
+
 [System.Serializable]
 public class ModMetaData
 {
@@ -6,7 +11,13 @@ public class ModMetaData
     public string description;
     public string author;
 
-    public string folderPath;
+    public string directory;
+    public string[] assemblies;
+    public string[] custom;
+    public string[] definitions;
+    public string[] sounds;
+    public string[] textures;
+    public string[] patches;
 
     public override string ToString()
     {
@@ -15,7 +26,7 @@ public class ModMetaData
         infoString += $"Name: {name}\n";
         infoString += $"Description: {description}\n";
         infoString += $"Author: {author}\n";
-        infoString += $"Folder Path: {folderPath}\n";
+        infoString += $"Folder Path: {directory}\n";
         return infoString;
     }
 }

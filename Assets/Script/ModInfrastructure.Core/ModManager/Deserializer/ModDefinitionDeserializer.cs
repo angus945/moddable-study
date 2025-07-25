@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Xml.Linq;
 using ModArchitecture.Definition;
 using ModArchitecture.Definition.Deserializers;
 using ModArchitecture.Logger;
+using ModArchitecture.Utils;
 
 namespace ModArchitecture
 {
@@ -20,28 +19,18 @@ namespace ModArchitecture
 
         public void RegisterDeserializers()
         {
-            var deserializerTypes = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(assembly => assembly.GetTypes())
-                .Where(t => typeof(IDefinitionDeserializer).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+            var deserializerTypes = ReflectionUtils.GetTypesAssignableFrom<IDefinitionDeserializer>();
 
             foreach (var type in deserializerTypes)
             {
-                try
+                var deserializer = ReflectionUtils.SafeCreateInstance<IDefinitionDeserializer>(type);
+                if (deserializer != null && !deserializers.ContainsKey(deserializer.HandlesNode))
                 {
-                    IDefinitionDeserializer deserializer = (IDefinitionDeserializer)Activator.CreateInstance(type);
-                    if (!deserializers.ContainsKey(deserializer.HandlesNode))
-                    {
-                        deserializers.Add(deserializer.HandlesNode, deserializer);
-                        ModLogger.Log($"Registered deserializer: {type.Name} for node <{deserializer.HandlesNode}>");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    ModLogger.LogError($"Failed to register deserializer {type.Name}: {ex.Message}");
+                    deserializers.Add(deserializer.HandlesNode, deserializer);
+                    ModLogger.Log($"Registered deserializer: {type.Name} for node <{deserializer.HandlesNode}>");
                 }
             }
         }
-
         public Dictionary<Type, List<Definition.Definition>> InstanceDefinitions(XDocument xmlDocument)
         {
             var definitions = new Dictionary<Type, List<Definition.Definition>>();

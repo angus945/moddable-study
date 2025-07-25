@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using System.Xml.Linq;
 using ModArchitecture;
 
+public class ModLoadingRecord
+{
+    public XDocument definitionDoc;
+}
+
 public class ModManager
 {
     Dictionary<string, ModMetaData> modMap = new Dictionary<string, ModMetaData>();
@@ -13,11 +18,12 @@ public class ModManager
     ModDefinitionLoader definitionLoader;
     ModDefinitionPatcher definitionPatcher;
     ModDefinitionDeserializer deserializer;
+    ModAssetsLoader assetsLoader;
     ModInitializer initializer;
 
-    XDocument definitionDocument = new XDocument(new XElement("Defs"));
+    ModLoadingRecord loadingRecord = new ModLoadingRecord();
 
-    public ModManager(ModFinder finder, ModSorter sorter, ModAssemblyLoader assemblyLoader, ModDefinitionLoader definitionLoader, ModDefinitionPatcher patcher, ModDefinitionDeserializer deserializer, ModInitializer initializer)
+    public ModManager(ModFinder finder, ModSorter sorter, ModAssemblyLoader assemblyLoader, ModDefinitionLoader definitionLoader, ModDefinitionPatcher patcher, ModDefinitionDeserializer deserializer, ModAssetsLoader assetsLoader, ModInitializer initializer)
     {
         this.finder = finder;
         this.sorter = sorter;
@@ -25,6 +31,7 @@ public class ModManager
         this.definitionLoader = definitionLoader;
         this.definitionPatcher = patcher;
         this.deserializer = deserializer;
+        this.assetsLoader = assetsLoader;
         this.initializer = initializer;
     }
 
@@ -53,6 +60,8 @@ public class ModManager
     }
     public void LoadModsDefinition()
     {
+        XDocument definitionDocument = new XDocument(new XElement("Defs"));
+
         List<string> order = sorter.modOrder;
         foreach (var mod in order)
         {
@@ -66,6 +75,21 @@ public class ModManager
 
         var definitions = deserializer.InstanceDefinitions(definitionDocument);
         DefinitionDatabase.SetDefinitions(definitions);
+
+        loadingRecord.definitionDoc = definitionDocument;
+    }
+    public void LoadModsAssets()
+    {
+        assetsLoader.RegisterDeserializers();
+
+        foreach (var mod in sorter.modOrder)
+        {
+            ModMetaData modData = modMap[mod];
+
+            assetsLoader.LoadAssets(modData.textures);
+            assetsLoader.LoadAssets(modData.sounds);
+            assetsLoader.LoadAssets(modData.custom);
+        }
     }
     public void ModsInitialization()
     {
@@ -81,7 +105,7 @@ public class ModManager
     }
     public XDocument GetDefinitionDocument()
     {
-        return definitionDocument;
+        return loadingRecord.definitionDoc;
     }
 
 

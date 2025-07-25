@@ -1,7 +1,9 @@
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Xml.Linq;
 using System.Reflection;
+using ModArchitecture.Logger;
+using ModArchitecture.Utils;
 
 namespace ModArchitecture
 {
@@ -16,9 +18,7 @@ namespace ModArchitecture
             }
 
             // Search for the patch operation class in all loaded assemblies
-            Type type = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(assembly => assembly.GetTypes())
-                .FirstOrDefault(t => t.Name == className && typeof(IPatchOperation).IsAssignableFrom(t));
+            Type type = ReflectionUtils.FindTypeByName(className, typeof(IPatchOperation));
 
             if (type == null)
             {

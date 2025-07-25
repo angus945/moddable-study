@@ -22,9 +22,14 @@ public class Test : MonoBehaviour
     [DictionaryDrawerSettings(KeyLabel = "ID")]
     Dictionary<string, ModMetaData> modMap = new Dictionary<string, ModMetaData>();
 
+    [ShowInInspector]
+    [DictionaryDrawerSettings(KeyLabel = "ID")]
+    Dictionary<string, object> assets = new Dictionary<string, object>();
+
     void Awake()
     {
         DefinitionDatabase.Clear();
+        ModAssetsDatabase.Clear();
 
         ModLogger logger = new ModLogger(new UnityDebugLogger());
     }
@@ -39,12 +44,14 @@ public class Test : MonoBehaviour
         ModDefinitionPatcher patcher = new ModDefinitionPatcher();
         ModDefinitionDeserializer deserializer = new ModDefinitionDeserializer();
         ModInitializer initializer = new ModInitializer();
-        ModManager modManager = new ModManager(modFinder, modSorter, assemblyLoader, definitionLoader, patcher, deserializer, initializer);
+        ModAssetsLoader assetsLoader = new ModAssetsLoader();
+        ModManager modManager = new ModManager(modFinder, modSorter, assemblyLoader, definitionLoader, patcher, deserializer, assetsLoader, initializer);
 
         modManager.FindMods();
         modManager.SetModsOrder(modOrder);
         modManager.LoadModsAssemblies();
         modManager.LoadModsDefinition();
+        modManager.LoadModsAssets();
         modManager.ModsInitialization();
 
         // Inspector display
@@ -59,6 +66,8 @@ public class Test : MonoBehaviour
 
         definitions = DefinitionDatabase.GetDefinitions();
         LogDefinitions(definitions);
+
+        assets = ModAssetsDatabase.GetAssets();
 
         Assembly[] loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
         bool alreadyLoaded = loadedAssemblies.Any(a => a.FullName.Contains("ModA"));

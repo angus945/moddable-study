@@ -1,9 +1,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using ModArchitecture.Logger;
+using ModArchitecture.Utils;
 
 namespace ModArchitecture
 {
@@ -15,18 +14,18 @@ namespace ModArchitecture
 
         public void RegisterInitializer()
         {
-            var initializerTypes = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(assembly => assembly.GetTypes())
-                .Where(type => typeof(IModInitializer).IsAssignableFrom(type) && !type.IsInterface && !type.IsAbstract);
+            var initializerTypes = ReflectionUtils.GetTypesAssignableFrom<IModInitializer>();
 
             foreach (var type in initializerTypes)
             {
-                var initializer = (IModInitializer)Activator.CreateInstance(type);
-                modInitializers[type.FullName] = initializer;
-                ModLogger.Log($"Registered mod initializer: {type.FullName}");
+                var initializer = ReflectionUtils.SafeCreateInstance<IModInitializer>(type);
+                if (initializer != null)
+                {
+                    modInitializers[type.FullName] = initializer;
+                    ModLogger.Log($"Registered mod initializer: {type.FullName}");
+                }
             }
         }
-
         public void InitializeMods()
         {
             foreach (var initializer in modInitializers.Values)

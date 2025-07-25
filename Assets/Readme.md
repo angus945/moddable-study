@@ -21,3 +21,7 @@ Mods/
 
 - [ ] Definition 的依賴
 - [ ] Definition 的繼承
+
+### 第二章
+
+- [ ] 兼容 Lua 方案

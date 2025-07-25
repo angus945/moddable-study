@@ -98,8 +98,8 @@ namespace ModArchitecture
             mod.assemblies = GetAssetsPaths(Path.Combine(mod.directory, ModStructure.Assemblies), "*.dll");
             mod.custom = GetAssetsPaths(Path.Combine(mod.directory, ModStructure.Custom), "*.*");
             mod.definitions = GetAssetsPaths(Path.Combine(mod.directory, ModStructure.Defs), "*.xml");
-            mod.textures = GetAssetsPaths(Path.Combine(mod.directory, ModStructure.Textures), "*.png");
-            mod.sounds = GetAssetsPaths(Path.Combine(mod.directory, ModStructure.Sounds), "*.mp3");
+            mod.textures = GetAssetsPaths(Path.Combine(mod.directory, ModStructure.Textures), "*.*");
+            mod.sounds = GetAssetsPaths(Path.Combine(mod.directory, ModStructure.Sounds), "*.*");
             mod.patches = GetAssetsPaths(Path.Combine(mod.directory, ModStructure.Patches), "*.xml");
 
             string[] GetAssetsPaths(string directoryPath, string searchPattern)

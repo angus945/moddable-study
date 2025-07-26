@@ -11,7 +11,7 @@ using System.Linq;
 using ModArchitecture.Logger;
 using ModArchitecture.Utils;
 
-public class Test : MonoBehaviour
+public class TestModInfrastructure : MonoBehaviour
 {
     public string[] modOrder = new string[0];
 

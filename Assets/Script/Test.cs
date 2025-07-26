@@ -82,6 +82,8 @@ public class Test : MonoBehaviour
     }
     void OnDestroy()
     {
+        if (modManager == null) return;
+
         modManager.UnloadMods();
         ModLogger.Log($"============= Game End =============");
     }

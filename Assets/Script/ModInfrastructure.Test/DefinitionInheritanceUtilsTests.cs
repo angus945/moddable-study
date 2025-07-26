@@ -4,6 +4,7 @@ using System.Linq;
 using NUnit.Framework;
 using ModArchitecture.Utils;
 using Angus;
+using Test.Tools;
 
 namespace ModInfrastructure.Test
 {
@@ -17,14 +18,14 @@ namespace ModInfrastructure.Test
         public void OneTimeSetUp()
         {
             // 確保自動捕獲系統已清除之前的結果
-            AutoTestCapture.ClearCapturedResults();
+            UnityTestResultCapture.ClearCapturedResults();
         }
 
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
             // 輸出所有測試結果
-            AutoTestCapture.WriteAllCapturedResults("DefinitionInheritanceUtilsTests");
+            UnityTestResultCapture.WriteAllCapturedResults("DefinitionInheritanceUtilsTests");
         }
         /// <summary>
         /// Test InheritNumericProperty with default values.
@@ -239,7 +240,7 @@ namespace ModInfrastructure.Test
         {
             var testName = TestContext.CurrentContext.Test.Name;
 
-            AutoTestCapture.ExecuteTest(testName, () =>
+            UnityTestResultCapture.ExecuteTest(testName, () =>
             {
                 // Arrange: Create a long inheritance chain
                 var definitions = new List<CharacterDef>();
@@ -271,12 +272,12 @@ namespace ModInfrastructure.Test
                 var processingTime = endTime - startTime;
 
                 // Assert: Should complete in reasonable time and with correct results
-                AutoTestCapture.VerifyEqual(testName, "ProcessingTime_LessThan5Seconds", true, processingTime.TotalSeconds < 5);
-                AutoTestCapture.VerifyEqual(testName, "ConcreteDefinitions_Count", 1, processed.Count);
+                UnityTestResultCapture.VerifyEqual(testName, "ProcessingTime_LessThan5Seconds", true, processingTime.TotalSeconds < 5);
+                UnityTestResultCapture.VerifyEqual(testName, "ConcreteDefinitions_Count", 1, processed.Count);
 
                 var finalDef = processed.First();
-                AutoTestCapture.VerifyEqual(testName, "FinalDef_Health", 100, finalDef.health);
-                AutoTestCapture.VerifyEqual(testName, "FinalDef_Speed", 5, finalDef.speed);
+                UnityTestResultCapture.VerifyEqual(testName, "FinalDef_Health", 100, finalDef.health);
+                UnityTestResultCapture.VerifyEqual(testName, "FinalDef_Speed", 5, finalDef.speed);
             });
         }
 

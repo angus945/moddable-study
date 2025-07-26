@@ -4,6 +4,7 @@ using System.Linq;
 using NUnit.Framework;
 using ModArchitecture.Utils;
 using Angus;
+using Test.Tools;
 
 namespace ModInfrastructure.Test
 {
@@ -19,14 +20,14 @@ namespace ModInfrastructure.Test
         public void OneTimeSetUp()
         {
             // 清除之前的測試結果
-            AutoTestCapture.ClearCapturedResults();
+            UnityTestResultCapture.ClearCapturedResults();
         }
 
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
             // 輸出所有測試結果
-            AutoTestCapture.WriteAllCapturedResults("DefinitionInheritanceTests");
+            UnityTestResultCapture.WriteAllCapturedResults("DefinitionInheritanceTests");
         }
 
         [SetUp]
@@ -123,16 +124,16 @@ namespace ModInfrastructure.Test
         {
             var testName = TestContext.CurrentContext.Test.Name;
 
-            AutoTestCapture.ExecuteTest(testName, () =>
+            UnityTestResultCapture.ExecuteTest(testName, () =>
             {
                 // Act: Process inheritance with test definitions
                 var processed = DefinitionInheritanceUtils.ProcessInheritance(testDefinitions, ApplyCharacterInheritance).ToList();
 
                 // Assert: Verify Knight inheritance
                 var knight = processed.FirstOrDefault(d => d.defID == "Knight");
-                AutoTestCapture.VerifyNotNull(testName, "Knight_Exists", knight);
-                AutoTestCapture.VerifyEqual(testName, "Knight_Health", 150, knight?.health ?? 0);
-                AutoTestCapture.VerifyEqual(testName, "Knight_Speed", 3, knight?.speed ?? 0);
+                UnityTestResultCapture.VerifyNotNull(testName, "Knight_Exists", knight);
+                UnityTestResultCapture.VerifyEqual(testName, "Knight_Health", 150, knight?.health ?? 0);
+                UnityTestResultCapture.VerifyEqual(testName, "Knight_Speed", 3, knight?.speed ?? 0);
             });
         }
 
@@ -144,16 +145,16 @@ namespace ModInfrastructure.Test
         {
             var testName = TestContext.CurrentContext.Test.Name;
 
-            AutoTestCapture.ExecuteTest(testName, () =>
+            UnityTestResultCapture.ExecuteTest(testName, () =>
             {
                 // Act: Process inheritance with test definitions
                 var processed = DefinitionInheritanceUtils.ProcessInheritance(testDefinitions, ApplyCharacterInheritance).ToList();
 
                 // Assert: Verify Wizard inheritance
                 var wizard = processed.FirstOrDefault(d => d.defID == "Wizard");
-                AutoTestCapture.VerifyNotNull(testName, "Wizard_Exists", wizard);
-                AutoTestCapture.VerifyEqual(testName, "Wizard_Health", 70, wizard?.health ?? 0);
-                AutoTestCapture.VerifyEqual(testName, "Wizard_Speed", 6, wizard?.speed ?? 0);
+                UnityTestResultCapture.VerifyNotNull(testName, "Wizard_Exists", wizard);
+                UnityTestResultCapture.VerifyEqual(testName, "Wizard_Health", 70, wizard?.health ?? 0);
+                UnityTestResultCapture.VerifyEqual(testName, "Wizard_Speed", 6, wizard?.speed ?? 0);
             });
         }
 

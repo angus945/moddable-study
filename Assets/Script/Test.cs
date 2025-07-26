@@ -9,6 +9,7 @@ using ModArchitecture.Definition;
 using System.Reflection;
 using System.Linq;
 using ModArchitecture.Logger;
+using ModArchitecture.Utils;
 
 public class Test : MonoBehaviour
 {
@@ -57,6 +58,7 @@ public class Test : MonoBehaviour
     {
         DefinitionDatabase.Clear();
         ModAssetsDatabase.Clear();
+        ReflectionUtils.ClearCache();
 
         ModLogger logger = new ModLogger(new UnityDebugLogger());
     }
@@ -138,6 +140,54 @@ public class Test : MonoBehaviour
 
         Debug.Log($"ModA 已被自動載入？：{alreadyLoaded}");
     }
+
+    [Button("Test ReflectionUtils Cache Performance")]
+    private void TestReflectionCachePerformance()
+    {
+        ModLogger.Log("============= Testing ReflectionUtils Cache Performance =============");
+
+        // Clear cache first
+        ModArchitecture.Utils.ReflectionUtils.ClearCache();
+        ModLogger.Log("Cache cleared");
+
+        // Test first call (should initialize cache)
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        var definitions1 = ModArchitecture.Utils.ReflectionUtils.GetTypesAssignableFrom<Definition>();
+        watch.Stop();
+        ModLogger.Log($"First call (with cache initialization): {watch.ElapsedMilliseconds}ms, found {definitions1.Count()} types");
+
+        // Test second call (should use cache)
+        watch.Restart();
+        var definitions2 = ModArchitecture.Utils.ReflectionUtils.GetTypesAssignableFrom<Definition>();
+        watch.Stop();
+        ModLogger.Log($"Second call (from cache): {watch.ElapsedMilliseconds}ms, found {definitions2.Count()} types");
+
+        // Test third call with different parameters (should compute and cache)
+        watch.Restart();
+        var definitions3 = ModArchitecture.Utils.ReflectionUtils.GetTypesAssignableFrom<Definition>(includeAbstract: true);
+        watch.Stop();
+        ModLogger.Log($"Third call (different params, new cache entry): {watch.ElapsedMilliseconds}ms, found {definitions3.Count()} types");
+
+        // Test fourth call with same parameters as third (should use cache)
+        watch.Restart();
+        var definitions4 = ModArchitecture.Utils.ReflectionUtils.GetTypesAssignableFrom<Definition>(includeAbstract: true);
+        watch.Stop();
+        ModLogger.Log($"Fourth call (same params as third, from cache): {watch.ElapsedMilliseconds}ms, found {definitions4.Count()} types");
+
+        // Test FindTypeByName
+        watch.Restart();
+        var testType1 = ModArchitecture.Utils.ReflectionUtils.FindTypeByName("TestDefinition");
+        watch.Stop();
+        ModLogger.Log($"FindTypeByName first call: {watch.ElapsedMilliseconds}ms, found: {testType1?.Name ?? "null"}");
+
+        watch.Restart();
+        var testType2 = ModArchitecture.Utils.ReflectionUtils.FindTypeByName("TestDefinition");
+        watch.Stop();
+        ModLogger.Log($"FindTypeByName second call (cached): {watch.ElapsedMilliseconds}ms, found: {testType2?.Name ?? "null"}");
+
+        ModLogger.Log("============= Cache Performance Test Complete =============");
+    }
+
     void OnDestroy()
     {
         if (modManager == null) return;

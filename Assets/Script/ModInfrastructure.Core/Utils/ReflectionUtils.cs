@@ -11,6 +11,94 @@ namespace ModArchitecture.Utils
     /// </summary>
     public static class ReflectionUtils
     {
+        // Cache for assembly types - maps assembly to its types
+        private static readonly Dictionary<Assembly, List<Type>> _assemblyTypesCache = new Dictionary<Assembly, List<Type>>();
+
+        // Cache for assignable types - maps (baseType, includeAbstract, includeInterface) to result
+        private static readonly Dictionary<string, List<Type>> _assignableTypesCache = new Dictionary<string, List<Type>>();
+
+        // Cache for type name lookups - maps (typeName, baseTypeName) to result
+        private static readonly Dictionary<string, Type> _typeNameCache = new Dictionary<string, Type>();
+
+        // Lock for thread safety
+        private static readonly object _cacheLock = new object();
+
+        // Flag to track if initial scan has been performed
+        private static bool _isInitialized = false;
+
+        /// <summary>
+        /// Clear all caches and reset initialization state
+        /// </summary>
+        public static void ClearCache()
+        {
+            lock (_cacheLock)
+            {
+                _assemblyTypesCache.Clear();
+                _assignableTypesCache.Clear();
+                _typeNameCache.Clear();
+                _isInitialized = false;
+                ModLogger.Log("ReflectionUtils cache cleared");
+            }
+        }
+
+        /// <summary>
+        /// Refresh cache by clearing and re-initializing
+        /// </summary>
+        public static void RefreshCache()
+        {
+            lock (_cacheLock)
+            {
+                ClearCache();
+                EnsureInitialized();
+                ModLogger.Log("ReflectionUtils cache refreshed");
+            }
+        }
+
+        /// <summary>
+        /// Initialize cache if not already done
+        /// </summary>
+        private static void EnsureInitialized()
+        {
+            if (!_isInitialized)
+            {
+                lock (_cacheLock)
+                {
+                    if (!_isInitialized)
+                    {
+                        InitializeCache();
+                        _isInitialized = true;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Initialize the assembly types cache
+        /// </summary>
+        private static void InitializeCache()
+        {
+            ModLogger.Log("Initializing ReflectionUtils cache...");
+
+            var safeAssemblies = GetSafeAssembliesInternal();
+            int totalTypes = 0;
+
+            foreach (var assembly in safeAssemblies)
+            {
+                try
+                {
+                    var types = GetTypesFromAssemblyInternal(assembly);
+                    _assemblyTypesCache[assembly] = types.ToList();
+                    totalTypes += types.Count();
+                }
+                catch (Exception ex)
+                {
+                    ModLogger.LogError($"Failed to cache types from assembly {assembly.FullName}: {ex.Message}");
+                    _assemblyTypesCache[assembly] = new List<Type>();
+                }
+            }
+
+            ModLogger.Log($"Cache initialized with {_assemblyTypesCache.Count} assemblies and {totalTypes} types");
+        }
         /// <summary>
         /// Safely get all types that implement a specified interface or inherit from a specified class
         /// </summary>
@@ -32,36 +120,54 @@ namespace ModArchitecture.Utils
         /// <returns>List of types that meet the criteria</returns>
         public static IEnumerable<Type> GetTypesAssignableFrom(Type baseType, bool includeAbstract = false, bool includeInterface = false)
         {
-            var allTypes = new List<Type>();
-            int totalAssembliesChecked = 0;
-            int assembliesWithMatchingTypes = 0;
+            EnsureInitialized();
 
-            foreach (var assembly in GetSafeAssemblies())
+            // Create cache key
+            var cacheKey = $"{baseType.FullName}|{includeAbstract}|{includeInterface}";
+
+            lock (_cacheLock)
             {
-                totalAssembliesChecked++;
-                try
+                // Check if result is already cached
+                if (_assignableTypesCache.TryGetValue(cacheKey, out var cachedResult))
                 {
-                    var types = GetTypesFromAssembly(assembly)
-                        .Where(t => baseType.IsAssignableFrom(t) &&
-                                  (includeInterface || !t.IsInterface) &&
-                                  (includeAbstract || !t.IsAbstract))
-                        .ToList();
+                    ModLogger.Log($"Retrieved {cachedResult.Count} cached types for {baseType.Name}");
+                    return cachedResult;
+                }
 
-                    if (types.Count > 0)
+                // Compute result and cache it
+                var allTypes = new List<Type>();
+                int assembliesWithMatchingTypes = 0;
+
+                foreach (var assembly in _assemblyTypesCache.Keys)
+                {
+                    try
                     {
-                        assembliesWithMatchingTypes++;
-                        ModLogger.Log($"Found {types.Count} types implementing {baseType.Name} in assembly {assembly.GetName().Name}");
-                        allTypes.AddRange(types);
+                        var types = _assemblyTypesCache[assembly]
+                            .Where(t => baseType.IsAssignableFrom(t) &&
+                                      (includeInterface || !t.IsInterface) &&
+                                      (includeAbstract || !t.IsAbstract))
+                            .ToList();
+
+                        if (types.Count > 0)
+                        {
+                            assembliesWithMatchingTypes++;
+                            ModLogger.Log($"Found {types.Count} types implementing {baseType.Name} in assembly {assembly.GetName().Name}");
+                            allTypes.AddRange(types);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ModLogger.LogError($"Failed to scan types from assembly {assembly.FullName}: {ex.Message}");
                     }
                 }
-                catch (Exception ex)
-                {
-                    ModLogger.LogError($"Failed to scan types from assembly {assembly.FullName}: {ex.Message}");
-                }
-            }
 
-            ModLogger.Log($"Scanned {totalAssembliesChecked} assemblies, found {baseType.Name} implementations in {assembliesWithMatchingTypes} assemblies, total types: {allTypes.Count}");
-            return allTypes;
+                ModLogger.Log($"Scanned {_assemblyTypesCache.Count} assemblies, found {baseType.Name} implementations in {assembliesWithMatchingTypes} assemblies, total types: {allTypes.Count}");
+
+                // Cache the result
+                _assignableTypesCache[cacheKey] = allTypes;
+
+                return allTypes;
+            }
         }
 
         /// <summary>
@@ -72,25 +178,47 @@ namespace ModArchitecture.Utils
         /// <returns>Found type, returns null if not found</returns>
         public static Type FindTypeByName(string typeName, Type baseType = null)
         {
-            foreach (var assembly in GetSafeAssemblies())
+            EnsureInitialized();
+
+            // Create cache key
+            var baseTypeName = baseType?.FullName ?? "null";
+            var cacheKey = $"{typeName}|{baseTypeName}";
+
+            lock (_cacheLock)
             {
-                try
+                // Check if result is already cached
+                if (_typeNameCache.TryGetValue(cacheKey, out var cachedResult))
                 {
-                    var types = GetTypesFromAssembly(assembly);
-                    var foundType = types.FirstOrDefault(t =>
-                        t.Name == typeName &&
-                        (baseType == null || baseType.IsAssignableFrom(t)));
+                    ModLogger.Log($"Retrieved cached type for {typeName}");
+                    return cachedResult;
+                }
 
-                    if (foundType != null)
-                        return foundType;
-                }
-                catch (Exception ex)
+                // Compute result and cache it
+                Type foundType = null;
+
+                foreach (var assembly in _assemblyTypesCache.Keys)
                 {
-                    ModLogger.LogError($"Failed to search type in assembly {assembly.FullName}: {ex.Message}");
+                    try
+                    {
+                        var types = _assemblyTypesCache[assembly];
+                        foundType = types.FirstOrDefault(t =>
+                            t.Name == typeName &&
+                            (baseType == null || baseType.IsAssignableFrom(t)));
+
+                        if (foundType != null)
+                            break;
+                    }
+                    catch (Exception ex)
+                    {
+                        ModLogger.LogError($"Failed to search type in assembly {assembly.FullName}: {ex.Message}");
+                    }
                 }
+
+                // Cache the result (including null results)
+                _typeNameCache[cacheKey] = foundType;
+
+                return foundType;
             }
-
-            return null;
         }
 
         /// <summary>
@@ -119,6 +247,43 @@ namespace ModArchitecture.Utils
         /// <returns>Safe assembly list</returns>
         public static IEnumerable<Assembly> GetSafeAssemblies()
         {
+            EnsureInitialized();
+
+            lock (_cacheLock)
+            {
+                return _assemblyTypesCache.Keys.ToList();
+            }
+        }
+
+        /// <summary>
+        /// Safely get types from assembly (using cache)
+        /// </summary>
+        /// <param name="assembly">Target assembly</param>
+        /// <returns>List of types in assembly</returns>
+        public static IEnumerable<Type> GetTypesFromAssembly(Assembly assembly)
+        {
+            EnsureInitialized();
+
+            lock (_cacheLock)
+            {
+                if (_assemblyTypesCache.TryGetValue(assembly, out var types))
+                {
+                    return types;
+                }
+
+                // If assembly not in cache, try to load it
+                var loadedTypes = GetTypesFromAssemblyInternal(assembly).ToList();
+                _assemblyTypesCache[assembly] = loadedTypes;
+                return loadedTypes;
+            }
+        }
+
+        /// <summary>
+        /// Get safe assembly list, excluding system assemblies (internal version)
+        /// </summary>
+        /// <returns>Safe assembly list</returns>
+        private static IEnumerable<Assembly> GetSafeAssembliesInternal()
+        {
             var allAssemblies = AppDomain.CurrentDomain.GetAssemblies();
             var safeAssemblies = allAssemblies.Where(assembly => !ShouldSkipAssembly(assembly)).ToList();
 
@@ -132,11 +297,11 @@ namespace ModArchitecture.Utils
         }
 
         /// <summary>
-        /// Safely get types from assembly
+        /// Safely get types from assembly (internal version)
         /// </summary>
         /// <param name="assembly">Target assembly</param>
         /// <returns>List of types in assembly</returns>
-        public static IEnumerable<Type> GetTypesFromAssembly(Assembly assembly)
+        private static IEnumerable<Type> GetTypesFromAssemblyInternal(Assembly assembly)
         {
             try
             {

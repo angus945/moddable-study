@@ -2,14 +2,23 @@ using System.Xml.Linq;
 using ModArchitecture.Definition;
 using ModArchitecture.Definition.Deserializers;
 
-public class CharacterDefDeserializer : DefinitionDeserializerBase<CharacterDef>
+namespace Angus
 {
-    public override string HandlesNode => "CharacterDef";
-
-    protected override void DeserializeSpecific(XElement element, CharacterDef def)
+    /// <summary>
+    /// Deserializer for CharacterDef definitions.
+    /// </summary>
+    /// <remarks>
+    /// This class handles the deserialization of CharacterDef XML elements into CharacterDef objects.
+    /// </remarks>
+    public class CharacterDefDeserializer : DefinitionDeserializerBase<CharacterDef>
     {
-        int.TryParse(element.Element("health")?.Value, out def.health);
-        int.TryParse(element.Element("speed")?.Value, out def.speed);
-    }
-}
+        public override string HandlesNode => "CharacterDef";
 
+        protected override void DeserializeSpecific(XElement element, CharacterDef def)
+        {
+            int.TryParse(element.Element("health")?.Value, out def.health);
+            int.TryParse(element.Element("speed")?.Value, out def.speed);
+        }
+    }
+
+}

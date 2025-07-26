@@ -71,8 +71,6 @@ public class Test : MonoBehaviour
 
 
         definitions = DefinitionDatabase.GetDefinitions();
-        LogDefinitions(definitions);
-
         assets = ModAssetsDatabase.GetAssets();
 
         Assembly[] loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
@@ -88,28 +86,4 @@ public class Test : MonoBehaviour
         ModLogger.Log($"============= Game End =============");
     }
 
-    void LogDefinitions(Dictionary<Type, List<Definition>> definitions)
-    {
-        ModLogger.Log("--- Instantiated Definitions ---");
-        foreach (var kvp in definitions)
-        {
-            ModLogger.Log($"Type: {kvp.Key.Name} ({kvp.Value.Count} instances)");
-            foreach (var def in kvp.Value)
-            {
-                if (def is ThingDef thingDef)
-                {
-                    ModLogger.Log($"  - defID: {thingDef.defID}, Label: {thingDef.label}, Damage: {thingDef.damage}, Tags: {(thingDef.tags != null ? string.Join(", ", thingDef.tags) : "None")}, Weapon Range: {thingDef.weaponProps?.range}");
-                }
-                else if (def is CharacterDef charDef)
-                {
-                    ModLogger.Log($"  - defID: {charDef.defID}, Label: {charDef.label}, Health: {charDef.health}, Speed: {charDef.speed}");
-                }
-                else
-                {
-                    ModLogger.Log($"  - defID: {def.defID}, Label: {def.label}");
-                }
-            }
-        }
-        ModLogger.Log("--------------------------------");
-    }
 }

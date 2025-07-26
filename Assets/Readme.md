@@ -3,20 +3,20 @@
 ### About.xml
 
 <ModMetaData>
-    <id>AuthorA.ModA</id> ← 模組 ID，格式為 `作者名.模組名`
+    <id>AuthorA.ModA</id> ← 模組 ID，格式為 `{作者名}.{模組名}` 不得有空白
     <name>Mod A</name>
     <description>This is Mod A</description>
-    <author>AuthorA</author>
+    <author>AuthorA</author>  不得有空白
 </ModMetaData>
 
 ### IModEntry
 
-命名空間規則為 `作者名`，類別名稱為 `ModA`，實現 `IModEntry` 介面。作者名.模組名 = ModID。
+模組組程式入口為 {模組名}Entry，需實現 `IModEntry` 介面，命名空間為作者名稱，需要完全一致。
 
 ```csharp
 namespace AuthorA
 {
-    public class ModA : IModEntry
+    public class ModAEntry : IModEntry
     {
         public void Initialize() { }
 
@@ -87,6 +87,8 @@ P:\MainProjects\moddable-architecture-study\Library\ScriptAssemblies\Implement.C
 - [ ] 怎麼擴展 enum ?
 
 ## 參考資料
+
+https://github.com/pardeike/Harmony/releases
 
 ### 其他模組框架
 

@@ -20,11 +20,14 @@ public class ModManager
     ModDefinitionPatcher definitionPatcher;
     ModDefinitionDeserializer deserializer;
     ModAssetsLoader assetsLoader;
+    ModSettings modSettings;
     ModInstancer initializer;
 
     ModLoadingRecord loadingRecord = new ModLoadingRecord();
 
-    public ModManager(ModFinder finder, ModSorter sorter, ModAssemblyLoader assemblyLoader, ModDefinitionLoader definitionLoader, ModDefinitionPatcher patcher, ModDefinitionDeserializer deserializer, ModAssetsLoader assetsLoader, ModInstancer initializer)
+    public ModManager(ModFinder finder, ModSorter sorter, ModAssemblyLoader assemblyLoader,
+        ModDefinitionLoader definitionLoader, ModDefinitionPatcher patcher, ModDefinitionDeserializer deserializer,
+        ModAssetsLoader assetsLoader, ModSettings modSettings, ModInstancer initializer)
     {
         this.finder = finder;
         this.sorter = sorter;
@@ -33,6 +36,7 @@ public class ModManager
         this.definitionPatcher = patcher;
         this.deserializer = deserializer;
         this.assetsLoader = assetsLoader;
+        this.modSettings = modSettings;
         this.initializer = initializer;
     }
 
@@ -93,6 +97,17 @@ public class ModManager
             assetsLoader.LoadAssets(Path.Combine(modDirectory, ModStructure.Custom), modData.custom);
         }
     }
+    public void LoadModSettings()
+    {
+        modSettings.RegisterDeserializers();
+        modSettings.LoadExistingSettings();
+
+        foreach (var mod in sorter.modOrder)
+        {
+            ModMetaData modData = modMap[mod];
+            modSettings.ReadSettings(modData.id);
+        }
+    }
     public void ModsInitialization()
     {
         initializer.InstanceMod(sorter.modOrder);
@@ -103,6 +118,14 @@ public class ModManager
     public void GameStart()
     {
         initializer.StartGame(sorter.modOrder);
+    }
+    public void WriteModSettings()
+    {
+        foreach (var mod in sorter.modOrder)
+        {
+            ModMetaData modData = modMap[mod];
+            modSettings.WriteSettings(modData.id);
+        }
     }
 
     //

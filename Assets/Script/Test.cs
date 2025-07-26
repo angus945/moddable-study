@@ -26,6 +26,10 @@ public class Test : MonoBehaviour
     [DictionaryDrawerSettings(KeyLabel = "ID")]
     Dictionary<string, object> assets = new Dictionary<string, object>();
 
+    [ShowInInspector]
+    [DictionaryDrawerSettings(KeyLabel = "ID")]
+    Dictionary<string, IModeSettings> settings = new Dictionary<string, IModeSettings>();
+
     ModManager modManager;
 
     void Awake()
@@ -45,15 +49,17 @@ public class Test : MonoBehaviour
         ModDefinitionLoader definitionLoader = new ModDefinitionLoader();
         ModDefinitionPatcher patcher = new ModDefinitionPatcher();
         ModDefinitionDeserializer deserializer = new ModDefinitionDeserializer();
-        ModInstancer initializer = new ModInstancer();
         ModAssetsLoader assetsLoader = new ModAssetsLoader();
-        modManager = new ModManager(modFinder, modSorter, assemblyLoader, definitionLoader, patcher, deserializer, assetsLoader, initializer);
+        ModSettings modSettings = new ModSettings($"{Application.persistentDataPath}/ModSettings/");
+        ModInstancer initializer = new ModInstancer();
+        modManager = new ModManager(modFinder, modSorter, assemblyLoader, definitionLoader, patcher, deserializer, assetsLoader, modSettings, initializer);
 
         modManager.FindMods();
         modManager.SetModsOrder(modOrder);
         modManager.LoadModsAssemblies();
         modManager.LoadModsDefinition();
         modManager.LoadModsAssets();
+        modManager.LoadModSettings();
         modManager.ModsInitialization();
 
         ModLogger.Log($"============= Game Start =============");
@@ -69,9 +75,9 @@ public class Test : MonoBehaviour
         File.WriteAllText(checkFilePath, mergeDoc.PrintAsString());
         Debug.Log(modManager.GetDefinitionDocument().PrintAsString());
 
-
         definitions = DefinitionDatabase.GetDefinitions();
         assets = ModAssetsDatabase.GetAssets();
+        settings = modSettings.GetSettings();
 
         Assembly[] loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
         bool alreadyLoaded = loadedAssemblies.Any(a => a.FullName.Contains("ModA"));
@@ -82,6 +88,7 @@ public class Test : MonoBehaviour
     {
         if (modManager == null) return;
 
+        modManager.WriteModSettings();
         modManager.UnloadMods();
         ModLogger.Log($"============= Game End =============");
     }

@@ -386,7 +386,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   modOrder:
-  - ModA
+  - Angus.Core
+  - AuthorA.ModA
   - ModB
 --- !u!114 &860472876
 MonoBehaviour:

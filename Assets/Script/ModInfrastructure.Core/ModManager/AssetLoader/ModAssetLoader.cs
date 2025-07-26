@@ -11,7 +11,13 @@ namespace ModArchitecture
     public class ModAssetsLoader
     {
         private readonly Dictionary<string, IAssetLoader> assetLoaders = new Dictionary<string, IAssetLoader>();
-        private readonly HashSet<string> errorSet = new HashSet<string>();
+        private readonly HashSet<string> errorExtensions = new HashSet<string>(); // 記錄有問題的檔案副檔名，避免重複錯誤
+        private ModManager modManager;
+
+        public ModAssetsLoader(ModManager modManager)
+        {
+            this.modManager = modManager;
+        }
 
         public void RegisterDeserializers()
         {
@@ -35,23 +41,34 @@ namespace ModArchitecture
                 }
             }
         }
-        public void LoadAssets(string modDirectory, string[] paths)
+        public void LoadAssets(string modId, string modDirectory, string[] paths)
         {
             foreach (var path in paths)
             {
                 string extension = Path.GetExtension(path);
 
-                if (errorSet.Contains(extension)) continue;
+                if (errorExtensions.Contains(extension)) continue;
 
                 // Load asset from the given path
                 if (assetLoaders.TryGetValue(extension, out var loader))
                 {
-                    loader.LoadAsset(modDirectory, path);
+                    try
+                    {
+                        loader.LoadAsset(modDirectory, path);
+                    }
+                    catch (Exception ex)
+                    {
+                        modManager.AddModError(modId, ModErrorType.AssetLoading, $"Error loading asset {path}: {ex.Message}", ex);
+                    }
                 }
                 else
                 {
-                    ModLogger.LogError($"No asset loader registered for extension: {extension}");
-                    errorSet.Add(extension);
+                    // 記錄錯誤擴展名，避免重複報錯
+                    if (!errorExtensions.Contains(extension))
+                    {
+                        errorExtensions.Add(extension);
+                        ModLogger.LogError($"No asset loader registered for extension: {extension}");
+                    }
                 }
             }
         }

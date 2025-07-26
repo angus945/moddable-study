@@ -10,7 +10,12 @@ namespace ModArchitecture
     public class ModInstancer
     {
         readonly Dictionary<string, IModEntry> modInstances = new Dictionary<string, IModEntry>();
-        HashSet<string> errorSet = new HashSet<string>();
+        private ModManager modManager;
+
+        public ModInstancer(ModManager modManager)
+        {
+            this.modManager = modManager;
+        }
 
         public void InstanceMod(string[] order)
         {
@@ -36,14 +41,12 @@ namespace ModArchitecture
                     }
                     else
                     {
-                        errorSet.Add(modId);
-                        ModLogger.LogError($"Failed to create instance for mod entry: {type.FullName}");
+                        modManager.AddModError(modId, ModErrorType.Instancing, $"Failed to create instance for mod entry: {type.FullName}");
                     }
                 }
                 else
                 {
-                    errorSet.Add(modId);
-                    ModLogger.LogError($"Mod entry for {modId} not found. Expected class ending with '{expectedEntryClass}'. Skipping registration.");
+                    modManager.AddModError(modId, ModErrorType.Instancing, $"Mod entry for {modId} not found. Expected class ending with '{expectedEntryClass}'. Skipping registration.");
                 }
 
 
@@ -53,17 +56,10 @@ namespace ModArchitecture
         {
             foreach (var modId in order)
             {
-                if (errorSet.Contains(modId))
-                {
-                    ModLogger.LogWarning($"Mod ID {modId} has errors. Skipping initialization.");
-                    continue;
-                }
-
                 string expectedEntryClass = $"{modId}Entry";
                 if (!modInstances.TryGetValue(expectedEntryClass, out IModEntry instance))
                 {
-                    ModLogger.LogError($"Mod entry for {modId} not found. Expected class ending with '{expectedEntryClass}'. Skipping initialization.");
-                    errorSet.Add(modId);
+                    modManager.AddModError(modId, ModErrorType.Initialization, $"Mod entry for {modId} not found. Expected class ending with '{expectedEntryClass}'. Skipping initialization.");
                     continue;
                 }
 
@@ -74,8 +70,7 @@ namespace ModArchitecture
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.LogError($"Error initializing mod {modId}: {ex.Message}");
-                    errorSet.Add(modId);
+                    modManager.AddModError(modId, ModErrorType.Initialization, $"Error initializing mod {modId}: {ex.Message}", ex);
                     continue;
                 }
             }
@@ -84,17 +79,11 @@ namespace ModArchitecture
         {
             foreach (var modId in order)
             {
-                if (errorSet.Contains(modId))
-                {
-                    ModLogger.LogWarning($"Mod ID {modId} has errors. Skipping game start.");
-                    continue;
-                }
                 // 根據 modId 找到對應的 Entry 類別完整名稱
                 string expectedEntryClass = $"{modId}Entry";
                 if (!modInstances.TryGetValue(expectedEntryClass, out IModEntry instance))
                 {
-                    ModLogger.LogError($"Mod entry for {modId} not found. Expected class ending with '{expectedEntryClass}'. Skipping game start.");
-                    errorSet.Add(modId);
+                    modManager.AddModError(modId, ModErrorType.GameStart, $"Mod entry for {modId} not found. Expected class ending with '{expectedEntryClass}'. Skipping game start.");
                     continue;
                 }
 
@@ -105,8 +94,7 @@ namespace ModArchitecture
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.LogError($"Error starting game for mod {modId}: {ex.Message}");
-                    errorSet.Add(modId);
+                    modManager.AddModError(modId, ModErrorType.GameStart, $"Error starting game for mod {modId}: {ex.Message}", ex);
                     continue;
                 }
             }

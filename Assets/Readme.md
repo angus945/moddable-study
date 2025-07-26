@@ -1,3 +1,15 @@
+## Mod Architecture Readme
+
+next:
+
+ComponentProperty, DefinitionExtension
+
+Def 繼承
+
+兼容 CSV 的 Def
+
+兼容普遍的 Unity 方案 (prefab, animation)
+
 ## 命名規則
 
 ### About.xml

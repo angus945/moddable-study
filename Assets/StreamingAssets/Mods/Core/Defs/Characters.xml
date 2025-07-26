@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+    <!-- 抽象基礎角色定義 -->
+    <CharacterDef isAbstract="true">
+        <defID>BaseCharacter</defID>
+        <label>基礎角色</label>
+        <description>所有角色的基礎定義，包含共通屬性</description>
+        <health>100</health>
+        <speed>5</speed>
+    </CharacterDef>
+
+    <!-- 戰士基礎定義 -->
+    <CharacterDef isAbstract="true" inheritsFrom="BaseCharacter">
+        <defID>BaseWarrior</defID>
+        <label>基礎戰士</label>
+        <description>戰士類角色的基礎定義</description>
+        <health>150</health>
+        <speed>4</speed>
+    </CharacterDef>
+
+    <!-- 法師基礎定義 -->
+    <CharacterDef isAbstract="true" inheritsFrom="BaseCharacter">
+        <defID>BaseMage</defID>
+        <label>基礎法師</label>
+        <description>法師類角色的基礎定義</description>
+        <health>80</health>
+        <speed>6</speed>
+    </CharacterDef>
+
+    <!-- 具體角色實例 - 繼承自戰士基礎 -->
+    <CharacterDef inheritsFrom="BaseWarrior">
+        <defID>Knight</defID>
+        <label>騎士</label>
+        <description>重裝戰士，擁有強大的防禦力</description>
+        <!-- health 將繼承 BaseWarrior 的 150 -->
+        <speed>3</speed>        <!-- 覆蓋父類的速度，更慢但更強壯 -->
+    </CharacterDef>
+
+    <!-- 具體角色實例 - 繼承自法師基礎 -->
+    <CharacterDef inheritsFrom="BaseMage">
+        <defID>Wizard</defID>
+        <label>巫師</label>
+        <description>智慧的魔法使用者</description>
+        <health>70</health>        <!-- 覆蓋父類的血量，更脆弱 -->
+        <!-- speed 將繼承 BaseMage 的 6 -->
+    </CharacterDef>
+
+    <!-- 具體角色實例 - 直接繼承基礎角色 -->
+    <CharacterDef inheritsFrom="BaseCharacter">
+        <defID>Archer</defID>
+        <label>弓箭手</label>
+        <description>敏捷的遠程攻擊者</description>
+        <health>90</health>        <!-- 覆蓋父類血量 -->
+        <speed>7</speed>        <!-- 覆蓋父類速度，更快 -->
+    </CharacterDef>
+
+    <!-- 沒有繼承關係的獨立角色 -->
+    <CharacterDef>
+        <defID>Peasant</defID>
+        <label>農民</label>
+        <description>普通的村民，沒有特殊能力</description>
+        <health>60</health>
+        <speed>3</speed>
+    </CharacterDef>
+</Defs>

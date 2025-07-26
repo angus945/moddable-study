@@ -19,6 +19,18 @@ namespace ModArchitecture.Definition.Deserializers
             def.defID = element.Element("defID")?.Value;
             def.label = element.Element("label")?.Value;
             def.description = element.Element("description")?.Value;
+
+            XAttribute parentAttr = element.Attribute("inheritsFrom");
+            if (parentAttr != null)
+            {
+                def.inheritsFrom = parentAttr.Value;
+            }
+
+            XAttribute abstractAttr = element.Attribute("isAbstract");
+            if (abstractAttr != null)
+            {
+                def.IsAbstract = bool.Parse(abstractAttr.Value);
+            }
         }
 
         protected abstract void DeserializeSpecific(XElement element, T def);

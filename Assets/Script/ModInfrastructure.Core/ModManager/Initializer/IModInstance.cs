@@ -4,8 +4,9 @@ namespace ModArchitecture
 
     /// <summary>
     /// Interface for mod initializers.
+    /// name rules: ModID + Entry
     /// </summary>
-    public interface IModInstance
+    public interface IModEntry
     {
         void Initialize();
         void OnGameStart();

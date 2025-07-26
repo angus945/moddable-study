@@ -48,7 +48,7 @@ public class ModManager
             }
         }
     }
-    public void SetModsOrder(List<string> order)
+    public void SetModsOrder(string[] order)
     {
         sorter.SetModsOrder(order, modMap);
     }
@@ -64,8 +64,7 @@ public class ModManager
     {
         XDocument definitionDocument = new XDocument(new XElement("Defs"));
 
-        List<string> order = sorter.modOrder;
-        foreach (var mod in order)
+        foreach (var mod in sorter.modOrder)
         {
             ModMetaData modData = modMap[mod];
             definitionLoader.LoadDefinitions(modData.definitions, definitionDocument);
@@ -96,13 +95,14 @@ public class ModManager
     }
     public void ModsInitialization()
     {
-        initializer.InstanceMod();
-        initializer.InitializeMods(); // TODO: 這裡應該要有個順序，依照 mod 的依賴關係來初始化
+        initializer.InstanceMod(sorter.modOrder);
+
+        initializer.InitializeMods(sorter.modOrder);
     }
 
     public void GameStart()
     {
-        initializer.StartGame(); // TODO: 這裡應該要有個順序，依照 mod 的依賴關係來開始遊戲
+        initializer.StartGame(sorter.modOrder);
     }
 
     //

@@ -12,7 +12,7 @@ using ModArchitecture.Logger;
 
 public class Test : MonoBehaviour
 {
-    public List<string> modOrder = new List<string>();
+    public string[] modOrder = new string[0];
 
     [ShowInInspector]
     [DictionaryDrawerSettings(KeyLabel = "Type")]
@@ -34,10 +34,6 @@ public class Test : MonoBehaviour
         ModAssetsDatabase.Clear();
 
         ModLogger logger = new ModLogger(new UnityDebugLogger());
-
-        // TODO: mod manager 載入的 assemblies 不會被釋放
-        // TODO: mod a initial 的 14 15 一直有問題
-        //
     }
     void Start()
     {

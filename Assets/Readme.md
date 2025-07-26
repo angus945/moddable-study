@@ -1,3 +1,31 @@
+## 命名規則
+
+### About.xml
+
+<ModMetaData>
+    <id>AuthorA.ModA</id> ← 模組 ID，格式為 `作者名.模組名`
+    <name>Mod A</name>
+    <description>This is Mod A</description>
+    <author>AuthorA</author>
+</ModMetaData>
+
+### IModEntry
+
+命名空間規則為 `作者名`，類別名稱為 `ModA`，實現 `IModEntry` 介面。作者名.模組名 = ModID。
+
+```csharp
+namespace AuthorA
+{
+    public class ModA : IModEntry
+    {
+        public void Initialize() { }
+
+        public void OnGameStart() { }
+    }
+}
+
+```
+
 ## 模組資料夾結構
 
 ```bash
@@ -19,10 +47,13 @@ Mods/
 
 ## 未完成項目
 
+- [ ] UnitTest
+
 ### 第一章
 
 - [ ] Definition 的依賴
 - [ ] Definition 的繼承
+- [ ] About.xml 的格式驗證 (ID 格式, 是否重複 ID)
 
 ### 第二章
 
@@ -30,3 +61,4 @@ Mods/
 - [ ] async Load 的方案
 - [ ] lazy load 的方案
 - [ ] addressable 的方案
+- [ ] 修正 async load 未正確載入

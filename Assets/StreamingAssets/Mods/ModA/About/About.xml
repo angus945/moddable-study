@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
-    <id>ModA</id>
+    <id>AuthorA.ModA</id>
     <name>Mod A</name>
     <description>This is Mod A</description>
-    <author>Author A</author>
+    <author>AuthorA</author>
 </ModMetaData>
 

@@ -6,18 +6,20 @@ namespace ModArchitecture
 {
     public class ModSorter
     {
-        public List<string> modOrder = new List<string>();
-        public void SetModsOrder(List<string> order, Dictionary<string, ModMetaData> modMap)
+        public string[] modOrder { get; private set; } = new string[0];
+
+        List<string> order = new List<string>();
+        public void SetModsOrder(string[] setOrder, Dictionary<string, ModMetaData> modMap)
         {
-            modOrder.Clear();
-            HashSet<string> orderSet = new HashSet<string>(order);
+            order.Clear();
+            HashSet<string> orderSet = new HashSet<string>(setOrder);
 
             // Add mods in the order specified by 'order'
-            foreach (var modId in order)
+            foreach (var modId in setOrder)
             {
                 if (!modMap.ContainsKey(modId)) continue;
 
-                modOrder.Add(modId);
+                order.Add(modId);
             }
 
             // Add remaining mods that are not in 'order'
@@ -25,8 +27,10 @@ namespace ModArchitecture
             {
                 if (orderSet.Contains(mod.id)) continue;
 
-                modOrder.Add(mod.id);
+                order.Add(mod.id);
             }
+
+            modOrder = order.ToArray();
         }
     }
 

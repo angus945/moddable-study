@@ -45,6 +45,24 @@ Mods/
 
 ## Assemblies
 
+### Unity
+
+C:\Program Files\Unity\Hub\Editor
+C:\Program Files\Unity\Hub\Editor\6000.0.34f1\Editor\Data\Managed
+
+Assembly-CSharp.dll
+Assembly-CSharp-firstpass.dll
+UnityEngine.dll
+UnityEngine.CoreModule.dll
+UnityEngine.IMGUIModule.dll
+
+### Project
+
+P:\MainProjects\moddable-architecture-study\Library\ScriptAssemblies\Assembly-CSharp.dll
+P:\MainProjects\moddable-architecture-study\Library\ScriptAssemblies\ModInfrastructure.Core.dll
+P:\MainProjects\moddable-architecture-study\Library\ScriptAssemblies\ModInfrastructure.Unity.dll
+P:\MainProjects\moddable-architecture-study\Library\ScriptAssemblies\Implement.Core.dll
+
 ## 未完成項目
 
 - [ ] UnitTest
@@ -62,3 +80,18 @@ Mods/
 - [ ] lazy load 的方案
 - [ ] addressable 的方案
 - [ ] 修正 async load 未正確載入
+
+### 待學
+
+- [ ] 怎麼擴展 class 內容?
+- [ ] 怎麼擴展 enum ?
+
+## 參考資料
+
+### 其他模組框架
+
+- [BepInEx]
+
+  - https://www.bilibili.com/read/readlist/rl355806?spm_id_from=333.1369.opus.module_collection.click
+
+- [UMM]

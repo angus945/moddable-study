@@ -11,7 +11,7 @@ namespace ModArchitecture
     public class ModAssetsLoader
     {
         private readonly Dictionary<string, IAssetLoader> assetLoaders = new Dictionary<string, IAssetLoader>();
-        private readonly HashSet<string> errorExtensions = new HashSet<string>(); // 記錄有問題的檔案副檔名，避免重複錯誤
+        private readonly HashSet<string> errorExtensions = new HashSet<string>(); // Record problematic file extensions to avoid duplicate errors
         private ModManager modManager;
 
         public ModAssetsLoader(ModManager modManager)
@@ -21,6 +21,7 @@ namespace ModArchitecture
 
         public void RegisterDeserializers()
         {
+            ModLogger.Log("Starting asset loader registration...", "AssetLoader");
             var deserializerTypes = ReflectionUtils.GetTypesAssignableFrom<IAssetLoader>();
 
             foreach (var type in deserializerTypes)
@@ -32,22 +33,33 @@ namespace ModArchitecture
                     {
                         if (assetLoaders.ContainsKey(extension))
                         {
-                            ModLogger.LogWarning($"Asset loader for extension {extension} is already registered, overwriting {type.Name}");
+                            ModLogger.LogWarning($"Asset loader for extension {extension} is already registered, overwriting {type.Name}", "AssetLoader");
                         }
 
                         assetLoaders[extension] = deserializer;
-                        ModLogger.Log($"Registered asset loader: {type.Name} for file <{extension}>");
+                        ModLogger.Log($"Asset loader registration successful: {type.Name} for file <{extension}>", "AssetLoader");
                     }
                 }
             }
+            ModLogger.Log($"Asset loader registration completed, total: {assetLoaders.Count}", "AssetLoader");
         }
         public void LoadAssets(string modId, string modDirectory, string[] paths)
         {
+            if (paths.Length == 0) return;
+
+            ModLogger.Log($"Starting to load {paths.Length} asset files for mod {modId}...", "AssetLoader");
+            int successCount = 0;
+            int skipCount = 0;
+
             foreach (var path in paths)
             {
                 string extension = Path.GetExtension(path);
 
-                if (errorExtensions.Contains(extension)) continue;
+                if (errorExtensions.Contains(extension))
+                {
+                    skipCount++;
+                    continue;
+                }
 
                 // Load asset from the given path
                 if (assetLoaders.TryGetValue(extension, out var loader))
@@ -55,6 +67,7 @@ namespace ModArchitecture
                     try
                     {
                         loader.LoadAsset(modDirectory, path);
+                        successCount++;
                     }
                     catch (Exception ex)
                     {
@@ -63,14 +76,17 @@ namespace ModArchitecture
                 }
                 else
                 {
-                    // 記錄錯誤擴展名，避免重複報錯
+                    // Record error extension to avoid duplicate error reporting
                     if (!errorExtensions.Contains(extension))
                     {
                         errorExtensions.Add(extension);
-                        ModLogger.LogError($"No asset loader registered for extension: {extension}");
+                        ModLogger.LogError($"No asset loader registered for extension: {extension}", "AssetLoader");
                     }
+                    skipCount++;
                 }
             }
+
+            ModLogger.Log($"Mod {modId} asset loading completed, success: {successCount}, skipped: {skipCount}", "AssetLoader");
         }
 
     }

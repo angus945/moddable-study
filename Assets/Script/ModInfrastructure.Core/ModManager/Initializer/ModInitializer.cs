@@ -19,6 +19,7 @@ namespace ModArchitecture
 
         public void InstanceMod(string[] order)
         {
+            ModLogger.Log($"Starting instantiation of {order.Length} mods...", "ModInstancer");
             IEnumerable<Type> instanceTypes = ReflectionUtils.GetTypesAssignableFrom<IModEntry>();
             Dictionary<string, Type> typeMap = instanceTypes.ToDictionary(type => type.FullName, type => type);
 
@@ -30,14 +31,14 @@ namespace ModArchitecture
                 {
                     if (modInstances.ContainsKey(type.FullName))
                     {
-                        ModLogger.LogError($"Mod instance {type.FullName} already exists. registration will be overwritten.");
+                        ModLogger.LogError($"Mod instance {type.FullName} already exists. registration will be overwritten.", "ModInstancer");
                     }
 
                     IModEntry instance = ReflectionUtils.SafeCreateInstance<IModEntry>(type);
                     if (instance != null)
                     {
                         modInstances[type.FullName] = instance;
-                        ModLogger.Log($"Registered mod instance: {type.FullName}");
+                        ModLogger.Log($"Mod instantiation successful: {type.FullName}", "ModInstancer");
                     }
                     else
                     {
@@ -51,9 +52,13 @@ namespace ModArchitecture
 
 
             }
+            ModLogger.Log($"Mod instantiation completed, success: {modInstances.Count}", "ModInstancer");
         }
         public void InitializeMods(string[] order)
         {
+            ModLogger.Log($"Starting initialization of {order.Length} mods...", "ModInstancer");
+            int successCount = 0;
+
             foreach (var modId in order)
             {
                 string expectedEntryClass = $"{modId}Entry";
@@ -66,7 +71,8 @@ namespace ModArchitecture
                 try
                 {
                     instance.Initialize();
-                    ModLogger.Log($"Initializing mod: {instance.GetType().FullName}");
+                    ModLogger.Log($"Mod initialization successful: {instance.GetType().FullName}", "ModInstancer");
+                    successCount++;
                 }
                 catch (Exception ex)
                 {
@@ -74,9 +80,13 @@ namespace ModArchitecture
                     continue;
                 }
             }
+            ModLogger.Log($"Mod initialization completed, success: {successCount}/{order.Length}", "ModInstancer");
         }
         internal void StartGame(string[] order)
         {
+            ModLogger.Log($"Starting game start for {order.Length} mods...", "ModInstancer");
+            int successCount = 0;
+
             foreach (var modId in order)
             {
                 // 根據 modId 找到對應的 Entry 類別完整名稱
@@ -90,7 +100,8 @@ namespace ModArchitecture
                 try
                 {
                     instance.OnGameStart();
-                    ModLogger.Log($"Starting game for mod: {instance.GetType().FullName}");
+                    ModLogger.Log($"Mod game start successful: {instance.GetType().FullName}", "ModInstancer");
+                    successCount++;
                 }
                 catch (Exception ex)
                 {
@@ -98,6 +109,7 @@ namespace ModArchitecture
                     continue;
                 }
             }
+            ModLogger.Log($"Game start completed, success: {successCount}/{order.Length}", "ModInstancer");
         }
 
     }

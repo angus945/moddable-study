@@ -20,6 +20,7 @@ namespace ModArchitecture
 
         public ModMetaData[] FindMods()
         {
+            ModLogger.Log($"Starting mod directory search: {string.Join(", ", findDirectories)}", "ModFinder");
             findMods.Clear();
             modIDs.Clear();
 
@@ -28,17 +29,21 @@ namespace ModArchitecture
                 FindMods(findDirectory);
             }
 
+            ModLogger.Log($"Mod search completed, found {findMods.Count} mods", "ModFinder");
             return findMods.ToArray();
         }
         void FindMods(string directoryPath)
         {
             if (!Directory.Exists(directoryPath))
             {
-                ModLogger.LogWarning($"Mod Root directory does not exist: {directoryPath}");
+                ModLogger.LogWarning($"Mod Root directory does not exist: {directoryPath}", "ModFinder");
                 return;
             }
 
+            ModLogger.Log($"搜尋目錄: {directoryPath}", "ModFinder");
             string[] modDirectories = GetModDirectories(directoryPath);
+            int foundCount = 0;
+
             foreach (var modDirectory in modDirectories)
             {
                 if (GetModMetadata(modDirectory, out ModMetaData mod))
@@ -46,11 +51,12 @@ namespace ModArchitecture
                     GetModAssetsPath(mod);
 
                     findMods.Add(mod);
-                    ModLogger.Log($"Loaded modinfo: {mod.id} - {mod.ToString()}");
+                    ModLogger.Log($"Found mod: {mod.id} - {mod.name}", "ModFinder");
+                    foundCount++;
                 }
             }
 
-            ModLogger.Log($"Loaded {findMods.Count} mods from {directoryPath}");
+            ModLogger.Log($"Directory {directoryPath} search completed, found {foundCount} mods", "ModFinder");
         }
         string[] GetModDirectories(string root)
         {

@@ -7,29 +7,29 @@ using ModArchitecture.Logger;
 namespace ModArchitecture.Utils
 {
     /// <summary>
-    /// 統一的反射載入工具類，提供安全的類型掃描和載入功能
+    /// Unified reflection loading utility class, providing safe type scanning and loading functionality
     /// </summary>
     public static class ReflectionUtils
     {
         /// <summary>
-        /// 安全地獲取所有實現指定介面或繼承指定類別的類型
+        /// Safely get all types that implement a specified interface or inherit from a specified class
         /// </summary>
-        /// <typeparam name="T">要搜尋的基底類型或介面</typeparam>
-        /// <param name="includeAbstract">是否包含抽象類別</param>
-        /// <param name="includeInterface">是否包含介面</param>
-        /// <returns>符合條件的類型列表</returns>
+        /// <typeparam name="T">The base type or interface to search for</typeparam>
+        /// <param name="includeAbstract">Whether to include abstract classes</param>
+        /// <param name="includeInterface">Whether to include interfaces</param>
+        /// <returns>List of types that meet the criteria</returns>
         public static IEnumerable<Type> GetTypesAssignableFrom<T>(bool includeAbstract = false, bool includeInterface = false)
         {
             return GetTypesAssignableFrom(typeof(T), includeAbstract, includeInterface);
         }
 
         /// <summary>
-        /// 安全地獲取所有實現指定介面或繼承指定類別的類型
+        /// Safely get all types that implement a specified interface or inherit from a specified class
         /// </summary>
-        /// <param name="baseType">要搜尋的基底類型或介面</param>
-        /// <param name="includeAbstract">是否包含抽象類別</param>
-        /// <param name="includeInterface">是否包含介面</param>
-        /// <returns>符合條件的類型列表</returns>
+        /// <param name="baseType">The base type or interface to search for</param>
+        /// <param name="includeAbstract">Whether to include abstract classes</param>
+        /// <param name="includeInterface">Whether to include interfaces</param>
+        /// <returns>List of types that meet the criteria</returns>
         public static IEnumerable<Type> GetTypesAssignableFrom(Type baseType, bool includeAbstract = false, bool includeInterface = false)
         {
             var allTypes = new List<Type>();
@@ -67,9 +67,9 @@ namespace ModArchitecture.Utils
         /// <summary>
         /// 根據類型名稱搜尋類型
         /// </summary>
-        /// <param name="typeName">類型名稱</param>
-        /// <param name="baseType">可選的基底類型過濾器</param>
-        /// <returns>找到的類型，如果沒找到則返回 null</returns>
+        /// <param name="typeName">Type name</param>
+        /// <param name="baseType">Optional base type filter</param>
+        /// <returns>Found type, returns null if not found</returns>
         public static Type FindTypeByName(string typeName, Type baseType = null)
         {
             foreach (var assembly in GetSafeAssemblies())
@@ -94,12 +94,12 @@ namespace ModArchitecture.Utils
         }
 
         /// <summary>
-        /// 安全地創建類型實例
+        /// Safely create type instance
         /// </summary>
-        /// <typeparam name="T">目標類型</typeparam>
-        /// <param name="type">要實例化的類型</param>
-        /// <param name="args">構造函數參數</param>
-        /// <returns>創建的實例，如果失敗則返回 default(T)</returns>
+        /// <typeparam name="T">Target type</typeparam>
+        /// <param name="type">Type to instantiate</param>
+        /// <param name="args">Constructor parameters</param>
+        /// <returns>Created instance, returns default(T) if failed</returns>
         public static T SafeCreateInstance<T>(Type type, params object[] args)
         {
             try
@@ -114,9 +114,9 @@ namespace ModArchitecture.Utils
         }
 
         /// <summary>
-        /// 獲取安全的組件列表，排除系統組件
+        /// Get safe assembly list, excluding system assemblies
         /// </summary>
-        /// <returns>安全的組件列表</returns>
+        /// <returns>Safe assembly list</returns>
         public static IEnumerable<Assembly> GetSafeAssemblies()
         {
             var allAssemblies = AppDomain.CurrentDomain.GetAssemblies();
@@ -124,7 +124,7 @@ namespace ModArchitecture.Utils
 
             ModLogger.Log($"Total assemblies: {allAssemblies.Length}, Safe assemblies: {safeAssemblies.Count}");
 
-            // 列出所有安全的組件名稱
+            // List all safe assembly names
             var safeAssemblyNames = safeAssemblies.Select(a => a.GetName().Name).ToList();
             ModLogger.Log($"Safe assemblies: [{string.Join(", ", safeAssemblyNames)}]");
 
@@ -132,10 +132,10 @@ namespace ModArchitecture.Utils
         }
 
         /// <summary>
-        /// 安全地從組件中獲取類型
+        /// Safely get types from assembly
         /// </summary>
-        /// <param name="assembly">目標組件</param>
-        /// <returns>組件中的類型列表</returns>
+        /// <param name="assembly">Target assembly</param>
+        /// <returns>List of types in assembly</returns>
         public static IEnumerable<Type> GetTypesFromAssembly(Assembly assembly)
         {
             try
@@ -144,11 +144,11 @@ namespace ModArchitecture.Utils
             }
             catch (ReflectionTypeLoadException ex)
             {
-                // 處理部分類型載入失敗的情況
+                // Handle partial type loading failure
                 var assemblyName = assembly.GetName().Name;
                 ModLogger.LogWarning($"Some types in assembly {assemblyName} could not be loaded. Using available types.");
 
-                // 記錄具體的載入錯誤以便除錯
+                // Log specific loading errors for debugging
                 if (ex.LoaderExceptions != null && ex.LoaderExceptions.Length > 0)
                 {
                     foreach (var loaderException in ex.LoaderExceptions)
@@ -160,7 +160,7 @@ namespace ModArchitecture.Utils
                     }
                 }
 
-                // 返回成功載入的類型
+                // Return successfully loaded types
                 var loadedTypes = ex.Types.Where(t => t != null).ToList();
                 ModLogger.Log($"  Successfully loaded {loadedTypes.Count} types from {assemblyName}");
 
@@ -174,31 +174,31 @@ namespace ModArchitecture.Utils
         }
 
         /// <summary>
-        /// 判斷是否應該跳過某個組件
+        /// Determine whether to skip an assembly
         /// </summary>
-        /// <param name="assembly">要檢查的組件</param>
+        /// <param name="assembly">Assembly to check</param>
         /// <returns>是否應該跳過</returns>
         public static bool ShouldSkipAssembly(Assembly assembly)
         {
             var assemblyName = assembly.FullName;
             var assemblySimpleName = assembly.GetName().Name;
 
-            // 特別保留的 Mod 相關組件（包括動態載入的 Mod）
+            // Specially reserved Mod-related assemblies (including dynamically loaded Mods)
             string[] keepPrefixes = {
                 "ModInfrastructure",
                 "Implement",
                 "Assembly-CSharp",
-                "Mod"  // 添加 "Mod" 前綴來保留所有 ModA, ModB 等組件
+                "Mod"  // Add "Mod" prefix to preserve all ModA, ModB etc. assemblies
             };
 
-            // 如果是 Mod 相關組件，不跳過
+            // If it's a Mod-related assembly, don't skip
             if (keepPrefixes.Any(prefix => assemblySimpleName.StartsWith(prefix)))
             {
                 // ModLogger.Log($"Keeping mod-related assembly: {assemblySimpleName}");
                 return false;
             }
 
-            // 跳過系統組件和已知會造成問題的組件
+            // Skip system assemblies and known problematic assemblies
             string[] skipPrefixes = {
                 "System.",
                 "Microsoft.",
@@ -214,7 +214,7 @@ namespace ModArchitecture.Utils
 
             bool shouldSkip = skipPrefixes.Any(prefix => assemblyName.StartsWith(prefix));
 
-            // 添加調試資訊
+            // Add debug information
             if (shouldSkip)
             {
                 // ModLogger.Log($"Skipping system assembly: {assemblySimpleName}");

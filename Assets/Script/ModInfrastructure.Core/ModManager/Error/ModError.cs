@@ -3,7 +3,7 @@ using System;
 namespace ModArchitecture
 {
     /// <summary>
-    /// 模組錯誤記錄
+    /// Mod error record
     /// </summary>
     public class ModError
     {

@@ -19,7 +19,9 @@ namespace ModArchitecture
 
         public void RegisterDeserializers()
         {
+            ModLogger.Log("Starting to register definition deserializers...", "DefinitionDeserializer");
             var deserializerTypes = ReflectionUtils.GetTypesAssignableFrom<IDefinitionDeserializer>();
+            int successCount = 0;
 
             foreach (var type in deserializerTypes)
             {
@@ -27,13 +29,24 @@ namespace ModArchitecture
                 if (deserializer != null && !deserializers.ContainsKey(deserializer.HandlesNode))
                 {
                     deserializers.Add(deserializer.HandlesNode, deserializer);
-                    ModLogger.Log($"Registered deserializer: {type.Name} for node <{deserializer.HandlesNode}>");
+                    ModLogger.Log($"Registered deserializer successfully: {type.Name} for node <{deserializer.HandlesNode}>", "DefinitionDeserializer");
+                    successCount++;
+                }
+                else if (deserializer != null)
+                {
+                    ModLogger.LogWarning($"Deserializer for node <{deserializer.HandlesNode}> already registered, skipping {type.Name}", "DefinitionDeserializer");
                 }
             }
+
+            ModLogger.Log($"Definition deserializers registration completed, success: {successCount} deserializers", "DefinitionDeserializer");
         }
         public Dictionary<Type, List<Definition.Definition>> InstanceDefinitions(XDocument xmlDocument)
         {
+            ModLogger.Log("Starting to instantiate definitions from XML document...", "DefinitionDeserializer");
             var definitions = new Dictionary<Type, List<Definition.Definition>>();
+            int successCount = 0;
+            int errorCount = 0;
+            int skipCount = 0;
 
             foreach (XElement element in xmlDocument.Root.Elements())
             {
@@ -51,20 +64,24 @@ namespace ModArchitecture
                                 definitions[defType] = new List<Definition.Definition>();
                             }
                             definitions[defType].Add(def);
-                            ModLogger.Log($"Instantiated definition: {def.defID} of type {defType.Name}");
+                            ModLogger.Log($"Instantiated definition successfully: {def.defID} of type {defType.Name}", "DefinitionDeserializer");
+                            successCount++;
                         }
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.LogError($"Error deserializing element <{nodeName}> with {deserializer.GetType().Name}: {ex.Message}");
+                        ModLogger.LogError($"Error deserializing element <{nodeName}> with {deserializer.GetType().Name}: {ex.Message}", "DefinitionDeserializer");
+                        errorCount++;
                     }
                 }
                 else
                 {
-                    ModLogger.LogWarning($"No deserializer found for node type: <{nodeName}>");
+                    ModLogger.LogWarning($"No deserializer found for node type: <{nodeName}>", "DefinitionDeserializer");
+                    skipCount++;
                 }
             }
 
+            ModLogger.Log($"Definition instantiation completed, success: {successCount}, errors: {errorCount}, skipped: {skipCount}", "DefinitionDeserializer");
             return definitions;
         }
     }

@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
@@ -10,31 +11,56 @@ namespace ModArchitecture
     {
         public void LoadDefinitions(string[] filePaths, XDocument xmlDocument)
         {
+            ModLogger.Log($"Starting to load {filePaths.Length} definition files...", "DefinitionLoader");
+            int successCount = 0;
+
             foreach (var filePath in filePaths)
             {
-                LoadDefinition(filePath, xmlDocument);
+                if (LoadDefinition(filePath, xmlDocument))
+                {
+                    successCount++;
+                }
             }
+
+            ModLogger.Log($"Definition file loading completed, success: {successCount}/{filePaths.Length}", "DefinitionLoader");
         }
-        public void LoadDefinition(string filePath, XDocument xmlDocument)
+        public bool LoadDefinition(string filePath, XDocument xmlDocument)
         {
             if (!File.Exists(filePath))
             {
-                ModLogger.LogWarning($"Definition file does not exist: {filePath}");
-                return;
+                ModLogger.LogWarning($"Definition file does not exist: {filePath}", "DefinitionLoader");
+                return false;
             }
 
-            ModLogger.Log($"Loading XML file: {filePath}");
-            XDocument tempDoc = XDocument.Load(filePath);
-            XElement root = tempDoc.Root;
-
-            if (root == null || root.Name != "Defs") return;
-
-            foreach (XElement element in root.Elements())
+            try
             {
-                RemoveExisting(xmlDocument, element);
-                xmlDocument.Root.Add(element);
+                ModLogger.Log($"Loading definition file: {Path.GetFileName(filePath)}", "DefinitionLoader");
+                XDocument tempDoc = XDocument.Load(filePath);
+                XElement root = tempDoc.Root;
 
-                ModLogger.Log($"Merge Definition: {element.Name} with defID: {element.Element("defID")?.Value}");
+                if (root == null || root.Name != "Defs")
+                {
+                    ModLogger.LogWarning($"Invalid definition file format: {filePath}", "DefinitionLoader");
+                    return false;
+                }
+
+                int elementCount = 0;
+                foreach (XElement element in root.Elements())
+                {
+                    RemoveExisting(xmlDocument, element);
+                    xmlDocument.Root.Add(element);
+                    elementCount++;
+
+                    ModLogger.Log($"Merged definition: {element.Name} with defID: {element.Element("defID")?.Value}", "DefinitionLoader");
+                }
+
+                ModLogger.Log($"File {Path.GetFileName(filePath)} loaded successfully, merged {elementCount} definitions", "DefinitionLoader");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ModLogger.LogError($"Failed to load definition file {filePath}: {ex.Message}", "DefinitionLoader");
+                return false;
             }
         }
         void RemoveExisting(XDocument mergeDoc, XElement newElement)

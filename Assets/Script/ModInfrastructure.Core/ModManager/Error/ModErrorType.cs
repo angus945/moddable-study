@@ -1,27 +1,27 @@
 namespace ModArchitecture
 {
     /// <summary>
-    /// 定義模組載入過程中可能發生的錯誤類型
+    /// Define error types that may occur during mod loading process
     /// </summary>
     public enum ModErrorType
     {
         /// <summary>
-        /// 模組實例化錯誤
+        /// Mod instantiation error
         /// </summary>
         Instancing,
 
         /// <summary>
-        /// 模組初始化錯誤
+        /// Mod initialization error
         /// </summary>
         Initialization,
 
         /// <summary>
-        /// 遊戲啟動錯誤
+        /// Game start error
         /// </summary>
         GameStart,
 
         /// <summary>
-        /// 資源載入錯誤
+        /// Asset loading error
         /// </summary>
         AssetLoading
     }

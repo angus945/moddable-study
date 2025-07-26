@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using ModArchitecture;
 using ModArchitecture.Definition;
+using ModArchitecture.Logger;
+using ModArchitecture.Utils;
 
 namespace Angus
 {
@@ -10,7 +12,7 @@ namespace Angus
     /// Inheritor for CharacterDef definitions.
     /// </summary>
     /// <remarks>
-    /// This class handles the inheritance processing of CharacterDef definitions.
+    /// This class handles the inheritance processing of CharacterDef definitions using DefinitionInheritanceUtils.
     /// </remarks>
     public class CharacterDefInheritor : IDefinitionInheritor
     {
@@ -24,115 +26,41 @@ namespace Angus
         /// </summary>
         /// <param name="definitions">Definitions to process inheritance for</param>
         /// <returns>Processed definitions with inheritance applied</returns>
-        public IEnumerable<Definition> ProcessInheritance(IEnumerable<Definition> definitions)
+        public IEnumerable<ModArchitecture.Definition.Definition> ProcessInheritance(IEnumerable<ModArchitecture.Definition.Definition> definitions)
         {
+            ModLogger.Log("CharacterDefInheritor.ProcessInheritance called", "CharacterDefInheritor");
+
             var characterDefs = definitions.Cast<CharacterDef>().ToList();
-            return ProcessCharacterDefInheritance(characterDefs).Cast<Definition>();
+            ModLogger.Log($"Processing {characterDefs.Count} CharacterDef definitions", "CharacterDefInheritor");
+
+            var processedDefs = DefinitionInheritanceUtils.ProcessInheritance(characterDefs, ApplyCharacterDefSpecificInheritance);
+
+            ModLogger.Log("CharacterDefInheritor.ProcessInheritance completed", "CharacterDefInheritor");
+            return processedDefs.Cast<ModArchitecture.Definition.Definition>();
         }
 
         /// <summary>
-        /// Process inheritance for typed CharacterDef definitions.
+        /// Apply CharacterDef-specific inheritance logic.
         /// </summary>
-        /// <param name="definitions">CharacterDef definitions to process</param>
-        /// <returns>Processed CharacterDef definitions</returns>
-        private IEnumerable<CharacterDef> ProcessCharacterDefInheritance(List<CharacterDef> definitions)
+        /// <param name="child">Child CharacterDef</param>
+        /// <param name="parent">Parent CharacterDef</param>
+        private void ApplyCharacterDefSpecificInheritance(CharacterDef child, CharacterDef parent)
         {
-            // Create a map for quick lookup
-            var definitionMap = definitions.ToDictionary(def => def.defID, def => def);
-            var processedDefinitions = new List<CharacterDef>();
+            ModLogger.Log($"ApplyCharacterDefSpecificInheritance: {child.defID} <- {parent.defID}", "CharacterDefInheritor");
+            ModLogger.Log($"  Before: child.health={child.health}, child.speed={child.speed}", "CharacterDefInheritor");
+            ModLogger.Log($"  Parent: parent.health={parent.health}, parent.speed={parent.speed}", "CharacterDefInheritor");
 
-            // Filter out abstract definitions from final results
-            var concreteDefinitions = definitions.Where(def => !def.IsAbstract).ToList();
+            // Inherit health if child has default value (0)
+            DefinitionInheritanceUtils.InheritNumericProperty(child, parent,
+                c => c.health,
+                (c, v) => c.health = v);
 
-            // Process concrete definitions that may inherit from abstract ones
-            foreach (var concreteDef in concreteDefinitions)
-            {
-                var processedDef = ProcessSingleCharacterDefInheritance(concreteDef, definitionMap);
-                processedDefinitions.Add(processedDef);
-            }
+            // Inherit speed if child has default value (0)
+            DefinitionInheritanceUtils.InheritNumericProperty(child, parent,
+                c => c.speed,
+                (c, v) => c.speed = v);
 
-            return processedDefinitions;
-        }
-
-        /// <summary>
-        /// Process inheritance for a single CharacterDef definition.
-        /// </summary>
-        /// <param name="definition">CharacterDef to process</param>
-        /// <param name="definitionMap">Map of all available CharacterDef definitions for lookup</param>
-        /// <returns>Processed CharacterDef</returns>
-        private CharacterDef ProcessSingleCharacterDefInheritance(CharacterDef definition, Dictionary<string, CharacterDef> definitionMap)
-        {
-            if (string.IsNullOrEmpty(definition.inheritsFrom))
-            {
-                return definition; // No inheritance to process
-            }
-
-            if (definitionMap.TryGetValue(definition.inheritsFrom, out var parentDef))
-            {
-                // Apply common inheritance (label, description, components, extensions)
-                ApplyCommonInheritance(definition, parentDef);
-
-                // Apply CharacterDef-specific inheritance
-                ApplyCharacterDefSpecificInheritance(definition, parentDef);
-            }
-
-            return definition;
-        }
-
-        /// <summary>
-        /// Apply common inheritance logic that applies to all definition types.
-        /// </summary>
-        /// <param name="definition">Child CharacterDef</param>
-        /// <param name="parentDefinition">Parent CharacterDef</param>
-        private void ApplyCommonInheritance(CharacterDef definition, CharacterDef parentDefinition)
-        {
-            // Apply basic field inheritance
-            if (string.IsNullOrEmpty(definition.label) && !string.IsNullOrEmpty(parentDefinition.label))
-            {
-                definition.label = parentDefinition.label;
-            }
-
-            if (string.IsNullOrEmpty(definition.description) && !string.IsNullOrEmpty(parentDefinition.description))
-            {
-                definition.description = parentDefinition.description;
-            }
-
-            // Inherit components and extensions if not already present
-            foreach (var parentComponent in parentDefinition.components)
-            {
-                if (!definition.components.Any(c => c.GetType() == parentComponent.GetType()))
-                {
-                    definition.components.Add(parentComponent);
-                }
-            }
-
-            foreach (var parentExtension in parentDefinition.extensions)
-            {
-                if (!definition.extensions.Any(e => e.GetType() == parentExtension.GetType()))
-                {
-                    definition.extensions.Add(parentExtension);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Apply specific inheritance logic for CharacterDef.
-        /// </summary>
-        /// <param name="definition">Child CharacterDef</param>
-        /// <param name="parentDefinition">Parent CharacterDef</param>
-        private void ApplyCharacterDefSpecificInheritance(CharacterDef definition, CharacterDef parentDefinition)
-        {
-            // Inherit health if not specifically set (default value is 0)
-            if (definition.health == 0 && parentDefinition.health > 0)
-            {
-                definition.health = parentDefinition.health;
-            }
-
-            // Inherit speed if not specifically set (default value is 0)
-            if (definition.speed == 0 && parentDefinition.speed > 0)
-            {
-                definition.speed = parentDefinition.speed;
-            }
+            ModLogger.Log($"  After: child.health={child.health}, child.speed={child.speed}", "CharacterDefInheritor");
         }
     }
 }

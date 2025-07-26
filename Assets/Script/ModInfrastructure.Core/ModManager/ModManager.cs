@@ -27,6 +27,7 @@ namespace ModArchitecture
         ModDefinitionLoader definitionLoader;
         ModDefinitionPatcher definitionPatcher;
         ModDefinitionDeserializer deserializer;
+        ModDefinitionInheritor inheritor;
         ModAssetsLoader assetsLoader;
         ModSettings modSettings;
         ModInstancer initializer;
@@ -43,6 +44,7 @@ namespace ModArchitecture
             this.definitionLoader = definitionLoader;
             this.definitionPatcher = patcher;
             this.deserializer = deserializer;
+            this.inheritor = new ModDefinitionInheritor();
             this.modSettings = modSettings;
 
             // Initialize subsystems that require ModManager reference
@@ -111,7 +113,14 @@ namespace ModArchitecture
             deserializer.RegisterDeserializers();
 
             var definitions = deserializer.InstanceDefinitions(definitionDocument);
-            DefinitionDatabase.SetDefinitions(definitions);
+
+            // Process inheritance for all definitions
+            ModLogger.Log("Starting definition inheritance processing...", "ModManager");
+            inheritor.RegisterInheritors();
+            var processedDefinitions = inheritor.ProcessInheritance(definitions);
+            ModLogger.Log("Definition inheritance processing completed", "ModManager");
+
+            DefinitionDatabase.SetDefinitions(processedDefinitions);
 
             loadingRecord.definitionDoc = definitionDocument;
             ModLogger.Log("Mod definition files loading completed", "ModManager");

@@ -1,16 +1,9 @@
 ## Mod Architecture Readme
 
-next:
+## Unit Testing Refactoring
 
-ComponentProperty, DefinitionExtension
+把 ModManager 關閉，先從 DataProcesser 開始重構。 
 
-Def 繼承
-
-兼容 CSV 的 Def
-
-兼容普遍的 Unity 方案 (prefab, animation)
-
-資料解析流程 讀取 > XML Merge > Def 繼承 > Def Patch > Def Deserialize
 
 ## 命名規則
 

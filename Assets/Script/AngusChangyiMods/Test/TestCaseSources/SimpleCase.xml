@@ -1,0 +1,16 @@
+<Defs>
+  <TestDefinition>
+    <defName>Test.TestDefinition</defName>
+    <label>Test Definition</label>
+    <description>This is a test definition for demonstration purposes.</description>
+    <stringProp>Example String</stringProp>
+    <intProp>42</intProp>
+    <boolProp>true</boolProp>
+    <listProp>
+      <li>Item1</li>
+      <li>Item2</li>
+      <li>Item3</li>
+    </listProp>
+    
+  </TestDefinition>
+</Defs>

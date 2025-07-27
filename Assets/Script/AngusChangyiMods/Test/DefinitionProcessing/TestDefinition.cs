@@ -1,11 +1,14 @@
 using System.Collections.Generic;
 using AngusChangyiMods.Core;
 
-public class TestDefinition : DefBase
+namespace Script.AngusChangyiMods.Test.DefinitionProcessing.Old
 {
-    public string stringProp;
-    public int intProp;
-    public bool boolProp;
+    public class TestDefinition : DefBase
+    {
+        public string stringProp;
+        public int intProp;
+        public bool boolProp;
 
-    public List<string> listProp;
+        public List<string> listProp;
+    }
 }

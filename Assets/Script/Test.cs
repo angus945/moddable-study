@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using ModArchitecture;
-using ModArchitecture.Definition;
 using System.Reflection;
 using System.Linq;
-using ModArchitecture.Logger;
-using ModArchitecture.Utils;
+using AngusChangyiMods;
+using AngusChangyiMods.Core;
+using AngusChangyiMods.Core.Utils;
+using AngusChangyiMods.Unity;
 
 public class Test : MonoBehaviour
 {
@@ -17,7 +17,7 @@ public class Test : MonoBehaviour
 
     [ShowInInspector]
     [DictionaryDrawerSettings(KeyLabel = "Type")]
-    public Dictionary<Type, List<Definition>> definitions = new Dictionary<Type, List<Definition>>();
+    public Dictionary<Type, List<DefBase>> definitions = new Dictionary<Type, List<DefBase>>();
 
     [ShowInInspector]
     [DictionaryDrawerSettings(KeyLabel = "ID")]
@@ -147,41 +147,41 @@ public class Test : MonoBehaviour
         ModLogger.Log("============= Testing ReflectionUtils Cache Performance =============");
 
         // Clear cache first
-        ModArchitecture.Utils.ReflectionUtils.ClearCache();
+        AngusChangyiMods.Core.Utils.ReflectionUtils.ClearCache();
         ModLogger.Log("Cache cleared");
 
         // Test first call (should initialize cache)
         var watch = System.Diagnostics.Stopwatch.StartNew();
-        var definitions1 = ModArchitecture.Utils.ReflectionUtils.GetTypesAssignableFrom<Definition>();
+        var definitions1 = AngusChangyiMods.Core.Utils.ReflectionUtils.GetTypesAssignableFrom<DefBase>();
         watch.Stop();
         ModLogger.Log($"First call (with cache initialization): {watch.ElapsedMilliseconds}ms, found {definitions1.Count()} types");
 
         // Test second call (should use cache)
         watch.Restart();
-        var definitions2 = ModArchitecture.Utils.ReflectionUtils.GetTypesAssignableFrom<Definition>();
+        var definitions2 = AngusChangyiMods.Core.Utils.ReflectionUtils.GetTypesAssignableFrom<DefBase>();
         watch.Stop();
         ModLogger.Log($"Second call (from cache): {watch.ElapsedMilliseconds}ms, found {definitions2.Count()} types");
 
         // Test third call with different parameters (should compute and cache)
         watch.Restart();
-        var definitions3 = ModArchitecture.Utils.ReflectionUtils.GetTypesAssignableFrom<Definition>(includeAbstract: true);
+        var definitions3 = AngusChangyiMods.Core.Utils.ReflectionUtils.GetTypesAssignableFrom<DefBase>(includeAbstract: true);
         watch.Stop();
         ModLogger.Log($"Third call (different params, new cache entry): {watch.ElapsedMilliseconds}ms, found {definitions3.Count()} types");
 
         // Test fourth call with same parameters as third (should use cache)
         watch.Restart();
-        var definitions4 = ModArchitecture.Utils.ReflectionUtils.GetTypesAssignableFrom<Definition>(includeAbstract: true);
+        var definitions4 = AngusChangyiMods.Core.Utils.ReflectionUtils.GetTypesAssignableFrom<DefBase>(includeAbstract: true);
         watch.Stop();
         ModLogger.Log($"Fourth call (same params as third, from cache): {watch.ElapsedMilliseconds}ms, found {definitions4.Count()} types");
 
         // Test FindTypeByName
         watch.Restart();
-        var testType1 = ModArchitecture.Utils.ReflectionUtils.FindTypeByName("TestDefinition");
+        var testType1 = AngusChangyiMods.Core.Utils.ReflectionUtils.FindTypeByName("TestDefinition");
         watch.Stop();
         ModLogger.Log($"FindTypeByName first call: {watch.ElapsedMilliseconds}ms, found: {testType1?.Name ?? "null"}");
 
         watch.Restart();
-        var testType2 = ModArchitecture.Utils.ReflectionUtils.FindTypeByName("TestDefinition");
+        var testType2 = AngusChangyiMods.Core.Utils.ReflectionUtils.FindTypeByName("TestDefinition");
         watch.Stop();
         ModLogger.Log($"FindTypeByName second call (cached): {watch.ElapsedMilliseconds}ms, found: {testType2?.Name ?? "null"}");
 

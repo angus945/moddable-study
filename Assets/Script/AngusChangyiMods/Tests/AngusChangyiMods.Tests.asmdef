@@ -1,0 +1,13 @@
+{
+    "name": "AngusChangyiMods.Tests",
+    "references": [
+        "AngusChangyiMods.Core",
+        "AngusChangyiMods.Example.Core",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "optionalUnityReferences": []
+}

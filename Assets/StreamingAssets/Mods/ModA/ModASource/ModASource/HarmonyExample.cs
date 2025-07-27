@@ -1,4 +1,4 @@
-using ModArchitecture;
+using AngusChangyiMods;
 using UnityEngine;
 // 注意：實際使用時需要引用 Harmony 庫
 // using HarmonyLib;

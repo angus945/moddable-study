@@ -1,0 +1,16 @@
+{
+    "name": "AngusChangyiMods.Unity",
+    "rootNamespace": "",
+    "references": [
+        "GUID:f36b7e57438e5de4eb32dd90d99c26e5"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

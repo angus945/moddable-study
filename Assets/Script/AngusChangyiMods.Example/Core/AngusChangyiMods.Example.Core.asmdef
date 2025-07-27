@@ -1,0 +1,18 @@
+{
+    "name": "AngusChangyiMods.Example.Core",
+    "rootNamespace": "",
+    "references": [
+        "GUID:f36b7e57438e5de4eb32dd90d99c26e5"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "0Harmony.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

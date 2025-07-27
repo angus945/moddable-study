@@ -1,12 +1,10 @@
 {
-    "name": "AngusChangyiMods.Example.Tests",
+    "name": "AngusChangyiMods.Core.Tests",
     "rootNamespace": "",
     "references": [
-        "AngusChangyiMods.Core",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "AngusChangyiMods.Core.Core",
-        "AngusChangyiMods.Example.Core"
+        "AngusChangyiMods.Core.Core"
     ],
     "includePlatforms": [
         "Editor"

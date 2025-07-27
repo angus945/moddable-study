@@ -16,6 +16,7 @@ namespace AngusChangyiMods.Core
         public List<DefExtension> extensions = new List<DefExtension>(); // every instance will share the same extensions
     }
 
+
     public abstract class DefExtension { }
 
     public abstract class ComponentProperty { }

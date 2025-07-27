@@ -1,0 +1,41 @@
+[Unit Test Log] 2025/7/27 上午 09:48:38
+============================================================
+- moddable-architecture-study: FAILED
+  - AngusChangyiMods.Example.Tests.dll: FAILED
+    - ModInfrastructure: FAILED
+      - Test: FAILED
+        - DefinitionInheritanceTests: FAILED
+          - TestAbstractDefinitionsExclusion: PASSED
+          - TestKnightInheritance: FAILED
+            > Message: Knight should inherit health from BaseWarrior
+  Expected: 150
+  But was:  100
+          - TestMultiLevelInheritance: FAILED
+            > Message: Child should inherit health from parent (100)
+  Expected: 100
+  But was:  50
+          - TestNonDefaultValuesNotOverridden: PASSED
+          - TestPropertyInheritanceWithDefaults: PASSED
+          - TestSingleLevelInheritance: PASSED
+          - TestTopologicalSorting: FAILED
+            > Message: Knight inheritance should work (requires BaseWarrior to be processed first)
+  Expected: 150
+  But was:  100
+          - TestWizardInheritance: FAILED
+            > Message: Wizard should inherit speed from BaseMage
+  Expected: 6
+  But was:  5
+        - DefinitionInheritanceUtilsTests: PASSED
+          - TestCircularInheritanceDetection: PASSED
+          - TestInheritComplexProperty_WithNullChildObject_ShouldCreateNew: PASSED
+          - TestInheritNumericProperty_WithDefaultValue_ShouldInherit: PASSED
+          - TestInheritNumericProperty_WithNonDefaultValue_ShouldNotInherit: PASSED
+          - TestInheritProperty_WithCustomPredicate_ShouldUseCustomLogic: PASSED
+          - TestInheritProperty_WithCustomPredicateFalse_ShouldNotInherit: PASSED
+          - TestInheritStringProperty_WithEmptyValue_ShouldInherit: PASSED
+          - TestInheritStringProperty_WithExistingValue_ShouldNotInherit: PASSED
+          - TestInheritStringProperty_WithNullValue_ShouldInherit: PASSED
+          - TestMergeListProperty_WithExistingChildList_ShouldMerge: PASSED
+          - TestMergeListProperty_WithNullChildList_ShouldCreateNewList: PASSED
+          - TestPerformanceWithLargeInheritanceChain: PASSED
+============================================================

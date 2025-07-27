@@ -1,0 +1,136 @@
+<Defs>
+  <CharacterDef>
+    <health>150</health>
+    <defID>Knight</defID>
+    <label>騎士</label>
+    <description>重裝戰士，擁有強大的防禦力</description>
+    <speed>3</speed>
+  </CharacterDef>
+  <CharacterDef>
+    <speed>6</speed>
+    <defID>Wizard</defID>
+    <label>巫師</label>
+    <description>智慧的魔法使用者</description>
+    <health>70</health>
+  </CharacterDef>
+  <CharacterDef>
+    <defID>Archer</defID>
+    <label>弓箭手</label>
+    <description>敏捷的遠程攻擊者</description>
+    <health>90</health>
+    <speed>7</speed>
+  </CharacterDef>
+  <CharacterDef>
+    <defID>Peasant</defID>
+    <label>農民</label>
+    <description>普通的村民，沒有特殊能力</description>
+    <health>60</health>
+    <speed>3</speed>
+  </CharacterDef>
+  <ThingDef inheritsFrom="BaseMeleeWeapon">
+    <defID>IronSword</defID>
+    <label>鐵劍</label>
+    <description>普通的鐵製長劍</description>
+    <!-- damage 和其他屬性將從 BaseMeleeWeapon 繼承 -->
+    <tags>
+      <tag>metal</tag>
+      <!-- 添加新標籤，與繼承的標籤合併 -->
+    </tags>
+    <weaponProps>
+      <damage>30</damage>
+      <!-- 覆蓋父類的武器傷害 -->
+      <!-- type 和 range 將從父類繼承 -->
+    </weaponProps>
+  </ThingDef>
+  <ThingDef inheritsFrom="BaseRangedWeapon">
+    <defID>WoodenBow</defID>
+    <label>木弓</label>
+    <description>簡單的木製弓箭</description>
+    <damage>12</damage>
+    <!-- 覆蓋父類傷害，比基礎遠程武器弱 -->
+    <tags>
+      <tag>wood</tag>
+      <tag>hunting</tag>
+    </tags>
+    <weaponProps>
+      <range>10.0</range>
+      <!-- 覆蓋射程，比基礎遠程武器遠 -->
+      <!-- type 和 damage 將從父類繼承 -->
+    </weaponProps>
+  </ThingDef>
+  <ThingDef inheritsFrom="BaseWeapon">
+    <defID>MagicStaff</defID>
+    <label>魔法法杖</label>
+    <description>蘊含魔力的法杖</description>
+    <damage>8</damage>
+    <tags>
+      <tag>magic</tag>
+      <tag>staff</tag>
+    </tags>
+    <weaponProps>
+      <type>Magic</type>
+      <!-- 完全覆蓋武器類型 -->
+      <damage>35</damage>
+      <range>6.0</range>
+    </weaponProps>
+  </ThingDef>
+  <ThingDef inheritsFrom="BaseConsumable">
+    <defID>HealthPotion</defID>
+    <label>治療藥水</label>
+    <description>恢復生命值的紅色藥水</description>
+    <stack>5</stack>
+    <!-- 覆蓋堆疊數量 -->
+    <tags>
+      <tag>healing</tag>
+      <tag>potion</tag>
+    </tags>
+  </ThingDef>
+  <ThingDef>
+    <defID>Coin</defID>
+    <label>金幣</label>
+    <description>通用貨幣</description>
+    <damage>0</damage>
+    <stack>100</stack>
+    <tags>
+      <tag>currency</tag>
+      <tag>valuable</tag>
+    </tags>
+  </ThingDef>
+  <CharacterDef>
+    <defID>PlayerCharacter</defID>
+    <label>玩家角色 ModA</label>
+    <description>玩家在遊戲中的角色。</description>
+    <health>100</health>
+    <speed>5</speed>
+  </CharacterDef>
+  <ThingDef>
+    <defID>WoodenSword</defID>
+    <label>木劍 ModA</label>
+    <description>一把用木頭製作的劍，適合初學者使用。現在更堅固。</description>
+    <tags>
+      <tag>Weapon</tag>
+      <tag>Wood</tag>
+      <tag>Starter</tag>
+    </tags>
+    <weaponProps>
+      <type>Melee</type>
+      <damage>100</damage>
+      <range>1.7</range>
+    </weaponProps>
+  </ThingDef>
+  <ThingDef>
+    <defID>IronAxe</defID>
+    <label>鐵斧 ModB</label>
+    <description>一把沉重的鐵斧，適合伐木和戰鬥。</description>
+    <tags>
+      <tag>Weapon</tag>
+      <tag>Iron</tag>
+      <tag>Tool</tag>
+    </tags>
+    <weaponProps>
+      <type>Melee</type>
+      <damage>12</damage>
+      <range>1.2</range>
+    </weaponProps>
+  </ThingDef>
+</Defs>

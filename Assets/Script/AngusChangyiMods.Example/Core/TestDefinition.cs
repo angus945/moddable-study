@@ -26,7 +26,7 @@ namespace Angus
 
         public override string ToString()
         {
-            return $"ThingDef: {defID}, Damage: {damage}, Stack: {stack}, Tags: {string.Join(", ", tags)}, WeaponProps: {weaponProps?.type ?? "None"}";
+            return $"ThingDef: {defName}, Damage: {damage}, Stack: {stack}, Tags: {string.Join(", ", tags)}, WeaponProps: {weaponProps?.type ?? "None"}";
         }
     }
 

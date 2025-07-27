@@ -3,16 +3,18 @@ using System.Xml.XPath;
 
 namespace AngusChangyiMods.Core
 {
-    public class PatchOperationAddAfter : IPatchOperation
+    public class PatchOperationInsert : IPatchOperation
     {
         public string xpath;
         public XElement value;
 
         public void Apply(XDocument doc)
         {
-            foreach (XElement element in doc.XPathSelectElements(xpath))
+            var targetElement = doc.XPathSelectElement(xpath);
+
+            if (targetElement != null)
             {
-                element.AddAfterSelf(new XElement(value));
+                targetElement.Add(value);
             }
         }
     }

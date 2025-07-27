@@ -25,6 +25,7 @@ namespace AngusChangyiMods.Core
             inheritor = new ModDefinitionInheritor(logger);
             definitionPatcher = new ModDefinitionPatcher();
             deserializer = new ModDefinitionDeserializer();
+            deserializer.RegisterDeserializers();
 
             mergeDocument = new XDocument(new XElement("Defs"));
             inheritanceDocument = new XDocument(new XElement("Defs"));
@@ -54,6 +55,11 @@ namespace AngusChangyiMods.Core
             {
                 definitionPatcher.ApplyPatch(patchPath, patchDocument);
             }
+        }
+        public void DeserializeDefinitions()
+        {
+            var instances = deserializer.InstanceDefinitions(patchDocument);
+            DefinitionDatabase.SetDefinitions(instances);
         }
 
         public void GetProcessedDefinitions(out XDocument merge, out XDocument inheritance, out XDocument patch)

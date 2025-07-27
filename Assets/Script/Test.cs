@@ -15,6 +15,8 @@ public class Test : MonoBehaviour
 {
     public string[] modOrder = new string[0];
 
+    public string[] modDefinitionXmls = new string[0];
+
     [ShowInInspector]
     [DictionaryDrawerSettings(KeyLabel = "Type")]
     public Dictionary<Type, List<DefBase>> definitions = new Dictionary<Type, List<DefBase>>();
@@ -92,10 +94,17 @@ public class Test : MonoBehaviour
         modOrder = modSorter.modOrder;
         modMap = modManager.GetModsMap();
 
-        string checkFilePath = $"{Application.dataPath}/Check.xml";
-        XDocument mergeDoc = modManager.GetDefinitionDocument();
-        File.WriteAllText(checkFilePath, mergeDoc.PrintAsString());
-        Debug.Log(modManager.GetDefinitionDocument().PrintAsString());
+        //
+        definitionProcessor.GetProcessedDefinitions(out XDocument merge, out XDocument inheritance, out XDocument patched);
+        modDefinitionXmls = new string[]
+        {
+            merge.ToString(),
+            inheritance.ToString(),
+            patched.ToString()
+        };
+        File.WriteAllText($"{Application.dataPath}/XMLCheck/merged.xml", modDefinitionXmls[0]);
+        File.WriteAllText($"{Application.dataPath}/XMLCheck/inheritance.xml", modDefinitionXmls[1]);
+        File.WriteAllText($"{Application.dataPath}/XMLCheck/patched.xml", modDefinitionXmls[2]);
 
         definitions = DefinitionDatabase.GetDefinitions();
         assets = ModAssetsDatabase.GetAssets();

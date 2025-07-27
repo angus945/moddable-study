@@ -5,7 +5,7 @@ namespace AngusChangyiMods.Core
     [System.Serializable]
     public abstract class DefBase
     {
-        public string defID;
+        public string defName;
         public string label;
         public string description;
 
@@ -23,12 +23,12 @@ namespace AngusChangyiMods.Core
 
     public class DefReference<T>
     {
-        public string defID;
+        public string defName;
         public T value;
 
-        public DefReference(string defID, T value)
+        public DefReference(string defName, T value)
         {
-            this.defID = defID;
+            this.defName = defName;
             this.value = value;
         }
     }

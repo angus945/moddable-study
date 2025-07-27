@@ -16,7 +16,7 @@ namespace AngusChangyiMods.Core
 
         protected virtual void DeserializeCommon(XElement element, T def)
         {
-            def.defID = element.Element("defID")?.Value;
+            def.defName = element.Element("defID")?.Value;
             def.label = element.Element("label")?.Value;
             def.description = element.Element("description")?.Value;
 

@@ -62,7 +62,7 @@ namespace AngusChangyiMods.Core
                                 definitions[defType] = new List<DefBase>();
                             }
                             definitions[defType].Add(def);
-                            ModLogger.Log($"Instantiated definition successfully: {def.defID} of type {defType.Name}", "DefinitionDeserializer");
+                            ModLogger.Log($"Instantiated definition successfully: {def.defName} of type {defType.Name}", "DefinitionDeserializer");
                             successCount++;
                         }
                     }

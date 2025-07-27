@@ -6,12 +6,6 @@ using System.Xml.Linq;
 
 namespace AngusChangyiMods.Core
 {
-
-    public class ModLoadingRecord
-    {
-        public XDocument definitionDoc;
-    }
-
     public class ModManager
     {
         Dictionary<string, ModMetaData> modMap = new Dictionary<string, ModMetaData>();
@@ -31,8 +25,6 @@ namespace AngusChangyiMods.Core
         ModAssetsLoader assetsLoader;
         ModSettings modSettings;
         ModInstancer initializer;
-
-        ModLoadingRecord loadingRecord = new ModLoadingRecord();
 
         public ModManager(ModFinder finder, ModSorter sorter, ModAssemblyLoader assemblyLoader, ModDefinitionProcessor defProcessor, ModSettings modSettings)
         {
@@ -101,6 +93,24 @@ namespace AngusChangyiMods.Core
                     AddModError(mod, ModErrorType.AssetLoading, $"Assembly loading failed: {ex.Message}", ex);
                 }
             }
+
+            definitionProcessor.ProcessInheritance();
+
+            foreach (var mod in sorter.modOrder)
+            {
+                ModMetaData modData = modMap[mod];
+                try
+                {
+                    definitionProcessor.ProcessPatches(modData.patches);
+                    ModLogger.Log($"Definition patches applied successfully: {mod}", "ModManager");
+                }
+                catch (Exception ex)
+                {
+                    AddModError(mod, ModErrorType.AssetLoading, $"Patch processing failed: {ex.Message}", ex);
+                }
+            }
+
+            definitionProcessor.DeserializeDefinitions();
         }
         public void LoadModsAssets()
         {
@@ -205,10 +215,6 @@ namespace AngusChangyiMods.Core
         public Dictionary<string, ModMetaData> GetModsMap()
         {
             return modMap;
-        }
-        public XDocument GetDefinitionDocument()
-        {
-            return loadingRecord.definitionDoc;
         }
 
         // Unified error management methods

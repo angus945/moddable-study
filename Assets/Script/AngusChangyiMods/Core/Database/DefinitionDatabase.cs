@@ -24,13 +24,13 @@ namespace AngusChangyiMods.Core
                 thingDefs[kvp.Key].AddRange(kvp.Value);
             }
         }
-        public static T GetDefinition<T>(string defID) where T : DefBase
+        public static T GetDefinition<T>(string defName) where T : DefBase
         {
             if (thingDefs.TryGetValue(typeof(T), out var definitions))
             {
                 foreach (var def in definitions)
                 {
-                    if (def.defID == defID)
+                    if (def.defName == defName)
                     {
                         return def as T;
                     }

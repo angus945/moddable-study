@@ -17,7 +17,7 @@ namespace ModInfrastructure.Test
     [SetUp]
     public void SetUp()
     {
-      inheritor = new ModDefinitionInheritor(new MockLogger());
+      inheritor = new ModDefinitionInheritor(new NullLogger());
       testDirectory = Path.Combine(Path.GetTempPath(), "ModDefinitionInheritorTests", Guid.NewGuid().ToString());
       Directory.CreateDirectory(testDirectory);
     }

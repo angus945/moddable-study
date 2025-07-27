@@ -3,12 +3,13 @@ using System.Xml.Linq;
 
 namespace AngusChangyiMods.Core
 {
+
     public class ModDefinitionProcessor
     {
         ILogger logger;
 
         ModDefinitionLoader definitionLoader;
-        // ModDefinitionInheritor inheritor;
+        ModDefinitionInheritor inheritor;
         ModDefinitionPatcher definitionPatcher;
         ModDefinitionDeserializer deserializer;
 
@@ -21,7 +22,7 @@ namespace AngusChangyiMods.Core
             this.logger = logger;
 
             definitionLoader = new ModDefinitionLoader(logger);
-            // inheritor = new ModDefinitionInheritor();
+            inheritor = new ModDefinitionInheritor(logger);
             definitionPatcher = new ModDefinitionPatcher();
             deserializer = new ModDefinitionDeserializer();
 
@@ -29,46 +30,8 @@ namespace AngusChangyiMods.Core
             inheritanceDocument = new XDocument(new XElement("Defs"));
             patchDocument = new XDocument(new XElement("Defs"));
         }
-
-        // public void LoadModsDefinition()
-        // {
-        //     ModLogger.Log("Starting to load mod definition files...", "ModManager");
-        //     XDocument definitionDocument = new XDocument(new XElement("Defs"));
-
-        //     foreach (var mod in sorter.modOrder)
-        //     {
-        //         ModMetaData modData = modMap[mod];
-        //         try
-        //         {
-        //             definitionPatcher.ApplyPatches(modData.patches, definitionDocument);
-        //             ModLogger.Log($"Definition files loaded successfully: {mod}", "ModManager");
-        //         }
-        //         catch (Exception ex)
-        //         {
-        //             AddModError(mod, ModErrorType.AssetLoading, $"Definition files loading failed: {ex.Message}", ex);
-        //         }
-        //         // TODO Should each mod complete its own patch? Or merge first and then patch once?
-        //     }
-
-        //     deserializer.RegisterDeserializers();
-
-        //     var definitions = deserializer.InstanceDefinitions(definitionDocument);
-
-        //     // Process inheritance for all definitions
-        //     ModLogger.Log("Starting definition inheritance processing...", "ModManager");
-        //     inheritor.RegisterInheritors();
-        //     var processedDefinitions = inheritor.ProcessInheritance(definitions);
-        //     ModLogger.Log("Definition inheritance processing completed", "ModManager");
-
-        //     DefinitionDatabase.SetDefinitions(processedDefinitions);
-
-        //     loadingRecord.definitionDoc = definitionDocument;
-        //     ModLogger.Log("Mod definition files loading completed", "ModManager");
-        // }
-
         public void LoadDefinitions(string[] definitions)
         {
-            logger.Log($"Starting to load {definitions.Length} definition files...", "DefinitionLoader");
             int successCount = 0;
 
             foreach (var filePath in definitions)
@@ -78,8 +41,26 @@ namespace AngusChangyiMods.Core
                     successCount++;
                 }
             }
+        }
+        public void ProcessInheritance()
+        {
+            inheritanceDocument = inheritor.ProcessInheritance(mergeDocument);
 
-            logger.Log($"Definition file loading completed, success: {successCount}/{definitions.Length}", "DefinitionLoader");
+            patchDocument = new XDocument(inheritanceDocument);
+        }
+        public void ProcessPatches(string[] patches)
+        {
+            foreach (var patchPath in patches)
+            {
+                definitionPatcher.ApplyPatch(patchPath, patchDocument);
+            }
+        }
+
+        public void GetProcessedDefinitions(out XDocument merge, out XDocument inheritance, out XDocument patch)
+        {
+            merge = mergeDocument;
+            inheritance = inheritanceDocument;
+            patch = patchDocument;
         }
     }
 }

@@ -8,17 +8,8 @@ namespace AngusChangyiMods.Core
 {
     public class ModDefinitionPatcher
     {
-
         private readonly PatchOperationFactory factory = new PatchOperationFactory();
 
-
-        public void ApplyPatches(string[] patchPaths, XDocument xmlDocument)
-        {
-            foreach (string patchPath in patchPaths)
-            {
-                ApplyPatch(patchPath, xmlDocument);
-            }
-        }
         public void ApplyPatch(string filePath, XDocument xmlDocument)
         {
             XDocument patchDoc = XDocument.Load(filePath);

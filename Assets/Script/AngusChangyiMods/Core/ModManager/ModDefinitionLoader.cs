@@ -16,9 +16,9 @@ namespace AngusChangyiMods.Core
 
         public bool LoadDefinition(string filePath, XDocument xmlDocument)
         {
-            if (xmlDocument == null)
+            if (xmlDocument == null || xmlDocument.Root == null)
             {
-                throw new ArgumentNullException(nameof(xmlDocument), "XML document cannot be null");
+                throw new ArgumentNullException(nameof(xmlDocument), "XML document cannot be null or empty.");
             }
 
             if (!File.Exists(filePath))

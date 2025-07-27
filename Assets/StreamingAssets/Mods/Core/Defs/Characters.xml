@@ -10,7 +10,7 @@
     </CharacterDef>
 
     <!-- 戰士基礎定義 -->
-    <CharacterDef isAbstract="true" inheritsFrom="BaseCharacter">
+    <CharacterDef isAbstract="true" parent="BaseCharacter">
         <defID>BaseWarrior</defID>
         <label>基礎戰士</label>
         <description>戰士類角色的基礎定義</description>
@@ -19,7 +19,7 @@
     </CharacterDef>
 
     <!-- 法師基礎定義 -->
-    <CharacterDef isAbstract="true" inheritsFrom="BaseCharacter">
+    <CharacterDef isAbstract="true" parent="BaseCharacter">
         <defID>BaseMage</defID>
         <label>基礎法師</label>
         <description>法師類角色的基礎定義</description>
@@ -28,7 +28,7 @@
     </CharacterDef>
 
     <!-- 具體角色實例 - 繼承自戰士基礎 -->
-    <CharacterDef inheritsFrom="BaseWarrior">
+    <CharacterDef parent="BaseWarrior">
         <defID>Knight</defID>
         <label>騎士</label>
         <description>重裝戰士，擁有強大的防禦力</description>
@@ -37,7 +37,7 @@
     </CharacterDef>
 
     <!-- 具體角色實例 - 繼承自法師基礎 -->
-    <CharacterDef inheritsFrom="BaseMage">
+    <CharacterDef parent="BaseMage">
         <defID>Wizard</defID>
         <label>巫師</label>
         <description>智慧的魔法使用者</description>
@@ -46,7 +46,7 @@
     </CharacterDef>
 
     <!-- 具體角色實例 - 直接繼承基礎角色 -->
-    <CharacterDef inheritsFrom="BaseCharacter">
+    <CharacterDef parent="BaseCharacter">
         <defID>Archer</defID>
         <label>弓箭手</label>
         <description>敏捷的遠程攻擊者</description>

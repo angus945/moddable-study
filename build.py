@@ -2,7 +2,7 @@ from pathlib import Path
 
 # ====== 可調整參數區 ======
 OUTPUT_FILE = Path("index.bash")
-SKIP_NAMES = {'.git', '__pycache__', 'node_modules', '.DS_Store', 'venv', 'Plugins', 'Library', 'Temp', 'Logs', 'TeachBook', '.github', '.vs' ,'.vscode', 'Build', 'ProjectSettings','Packages'}  # 要略過的資料夾或檔案名稱
+SKIP_NAMES = {'.git', '__pycache__', 'node_modules', '.DS_Store', 'venv', 'Plugins', 'Library', 'Temp', 'Logs', 'TeachBook', '.github', '.vs' ,'.vscode', 'Build', 'ProjectSettings','Packages', 'UnitTestLog'}  # 要略過的資料夾或檔案名稱
 SKIP_SUFFIXES = {'.zip','.meta'}  # 要排除的附檔名
 # ============================
 

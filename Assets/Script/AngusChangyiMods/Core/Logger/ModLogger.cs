@@ -1,5 +1,7 @@
 namespace AngusChangyiMods.Core
 {
+
+
     public class ModLogger
     {
         static ILogger logger;
@@ -10,18 +12,15 @@ namespace AngusChangyiMods.Core
 
         public static void Log(string message, string tag = null)
         {
-            string formattedMessage = tag != null ? $"[{tag}] {message}" : message;
-            logger?.Log(formattedMessage);
+            logger?.Log(message, tag);
         }
         public static void LogError(string message, string tag = null)
         {
-            string formattedMessage = tag != null ? $"[{tag}] {message}" : message;
-            logger?.LogError(formattedMessage);
+            logger?.LogError(message, tag);
         }
         public static void LogWarning(string message, string tag = null)
         {
-            string formattedMessage = tag != null ? $"[{tag}] {message}" : message;
-            logger?.LogWarning(formattedMessage);
+            logger?.LogWarning(message, tag);
         }
     }
 }

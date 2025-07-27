@@ -53,6 +53,7 @@ public class Test : MonoBehaviour
     List<string> invalidModOrder = new List<string>();
 
     ModManager modManager;
+    AngusChangyiMods.Core.ILogger logger;
 
     void Awake()
     {
@@ -60,7 +61,9 @@ public class Test : MonoBehaviour
         ModAssetsDatabase.Clear();
         ReflectionUtils.ClearCache();
 
-        ModLogger logger = new ModLogger(new UnityDebugLogger());
+        logger = new UnityDebugLogger();
+        logger = new LoggerFormatterDecorator(logger);
+        ModLogger modLogger = new ModLogger(logger);
     }
     void Start()
     {
@@ -69,7 +72,7 @@ public class Test : MonoBehaviour
         ModFinder modFinder = new ModFinder($"{Application.streamingAssetsPath}/Mods/");
         ModSorter modSorter = new ModSorter();
         ModAssemblyLoader assemblyLoader = new ModAssemblyLoader();
-        ModDefinitionProcessor definitionProcessor = new ModDefinitionProcessor();
+        ModDefinitionProcessor definitionProcessor = new ModDefinitionProcessor(logger);
         ModSettings modSettings = new ModSettings($"{Application.persistentDataPath}/ModSettings/");
         modManager = new ModManager(modFinder, modSorter, assemblyLoader, definitionProcessor, modSettings);
 

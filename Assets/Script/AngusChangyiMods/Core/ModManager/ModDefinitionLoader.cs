@@ -8,38 +8,34 @@ namespace AngusChangyiMods.Core
 {
     public class ModDefinitionLoader
     {
-        public void LoadDefinitions(string[] filePaths, XDocument xmlDocument)
+        ILogger logger;
+        public ModDefinitionLoader(ILogger logger)
         {
-            ModLogger.Log($"Starting to load {filePaths.Length} definition files...", "DefinitionLoader");
-            int successCount = 0;
-
-            foreach (var filePath in filePaths)
-            {
-                if (LoadDefinition(filePath, xmlDocument))
-                {
-                    successCount++;
-                }
-            }
-
-            ModLogger.Log($"Definition file loading completed, success: {successCount}/{filePaths.Length}", "DefinitionLoader");
+            this.logger = logger;
         }
+
         public bool LoadDefinition(string filePath, XDocument xmlDocument)
         {
+            if (xmlDocument == null)
+            {
+                throw new ArgumentNullException(nameof(xmlDocument), "XML document cannot be null");
+            }
+
             if (!File.Exists(filePath))
             {
-                ModLogger.LogWarning($"Definition file does not exist: {filePath}", "DefinitionLoader");
+                logger.LogWarning($"Definition file does not exist: {filePath}", "DefinitionLoader");
                 return false;
             }
 
             try
             {
-                ModLogger.Log($"Loading definition file: {Path.GetFileName(filePath)}", "DefinitionLoader");
+                logger.Log($"Loading definition file: {Path.GetFileName(filePath)}", "DefinitionLoader");
                 XDocument tempDoc = XDocument.Load(filePath);
                 XElement root = tempDoc.Root;
 
                 if (root == null || root.Name != "Defs")
                 {
-                    ModLogger.LogWarning($"Invalid definition file format: {filePath}", "DefinitionLoader");
+                    logger.LogWarning($"Invalid definition file format: {filePath}", "DefinitionLoader");
                     return false;
                 }
 
@@ -50,15 +46,15 @@ namespace AngusChangyiMods.Core
                     xmlDocument.Root.Add(element);
                     elementCount++;
 
-                    ModLogger.Log($"Merged definition: {element.Name} with defID: {element.Element("defID")?.Value}", "DefinitionLoader");
+                    logger.Log($"Merged definition: {element.Name} with defID: {element.Element("defID")?.Value}", "DefinitionLoader");
                 }
 
-                ModLogger.Log($"File {Path.GetFileName(filePath)} loaded successfully, merged {elementCount} definitions", "DefinitionLoader");
+                logger.Log($"File {Path.GetFileName(filePath)} loaded successfully, merged {elementCount} definitions", "DefinitionLoader");
                 return true;
             }
             catch (Exception ex)
             {
-                ModLogger.LogError($"Failed to load definition file {filePath}: {ex.Message}", "DefinitionLoader");
+                logger.LogError($"Failed to load definition file {filePath}: {ex.Message}", "DefinitionLoader");
                 return false;
             }
         }
@@ -75,7 +71,7 @@ namespace AngusChangyiMods.Core
 
             if (existing != null)
             {
-                ModLogger.Log($"Overriding Definition: {defType} with defID: {defID}");
+                logger.Log($"Overriding Definition: {defType} with defID: {defID}");
                 existing.Remove();
             }
         }

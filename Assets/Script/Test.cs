@@ -69,16 +69,14 @@ public class Test : MonoBehaviour
         ModFinder modFinder = new ModFinder($"{Application.streamingAssetsPath}/Mods/");
         ModSorter modSorter = new ModSorter();
         ModAssemblyLoader assemblyLoader = new ModAssemblyLoader();
-        ModDefinitionLoader definitionLoader = new ModDefinitionLoader();
-        ModDefinitionPatcher patcher = new ModDefinitionPatcher();
-        ModDefinitionDeserializer deserializer = new ModDefinitionDeserializer();
+        ModDefinitionProcessor definitionProcessor = new ModDefinitionProcessor();
         ModSettings modSettings = new ModSettings($"{Application.persistentDataPath}/ModSettings/");
-        modManager = new ModManager(modFinder, modSorter, assemblyLoader, definitionLoader, patcher, deserializer, modSettings);
+        modManager = new ModManager(modFinder, modSorter, assemblyLoader, definitionProcessor, modSettings);
 
         modManager.FindMods();
         modManager.SetModsOrder(modOrder);
         modManager.LoadModsAssemblies();
-        modManager.LoadModsDefinition();
+        modManager.ProcessModsDefinition();
         modManager.LoadModsAssets();
         modManager.LoadModSettings();
         modManager.ModsInitialization();

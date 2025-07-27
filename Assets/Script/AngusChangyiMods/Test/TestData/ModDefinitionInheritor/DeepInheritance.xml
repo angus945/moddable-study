@@ -1,0 +1,14 @@
+<Defs>
+  <ThingDef isAbstract="true">
+    <defID>BaseItem</defID>
+    <stack>1</stack>
+  </ThingDef>
+  <ThingDef isAbstract="true" parent="BaseItem">
+    <defID>BaseWeapon</defID>
+    <damage>10</damage>
+  </ThingDef>
+  <ThingDef parent="BaseWeapon">
+    <defID>IronSword</defID>
+    <damage>30</damage>
+  </ThingDef>
+</Defs>

@@ -1,0 +1,16 @@
+<Defs>
+  <ThingDef isAbstract="true">
+    <defID>Base</defID>
+    <tags>
+      <tag>a</tag>
+      <tag>b</tag>
+    </tags>
+  </ThingDef>
+  <ThingDef parent="Base">
+    <defID>Child</defID>
+    <tags>
+      <tag>b</tag>
+      <tag>c</tag>
+    </tags>
+  </ThingDef>
+</Defs>

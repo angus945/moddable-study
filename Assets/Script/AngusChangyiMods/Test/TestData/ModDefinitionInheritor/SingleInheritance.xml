@@ -1,0 +1,13 @@
+<Defs>
+  <ThingDef isAbstract="true">
+    <defID>BaseItem</defID>
+    <label>基礎物品</label>
+    <description>物品的基本描述</description>
+    <stack>1</stack>
+  </ThingDef>
+  <ThingDef parent="BaseItem">
+    <defID>HealthPotion</defID>
+    <label>治療藥水</label>
+    <stack>5</stack>
+  </ThingDef>
+</Defs>

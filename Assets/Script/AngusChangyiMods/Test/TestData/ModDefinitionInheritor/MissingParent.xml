@@ -1,0 +1,6 @@
+<Defs>
+  <ThingDef parent="NonExistent">
+    <defID>Orphan</defID>
+    <label>遺失繼承</label>
+  </ThingDef>
+</Defs>

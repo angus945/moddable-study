@@ -1,0 +1,8 @@
+<Defs>
+  <ThingDef isAbstract="true">
+    <defID>AbstractDef</defID>
+  </ThingDef>
+  <ThingDef>
+    <defID>ConcreteDef</defID>
+  </ThingDef>
+</Defs>

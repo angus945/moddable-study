@@ -1,5 +1,5 @@
 {
-    "name": "AngusChangyiMods.Tests",
+    "name": "AngusChangyiMods.Example.Tests",
     "references": [
         "AngusChangyiMods.Core",
         "AngusChangyiMods.Example.Core",

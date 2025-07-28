@@ -123,9 +123,12 @@ P:\MainProjects\moddable-architecture-study\Library\ScriptAssemblies\Implement.C
 - [ ] 怎麼擴展 class 內容?
 - [ ] 怎麼擴展 enum ?
 
-## 參考資料
+## 插件
 
 https://github.com/pardeike/Harmony/releases
+
+https://github.com/Thundernerd/Unity3D-NSubstitute.git
+https://medium.com/@lucas.rafael.araujo/c-understanding-interfaces-simple-mocking-testing-xunit-nsubstitute-bce359ba0b74
 
 ### 其他模組框架
 

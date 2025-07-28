@@ -1,0 +1,104 @@
+<Defs>
+  <TestDefinition>
+    <defName>Test.TestDefinition</defName>
+    <label>Test Definition</label>
+    <description>This is a test definition for demonstration purposes.</description>
+    <stringProp>Example String</stringProp>
+    <intProp>42</intProp>
+    <boolProp>true</boolProp>
+    <listProp>
+      <li>Item1</li>
+      <li>Item2</li>
+      <li>Item3</li>
+    </listProp>
+    
+  </TestDefinition>
+  <TestDefinition>
+    <defName>Test.StringEmpty</defName>
+    <label>空字串測試</label>
+    <description>stringProp 為空字串</description>
+    <stringProp></stringProp>
+    <intProp>0</intProp>
+    <boolProp>false</boolProp>
+    <listProp/>
+  </TestDefinition>
+  <TestDefinition>
+    <defName>Test.IntNegative</defName>
+    <label>負整數測試</label>
+    <description>intProp 為負數</description>
+    <stringProp>負數測試</stringProp>
+    <intProp>-999</intProp>
+    <boolProp>true</boolProp>
+    <listProp>
+      <li>Neg1</li>
+    </listProp>
+  </TestDefinition>
+  <TestDefinition>
+    <defName>Test.BoolFalse</defName>
+    <label>布林假測試</label>
+    <description>boolProp 為 false</description>
+    <stringProp>False 測試</stringProp>
+    <intProp>1</intProp>
+    <boolProp>false</boolProp>
+    <listProp>
+      <li>F1</li>
+      <li>F2</li>
+    </listProp>
+  </TestDefinition>
+  <TestDefinition>
+    <defName>Test.ListEmpty</defName>
+    <label>空列表測試</label>
+    <description>listProp 為空</description>
+    <stringProp>空列表</stringProp>
+    <intProp>2</intProp>
+    <boolProp>true</boolProp>
+    <listProp/>
+  </TestDefinition>
+  <TestDefinition>
+    <defName>Test.SpecialChars</defName>
+    <label>特殊字元測試</label>
+    <description>stringProp 含特殊字元</description>
+    <stringProp>特殊字元：!@#$%^&amp;*()_+-=</stringProp>
+    <intProp>100</intProp>
+    <boolProp>false</boolProp>
+    <listProp>
+      <li>特殊1</li>
+      <li>特殊2</li>
+    </listProp>
+  </TestDefinition>
+  <TestDefinition>
+    <defName>Test.LargeList</defName>
+    <label>大量元素列表</label>
+    <description>listProp 含多元素</description>
+    <stringProp>多元素</stringProp>
+    <intProp>9999</intProp>
+    <boolProp>true</boolProp>
+    <listProp>
+      <li>ItemA</li>
+      <li>ItemB</li>
+      <li>ItemC</li>
+      <li>ItemD</li>
+      <li>ItemE</li>
+      <li>ItemF</li>
+    </listProp>
+  </TestDefinition>  
+  <TestDefinition>
+    <defName>Test.MixedTypes</defName>
+    <label>混合類型測試</label>
+    <description>stringProp 包含數字和文字</description>
+    <stringProp>123ABC</stringProp>
+    <intProp>10</intProp>
+    <boolProp>true</boolProp>
+    <listProp>
+      <li>Mix1</li>
+      <li>Mix2</li>
+      <li>Mix3</li>
+    </listProp>
+  </TestDefinition>
+  <TestDefinition>
+    <defName>Test.NoSomeProperty</defName>
+    <label>混合類型測試</label>
+    <description>stringProp 包含數字和文字</description>
+    <boolProp>true</boolProp>
+  </TestDefinition>
+</Defs>

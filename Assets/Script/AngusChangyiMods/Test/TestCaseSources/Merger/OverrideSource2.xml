@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+    <TestDefinition>
+        <defName>Merger.OverrideTest</defName>
+        <label>The Overriden Def</label>
+        <description>This is a test definition for demonstration purposes.</description>
+        <stringProp>Example String AAAAAAA</stringProp>
+        <intProp>44444</intProp>
+        <floatProp>3.14</floatProp>
+        <boolProp>true</boolProp>
+    </TestDefinition>
+</Defs>

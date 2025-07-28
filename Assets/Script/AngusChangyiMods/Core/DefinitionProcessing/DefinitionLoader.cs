@@ -4,31 +4,43 @@ using System.Xml.Linq;
 
 namespace AngusChangyiMods.Core.DefinitionProcessing
 {
-    public class DefinitionLoader
+    public interface IDefinitionLoader
     {
-        public XDocument LoadDefinition(string loadPath)
+        bool LoadDefinition(string loadPath, out XDocument loaded, out string errorMessage);
+    }
+
+    public class DefinitionLoader : IDefinitionLoader
+    {
+        public bool LoadDefinition(string loadPath, out XDocument loaded, out string errorMessage)
         {
-            if (!File.Exists((loadPath)))
+            loaded = null;
+            errorMessage = null;
+
+            if (!File.Exists(loadPath))
             {
-                throw new FileNotFoundException($"Definition file not found: {loadPath}");
+                errorMessage = $"Definition file not found: {loadPath}";
+                return false;
             }
-            
+
             try
             {
                 XDocument doc = XDocument.Load(loadPath);
-                
-                if (doc.Root == null || doc.Root.Name != "Defs")
-                {
-                    throw new InvalidOperationException($"Invalid definition file format: {loadPath}");
-                }
-                return doc;
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException($"Failed to load definition file {loadPath}: {ex.Message}", ex);
-            }
 
-            return null;
+                if (doc.Root == null || doc.Root.Name != Def.Root)
+                {
+                    errorMessage = $"Invalid definition file format: {loadPath}";
+                    return false;
+                }
+
+                loaded = doc;
+                return true;
+            }
+            catch (System.Xml.XmlException ex)
+            {
+                errorMessage = $"XML parse error: {ex.Message}";
+                return false;
+            }
         }
     }
+
 }

@@ -18,12 +18,12 @@ namespace AngusChangyiMods.Core
         {
             def.defName = element.Element("defID")?.Value;
             def.label = element.Element("label")?.Value;
-            def.description = element.Element("description")?.Value;
+            def.parent = element.Element("description")?.Value;
 
             XAttribute parentAttr = element.Attribute("inheritsFrom");
             if (parentAttr != null)
             {
-                def.inheritsFrom = parentAttr.Value;
+                def.parent = parentAttr.Value;
             }
 
             XAttribute abstractAttr = element.Attribute("isAbstract");

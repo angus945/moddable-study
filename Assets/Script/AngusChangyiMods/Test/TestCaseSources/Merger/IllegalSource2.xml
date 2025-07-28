@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+    <TestDefinition>
+        <defName>Legal.TestDefinition</defName>
+        <label>Illegal Definition</label>
+        <description>This is a test definition for demonstration purposes.</description>
+        <stringProp>Example String</stringProp>
+        <intProp>44444</intProp>
+    </TestDefinition>
+    <TestDefinition>
+        <!-- This is the Illegal def, because it has no defName. unit test use mork verifier only detect defName exist -->
+        <label>Another Illegal def</label>
+        <description>This is a test definition for demonstration purposes.</description>
+        <stringProp>Example String AAAAAAA</stringProp>
+        <intProp>44444</intProp>
+    </TestDefinition>
+</Defs>

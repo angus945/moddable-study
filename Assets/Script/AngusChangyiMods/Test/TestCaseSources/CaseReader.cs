@@ -30,7 +30,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
         {
             if (!File.Exists(GetFullPath(fileName)))
                 throw new FileNotFoundException($"Test case file not found: {fileName}");
-           
+
             return XDocument.Load(GetFullPath(fileName));
         }
 
@@ -41,6 +41,12 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
         public static IEnumerable<TestCaseData> ContentCase(string fileName)
         {
             yield return new TestCaseData(ReadFile(fileName));
+        }
+        public static IEnumerable<TestCaseData> ContentCase(string sourceFileName, string expectedFileName)
+        {
+            XDocument source = ReadXML(sourceFileName);
+            XDocument expected = ReadXML(expectedFileName);
+            yield return new TestCaseData(source, expected);
         }
     }
     
@@ -77,5 +83,25 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             }
             yield return new TestCaseData(sources, expected);
         }
+    }
+
+    public static class DefProcessingCase_Inheritance
+    {
+        public static IEnumerable PropertyCase = CaseReader.ContentCase("Inheritance/PropertySource.xml", "Inheritance/PropertyExpected.xml");
+        public static IEnumerable ListCase = CaseReader.ContentCase("Inheritance/ListSource.xml", "Inheritance/ListExpected.xml");
+        public static IEnumerable MultiLevelCase = CaseReader.ContentCase("Inheritance/MultiLevelSource.xml", "Inheritance/MultiLevelExpected.xml");
+        public static IEnumerable MultiParentCase = CaseReader.ContentCase("Inheritance/MultiParentSource.xml", "Inheritance/MultiParentExpected.xml");
+        public static IEnumerable MissingParentCase = CaseReader.ContentCase("Inheritance/ParentMissingSource.xml", "Inheritance/ParentMissingExpected.xml");
+        public static IEnumerable CircularInheritanceCase = CaseReader.ContentCase("Inheritance/CircularInheritanceSource.xml", "Inheritance/CircularInheritanceExpected.xml");
+        
+        
+        
+        
+
+        
+        
+        
+        
+        
     }
 }

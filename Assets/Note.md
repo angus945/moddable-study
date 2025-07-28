@@ -4,6 +4,10 @@
 
 把 ModManager 關閉，先從 DataProcesser 開始重構。 
 
+DataProcessing 處裡順序
+
+Load > Varify > Merge > Inherit > Patch > Deserialize > Reference
+
 
 ## 命名規則
 

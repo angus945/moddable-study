@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using AngusChangyiMods.Logger;
 
-namespace AngusChangyiMods.Core
+namespace AngusChangyiMods.Core.ModLoader
 {
     public interface IModPreloader
     {
@@ -75,20 +75,14 @@ namespace AngusChangyiMods.Core
                 string author = root.Element(Mod.Author)?.Value;
                 string description = root.Element(Mod.Description)?.Value;
 
-                if (string.IsNullOrEmpty(packageId))
-                    throw new ArgumentNullException(nameof(packageId));
-
-                if (!Regex.IsMatch(packageId, Mod.packgeIDRule))
-                    throw new FormatException($"Invalid packageId format: {packageId}");
-
                 ModMetaData meta = new ModMetaData(name, packageId, author, description, modFolder);
+                ModValidator.Validate(meta);
 
                 foreach (XElement ver in root.Elements(Mod.SupportedVersions).Elements(Mod.Li))
                 {
                     meta.SupportedVersions.Add(ver.Value.Trim());
                 }
-
-
+                
                 return meta;
             }
             catch (ArgumentNullException)

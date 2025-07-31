@@ -6,8 +6,9 @@ using System.Linq;
 using System.Xml.Linq;
 using AngusChangyiMods.Core;
 using AngusChangyiMods.Logger;
+using AngusChangyiMods.Core.ModLoader;
 
-namespace AngusChangyiMods.Tests
+namespace AngusChangyiMods.Core.ModLoader.Tests
 {
     public class FakeLogger : ILogger
     {
@@ -92,40 +93,6 @@ namespace AngusChangyiMods.Tests
                 preloader.CreateModMetadata(modDir));
 
             StringAssert.Contains("About.xml not found", ex.Message);
-        }
-
-        [Test]
-        public void CreateModMetadata_ShouldThrowIfRequiredFieldMissing()
-        {
-            // Arrange
-            string modDir = Path.Combine(tempDir, "ModC");
-            string path = CreateAboutXml(modDir, "name", null, "Bob", "desc", new[] { "1.3" });
-            ModPreloader preloader = new ModPreloader(new FakeLogger());
-
-            
-            // Act & Assert
-            var ex = Assert.Throws<ArgumentNullException>(() =>
-                preloader.CreateModMetadata(modDir));
-
-            Assert.That(ex.ParamName, Is.EqualTo(Mod.PackageId));
-        }
-
-        [TestCase("123.invalid")]       // 開頭是數字
-        [TestCase("mod@tool")]          // 有特殊符號
-        [TestCase("modtool")]           // 沒有點
-        [TestCase("m.")]                // 結尾空白
-        [TestCase(".mod")]              // 開頭空白
-        [TestCase("m.123#")]            // 結尾特殊字元
-        public void CreateModMetadata_ShouldThrowIfRequiredFieldFormatWrong(string invalidId)
-        {
-            string modDir = Path.Combine(tempDir, "BadFormatMod");
-            CreateAboutXml(modDir, "Bad", invalidId, "Author", "desc", new[] { "1.4" });
-            ModPreloader preloader = new ModPreloader(new FakeLogger());
-
-            var ex = Assert.Throws<FormatException>(() =>
-                preloader.CreateModMetadata(modDir));
-
-            StringAssert.Contains("Invalid packageId format", ex.Message);
         }
         
         [Test]

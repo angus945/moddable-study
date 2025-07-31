@@ -14,11 +14,11 @@ namespace AngusChangyiMods.Core
 
         public ModMetaData(string name, string packageId, string author, string description, string rootDirectory)
         {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
-            PackageId = packageId ?? throw new ArgumentNullException(nameof(packageId));
-            Author = author ?? throw new ArgumentNullException(nameof(author));
-            Description = description ?? throw new ArgumentNullException(nameof(description));
-            RootDirectory = rootDirectory ?? throw new ArgumentNullException(nameof(rootDirectory));
+            Name = name;
+            PackageId = packageId;
+            Author = author;
+            Description = description;
+            RootDirectory = rootDirectory;
             SupportedVersions = new List<string>();
         }
 

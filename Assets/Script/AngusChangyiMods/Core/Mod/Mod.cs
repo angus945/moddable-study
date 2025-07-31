@@ -1,4 +1,6 @@
-﻿namespace AngusChangyiMods.Core
+﻿using System.Text.RegularExpressions;
+
+namespace AngusChangyiMods.Core
 {
     public class Mod
     {
@@ -10,6 +12,6 @@
         public const string SupportedVersions = "supportedVersions";
         public const string Li = "li";
 
-        public const string packgeIDRule = @"^[a-zA-Z][a-zA-Z0-9]*\.[a-zA-Z0-9]+$";
+        public static readonly Regex PackageIdRegex = new(@"^[a-zA-Z][a-zA-Z0-9]*\.[a-zA-Z0-9]+$", RegexOptions.Compiled);
     }
 }

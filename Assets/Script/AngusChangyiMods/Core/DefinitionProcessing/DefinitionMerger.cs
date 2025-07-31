@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using AngusChangyiMods.Logger;
 
 namespace AngusChangyiMods.Core.DefinitionProcessing
 {
@@ -59,7 +60,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing
                 }
             }
 
-            logger.Log($"Merge completed: {processedCount} definitions processed, {overrideCount} overrides", "DefinitionMerger");
+            logger.LogInfo($"Merge completed: {processedCount} definitions processed, {overrideCount} overrides", "DefinitionMerger");
             return !hasErrors;
         }
 

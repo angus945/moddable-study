@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Xml.Linq;
+using AngusChangyiMods.Logger;
 
 namespace AngusChangyiMods.Core.DefinitionProcessing
 {

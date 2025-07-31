@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using AngusChangyiMods.Logger;
 
 namespace AngusChangyiMods.Core
 {
@@ -35,7 +36,7 @@ namespace AngusChangyiMods.Core
             defLookup = CreateDefLookUp(root);
             inheritedElements = ListInheritedElements(root);
 
-            logger.Log($"Processing {inheritedElements.Count} inherited elements.", "DefinitionInheritor");
+            logger.LogInfo($"Processing {inheritedElements.Count} inherited elements.", "DefinitionInheritor");
 
             foreach (var element in inheritedElements)
             {
@@ -57,11 +58,11 @@ namespace AngusChangyiMods.Core
 
                 MergeElementData(merged, element);
                 element.ReplaceWith(merged);
-                logger.Log($"Successfully inherited '{elementName}' from '{parentId}'.", "DefinitionInheritor");
+                logger.LogInfo($"Successfully inherited '{elementName}' from '{parentId}'.", "DefinitionInheritor");
             }
 
             RemoveAbstractDefinition(root);
-            logger.Log("Definition inheritance processing completed.", "DefinitionInheritor");
+            logger.LogInfo("Definition inheritance processing completed.", "DefinitionInheritor");
 
             return result;
         }

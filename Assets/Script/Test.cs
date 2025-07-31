@@ -1,3 +1,20 @@
+using AngusChangyiMods.Logger;
+using AngusChangyiMods.Unity;
+using UnityEngine;
+
+public class Test : MonoBehaviour
+{
+    void Start()
+    {
+        AngusChangyiMods.Logger.ILogger logger;
+        logger = new UnityDebugLogger();
+        
+        logger.LogInfo("This is an info message from Test script.");
+        logger.LogWarning("This is a warning message from Test script.");
+        logger.LogError("This is an error message from Test script.");
+    }
+}
+
 // using System.IO;
 // using System.Xml.Linq;
 // using System.Collections.Generic;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Xml.Linq;
+using AngusChangyiMods.Logger;
 
 namespace AngusChangyiMods.Core.DefinitionProcessing
 {
@@ -36,7 +37,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing
                     return null;
                 }
 
-                logger.Log($"Successfully loaded definition from: {loadPath}", "DefinitionLoader");
+                logger.LogInfo($"Successfully loaded definition from: {loadPath}", "DefinitionLoader");
                 return doc;
             }
             catch (System.Xml.XmlException ex)

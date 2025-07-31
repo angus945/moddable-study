@@ -6,20 +6,24 @@ namespace AngusChangyiMods.Core.DefinitionProcessing
 {
     public interface IDefinitionLoader
     {
-        bool LoadDefinition(string loadPath, out XDocument loaded, out string errorMessage);
+        XDocument LoadDefinition(string loadPath);
     }
 
     public class DefinitionLoader : IDefinitionLoader
     {
-        public bool LoadDefinition(string loadPath, out XDocument loaded, out string errorMessage)
-        {
-            loaded = null;
-            errorMessage = null;
+        private readonly ILogger logger;
 
+        public DefinitionLoader(ILogger logger)
+        {
+            this.logger = logger;
+        }
+
+        public XDocument LoadDefinition(string loadPath)
+        {
             if (!File.Exists(loadPath))
             {
-                errorMessage = $"Definition file not found: {loadPath}";
-                return false;
+                logger.LogError($"Definition file not found: {loadPath}", "DefinitionLoader");
+                return null;
             }
 
             try
@@ -28,17 +32,22 @@ namespace AngusChangyiMods.Core.DefinitionProcessing
 
                 if (doc.Root == null || doc.Root.Name != Def.Root)
                 {
-                    errorMessage = $"Invalid definition file format: {loadPath}";
-                    return false;
+                    logger.LogError($"Invalid definition file format: {loadPath}", "DefinitionLoader");
+                    return null;
                 }
 
-                loaded = doc;
-                return true;
+                logger.Log($"Successfully loaded definition from: {loadPath}", "DefinitionLoader");
+                return doc;
             }
             catch (System.Xml.XmlException ex)
             {
-                errorMessage = $"XML parse error: {ex.Message}";
-                return false;
+                logger.LogError($"XML parse error in {loadPath}: {ex.Message}", "DefinitionLoader");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Unexpected error loading {loadPath}: {ex.Message}", "DefinitionLoader");
+                return null;
             }
         }
     }

@@ -7,18 +7,18 @@ namespace Angus
     {
         public void Initialize()
         {
-            ModLogger.Log("Core initialized");
+            // ModLogger.Log("Core initialized");
         }
 
         public void OnGameStart()
         {
-            ModLogger.Log("Core game started");
+            // ModLogger.Log("Core game started");
             // 這裡可以添加核心模組的啟動邏輯
         }
 
         public void OnGameEnd()
         {
-            ModLogger.Log("Core game ended");
+            // ModLogger.Log("Core game ended");
             // 這裡可以添加核心模組的結束邏輯
         }
     }

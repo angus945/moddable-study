@@ -3,65 +3,67 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 
-
 namespace AngusChangyiMods.Core.DefinitionProcessing
 {
     public interface IDefinitionMerger
     {
-        bool MergeDefinitions(XDocument source, XDocument mergeTo, out string errorMessage);
+        bool MergeDefinitions(XDocument source, XDocument mergeTo);
     }
 
-    public class DefinitionMerger
+    public class DefinitionMerger : IDefinitionMerger
     {
-        public const string error_mergeTargetNull = "Merge Target is null";
-        public const string error_sourceInvalid = "Invalid source document: {0}";
-        public const string error_invalidDefinition = "Invalid definition {0}: {1} \n";
-        public const string error_overrideDefinition = "Override Definition, Type {0}, DefName {1} \n";
+        private readonly IDefinitionVarifier verifier;
+        private readonly ILogger logger;
 
-        private IDefinitionVarifier verifier;
-
-        public DefinitionMerger(IDefinitionVarifier verifier)
+        public DefinitionMerger(IDefinitionVarifier verifier, ILogger logger)
         {
             this.verifier = verifier;
+            this.logger = logger;
         }
 
-        public bool MergeDefinitions(XDocument source, XDocument mergeTo, out string errorMessage)
+        public bool MergeDefinitions(XDocument source, XDocument mergeTo)
         {
             if (mergeTo == null)
             {
-                errorMessage = error_mergeTargetNull;
+                logger.LogError("Merge target document is null", "DefinitionMerger");
                 return false;
             }
 
             if (source == null || source.Root == null || source.Root.Name != Def.Root)
             {
-                errorMessage = string.Format(error_sourceInvalid, source?.ToString() ?? "null");
+                logger.LogError($"Invalid source document: {source?.ToString() ?? "null"}", "DefinitionMerger");
                 return false;
             }
 
-            errorMessage = "";
+            bool hasErrors = false;
+            int processedCount = 0;
+            int overrideCount = 0;
+
             foreach (XElement element in source.Root.Elements())
             {
-                if (verifier.VerifyDefinitions(element, out string verifyError))
+                if (verifier.VerifyDefinitions(element))
                 {
                     if (RemoveExisting(element, mergeTo, out string overrideType, out string overrideName))
                     {
-                        errorMessage += string.Format(error_overrideDefinition, overrideType, overrideName);
+                        logger.LogWarning($"Override Definition, Type {overrideType}, DefName {overrideName}", "DefinitionMerger");
+                        overrideCount++;
                     }
 
                     mergeTo.Root.Add(element);
+                    processedCount++;
                 }
                 else
                 {
-                    errorMessage += string.Format(error_invalidDefinition, element.Name, verifyError);
-                    continue;
+                    logger.LogError($"Invalid definition {element.Name}: verification failed", "DefinitionMerger");
+                    hasErrors = true;
                 }
             }
 
-            return true;
+            logger.Log($"Merge completed: {processedCount} definitions processed, {overrideCount} overrides", "DefinitionMerger");
+            return !hasErrors;
         }
 
-        bool RemoveExisting(XElement source, XDocument removeTarget, out string overrideType, out string overrideName)
+        private bool RemoveExisting(XElement source, XDocument removeTarget, out string overrideType, out string overrideName)
         {
             string defName = source.Element(Def.DefName)?.Value;
             string defType = source.Name.LocalName;
@@ -69,7 +71,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing
             if (string.IsNullOrEmpty(defName))
             {
                 overrideType = defType;
-                overrideName = defName;
+                overrideName = defName ?? "Unknown";
                 return false;
             }
 

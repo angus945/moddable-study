@@ -5,32 +5,35 @@ namespace AngusChangyiMods.Core.DefinitionProcessing
 {
     public interface IDefinitionVarifier
     {
-        bool VerifyDefinitions(XElement element, out string errorMessage);
+        bool VerifyDefinitions(XElement element);
     }
 
     public class DefinitionVarifier : IDefinitionVarifier
     {
-        public const string error_lostDefName = "Definition element is missing the required attribute 'defName'.";
-        public const string error_illegalDefName = "defName '{0}' is in illegal format, must be in the format OOO.OOO, and can only contain alphanumeric characters, with the first character being an alphabet letter.";
+        private readonly ILogger logger;
+
+        public DefinitionVarifier(ILogger logger)
+        {
+            this.logger = logger;
+        }
         
-        public bool VerifyDefinitions(XElement element, out string errorMessage)
+        public bool VerifyDefinitions(XElement element)
         {
             XElement defNameElement = element.Element(Def.DefName);
 
             if (defNameElement == null)
             {
-                errorMessage = error_lostDefName;
-                return false; // 沒有 defName 元素，驗證失敗
+                logger.LogError("Definition element is missing the required attribute 'defName'.", "DefinitionVarifier");
+                return false;
             }
 
             string defname = defNameElement.Value;
             if (!System.Text.RegularExpressions.Regex.IsMatch(defname, Def.DefNamePattern))
             {
-                errorMessage = string.Format(error_illegalDefName, defname);
-                return false; // defName 格式不合法，驗證失敗
+                logger.LogError($"defName '{defname}' is in illegal format, must be in the format OOO.OOO, and can only contain alphanumeric characters, with the first character being an alphabet letter.", "DefinitionVarifier");
+                return false;
             }
 
-            errorMessage = string.Empty; // 清空錯誤信息
             return true;
         }
     }

@@ -6,63 +6,73 @@ namespace AngusChangyiMods.Core
 {
     public interface IDefinitionInheritor
     {
-        XDocument ProcessInheritance(XDocument source, out string processMessage);
+        XDocument ProcessInheritance(XDocument source);
     }
     
     public class DefinitionInheritor : IDefinitionInheritor
     {
+        private readonly ILogger logger;
+        
         private Dictionary<string, XElement> defLookup;
         private List<XElement> inheritedElements;
+
+        public DefinitionInheritor(ILogger logger)
+        {
+            this.logger = logger;
+        }
         
-        public XDocument ProcessInheritance(XDocument source, out string processMessage)
+        public XDocument ProcessInheritance(XDocument source)
         {
             var result = new XDocument(source);
             var root = result.Root;
             
             if (root == null)
             {
-                processMessage = "Source document has no root element.";
+                logger.LogError("Source document has no root element.", "DefinitionInheritor");
                 return result;
             }
 
-            defLookup = CreateDefLookUP(root);
+            defLookup = CreateDefLookUp(root);
             inheritedElements = ListInheritedElements(root);
 
-            processMessage = "";
+            logger.Log($"Processing {inheritedElements.Count} inherited elements.", "DefinitionInheritor");
+
             foreach (var element in inheritedElements)
             {
-                string? parentId = element.Attribute(Def.Parent)?.Value;
+                string parentId = element.Attribute(Def.Parent)?.Value;
+                string elementName = element.Element(Def.DefName)?.Value ?? "Unknown";
+                
                 if (parentId == null || !defLookup.ContainsKey(parentId))
                 {
-                    processMessage += $"Element '{element.Element(Def.DefName)?.Value}' has no valid parent definition.\n";
+                    logger.LogWarning($"Element '{elementName}' has no valid parent definition '{parentId}'.", "DefinitionInheritor");
                     continue;
                 }
 
                 var merged = DeepCloneAndMerge(parentId, new HashSet<string>());
                 if (merged == null)
                 {
-                    processMessage += $"Failed to merge definition for '{element.Element(Def.DefName)?.Value}' with parent '{parentId}'.\n";
+                    logger.LogError($"Failed to merge definition for '{elementName}' with parent '{parentId}'. Possible circular reference.", "DefinitionInheritor");
                     continue;
                 }
 
                 MergeElementData(merged, element);
                 element.ReplaceWith(merged);
-                processMessage += $"Inherited '{element.Element(Def.DefName)?.Value}' from '{parentId}'.\n";
+                logger.Log($"Successfully inherited '{elementName}' from '{parentId}'.", "DefinitionInheritor");
             }
 
             RemoveAbstractDefinition(root);
+            logger.Log("Definition inheritance processing completed.", "DefinitionInheritor");
 
             return result;
         }
 
- 
-
-        private static Dictionary<string, XElement> CreateDefLookUP(XElement root)
+        private static Dictionary<string, XElement> CreateDefLookUp(XElement root)
         {
             return root.Elements()
                 .Where(e => e.Element(Def.DefName) != null)
                 .ToDictionary(e => e.Element(Def.DefName)!.Value, e => e);
         }
+        
         private static List<XElement> ListInheritedElements(XElement root)
         {
             return root.Elements()
@@ -72,13 +82,22 @@ namespace AngusChangyiMods.Core
 
         private XElement DeepCloneAndMerge(string defId, HashSet<string> visited)
         {
-            if (visited.Contains(defId)) return null;
+            if (visited.Contains(defId)) 
+            {
+                logger.LogError($"Circular reference detected for definition '{defId}'.", "DefinitionInheritor");
+                return null;
+            }
+            
             visited.Add(defId);
 
-            if (!defLookup.TryGetValue(defId, out var baseElement)) return null;
+            if (!defLookup.TryGetValue(defId, out var baseElement)) 
+            {
+                logger.LogError($"Definition '{defId}' not found in lookup.", "DefinitionInheritor");
+                return null;
+            }
 
             var clone = new XElement(baseElement);
-            string? parentId = baseElement.Attribute(Def.Parent)?.Value;
+            string parentId = baseElement.Attribute(Def.Parent)?.Value;
             if (parentId != null && defLookup.ContainsKey(parentId))
             {
                 var parentClone = DeepCloneAndMerge(parentId, visited);
@@ -98,7 +117,7 @@ namespace AngusChangyiMods.Core
             {
                 var baseNode = baseElement.Element(childNode.Name);
 
-                // 如果是列表（以 <tag> 為例） → 合併
+                // 如果是列表（以 <tag> 為例�� → 合併
                 if (IsListNode(childNode))
                 {
                     var mergedList = new XElement(childNode.Name);

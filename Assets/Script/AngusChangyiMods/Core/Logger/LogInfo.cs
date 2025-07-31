@@ -5,34 +5,33 @@ namespace AngusChangyiMods.Logger
 {
     public class LogInfo
     {
-        public LogLevel level;
-        public string signature;
-        public string message;
-        public string tag;
-        public DateTime timestamp;
+        public readonly LogLevel Level;
+        public readonly string Signature;
+        public readonly string Message;
+        public readonly string Tag;
+        public readonly DateTime Timestamp;
 
         public LogInfo(LogLevel level, string message, string tag = null)
         {
-            this.level = level;
-            this.signature = GetCallerSignature();
-            this.message = message;
+            this.Level = level;
+            this.Signature = GetCallerSignature();
+            this.Message = message;
 
-            this.tag = tag;
-            this.timestamp = DateTime.Now;
+            this.Tag = tag;
+            this.Timestamp = DateTime.Now;
         }
 
         public override string ToString()
         {
-             
-            return $"[{timestamp:yyyy-MM-dd HH:mm:ss}] [{level}] [{signature}] " +
-                   (tag != null ? $"[{tag}] " : "") +
-                   $"\n{message}";
+            return $"[{Timestamp:yyyy-MM-dd HH:mm:ss}] [{Level}] [{Signature}] " +
+                   (Tag != null ? $"[{Tag}] " : "") +
+                   $"\n{Message}";
         }
 
         private string GetCallerSignature()
         {
             var trace = new StackTrace(skipFrames: 2, fNeedFileInfo: true);
-            foreach (var frame in trace.GetFrames())
+            foreach (var frame in trace.GetFrames()!)
             {
                 var method = frame.GetMethod();
                 var type = method?.DeclaringType;

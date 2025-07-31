@@ -6,7 +6,7 @@ namespace AngusChangyiMods.Unity
     {
         public void Log(LogInfo log)
         {
-            switch (log.level)
+            switch (log.Level)
             {
                 case LogLevel.Info:
                     UnityEngine.Debug.Log(log);

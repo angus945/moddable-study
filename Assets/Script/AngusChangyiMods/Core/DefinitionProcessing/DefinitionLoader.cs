@@ -23,7 +23,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing
         {
             if (!File.Exists(loadPath))
             {
-                logger.LogError($"Definition file not found: {loadPath}", "DefinitionLoader");
+                logger.LogWarning($"Definition file not found: {loadPath}");
                 return null;
             }
 
@@ -33,21 +33,21 @@ namespace AngusChangyiMods.Core.DefinitionProcessing
 
                 if (doc.Root == null || doc.Root.Name != Def.Root)
                 {
-                    logger.LogError($"Invalid definition file format: {loadPath}", "DefinitionLoader");
+                    logger.LogError($"Invalid definition file format: {loadPath}");
                     return null;
                 }
 
-                logger.LogInfo($"Successfully loaded definition from: {loadPath}", "DefinitionLoader");
+                logger.LogInfo($"Successfully loaded definition from: {loadPath}");
                 return doc;
             }
             catch (System.Xml.XmlException ex)
             {
-                logger.LogError($"XML parse error in {loadPath}: {ex.Message}", "DefinitionLoader");
+                logger.LogError($"XML parse error in {loadPath}: {ex.Message}");
                 return null;
             }
             catch (Exception ex)
             {
-                logger.LogError($"Unexpected error loading {loadPath}: {ex.Message}", "DefinitionLoader");
+                logger.LogError($"Unexpected error loading {loadPath}: {ex.Message}");
                 return null;
             }
         }

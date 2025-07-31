@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using AngusChangyiMods.Logger;
 
@@ -63,24 +64,40 @@ namespace AngusChangyiMods.Core
             {
                 throw new FileNotFoundException("About.xml not found in " + aboutPath);
             }
-            
+
             try
             {
                 XDocument doc = XDocument.Load(aboutPath);
                 XElement root = doc.Root;
-                
+
                 string name = root.Element(Mod.Name)?.Value;
                 string packageId = root.Element(Mod.PackageId)?.Value;
                 string author = root.Element(Mod.Author)?.Value;
                 string description = root.Element(Mod.Description)?.Value;
+
+                if (string.IsNullOrEmpty(packageId))
+                    throw new ArgumentNullException(nameof(packageId));
+
+                if (!Regex.IsMatch(packageId, Mod.packgeIDRule))
+                    throw new FormatException($"Invalid packageId format: {packageId}");
+
                 ModMetaData meta = new ModMetaData(name, packageId, author, description, modFolder);
-                
+
                 foreach (XElement ver in root.Elements(Mod.SupportedVersions).Elements(Mod.Li))
                 {
                     meta.SupportedVersions.Add(ver.Value.Trim());
                 }
-                
+
+
                 return meta;
+            }
+            catch (ArgumentNullException)
+            {
+                throw;
+            }
+            catch (FormatException)
+            {
+                throw;
             }
             catch (Exception ex)
             {

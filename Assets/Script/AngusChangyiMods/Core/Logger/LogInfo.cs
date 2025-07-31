@@ -45,5 +45,14 @@ namespace AngusChangyiMods.Logger
 
             return "UnknownCaller";
         }
+
+        public bool Contains(string contains)
+        {
+            return Message.Contains(contains, StringComparison.OrdinalIgnoreCase) || ContainsTag(contains);
+        }
+        public bool ContainsTag(string tag)
+        {
+            return Tag != null && Tag.Contains(tag, StringComparison.OrdinalIgnoreCase);
+        }
     }
 }

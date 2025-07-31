@@ -10,12 +10,13 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
     public class DefinitionLoaderTest
     {
         [Test]
-        [TestCaseSource(typeof(DefProcessingCase_Loader), nameof(DefProcessingCase_Loader.SimpleCase))]
-        [TestCaseSource(typeof(DefProcessingCase_Loader), nameof(DefProcessingCase_Loader.ComplexCase))]
-        public void Test_01_ShouldLoadDefinitions(string path)
+        [TestCase("Common/SimpleCase.xml")]
+        [TestCase("Loader/ComplexCase.xml")]
+        public void Test_01_ShouldLoadDefinitions(string fileName)
         {
             // Arrange
             DefinitionLoader loader = new DefinitionLoader();
+            string path = CaseReader.GetFullPath(fileName);
             bool result = loader.LoadDefinition(path, out XDocument definitions, out string error);
 
             // Assert
@@ -47,11 +48,12 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
         }
 
         [Test]
-        [TestCaseSource(typeof(DefProcessingCase_Loader), nameof(DefProcessingCase_Loader.EmptyDefinitions))]
-        public void Test_03_ShouldReturnFalseForEmptyDefinitions(string path)
+        [TestCase("Loader/EmptyDefinitions.xml")]
+        public void Test_03_ShouldReturnFalseForEmptyDefinitions(string fileName)
         {
             // Arrange
             DefinitionLoader loader = new DefinitionLoader();
+            string path = CaseReader.GetFullPath(fileName);
 
             // Act
             bool result = loader.LoadDefinition(path, out XDocument doc, out string error);
@@ -64,11 +66,12 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
 
 
         [Test]
-        [TestCaseSource(typeof(DefProcessingCase_Loader), nameof(DefProcessingCase_Loader.IllegalFormat))]
-        public void Test_04_ShouldReturnFalseForIllegalFormat(string path)
+        [TestCase("Loader/IllegalFormat.xml")]
+        public void Test_04_ShouldReturnFalseForIllegalFormat(string fileName)
         {
             // Arrange
             DefinitionLoader loader = new DefinitionLoader();
+            string path = CaseReader.GetFullPath(fileName);
 
             // Act
             bool result = loader.LoadDefinition(path, out XDocument doc, out string error);

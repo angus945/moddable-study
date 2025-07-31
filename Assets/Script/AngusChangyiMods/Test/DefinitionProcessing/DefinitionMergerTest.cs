@@ -10,8 +10,8 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
     public class DefinitionMergerTest
     {
         [Test]
-        [TestCaseSource(typeof(DefProcessingCase_Merger), nameof(DefProcessingCase_Merger.MergeCase))]
-        public void Test_01_ShouldMergeDefinitions(XDocument[]sources, XDocument expected)
+        [TestCase("Merger/MergeSource1.xml", "Merger/MergeSource2.xml", "Merger/MergeExpected.xml")]
+        public void Test_01_ShouldMergeDefinitions(string source1, string source2, string expected)
         {
             // Arrange
             IDefinitionVarifier verifier = Substitute.For<IDefinitionVarifier>();
@@ -19,6 +19,8 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             
             DefinitionMerger merger = new DefinitionMerger(verifier);
             XDocument mergeTarget = XMLUtil.DefinitionBase;
+            XDocument[] sources = { CaseReader.ReadXML(source1), CaseReader.ReadXML(source2) };
+            XDocument expectedDoc = CaseReader.ReadXML(expected);
 
             // Act
             string overrideMessages = string.Empty;
@@ -32,10 +34,10 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             // Assert
             string expectedRootName = Def.Root;
             string mergeTargetRootName = mergeTarget.Root.Name.LocalName;
-            int expectedNodeCount = expected.Root.Elements().Count();
+            int expectedNodeCount = expectedDoc.Root.Elements().Count();
             int mergeTargetNodeCount = mergeTarget.Root.Elements().Count();
             string mergedPrint = mergeTarget.ToString();
-            string expectedPrint = expected.ToString();
+            string expectedPrint = expectedDoc.ToString();
             Assert.IsNotNull(mergeTarget, "Merge target should not be null");
             Assert.IsNotNull(mergeTarget.Root, "Merge target root should not be null");
             Assert.AreEqual(expectedRootName, mergeTargetRootName, "Merge target root name should match expected, expected: " + expectedRootName + ", actual: " + mergeTargetRootName);
@@ -44,8 +46,8 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
         }
         
         [Test]
-        [TestCaseSource(typeof(DefProcessingCase_Merger), nameof(DefProcessingCase_Merger.OverrideCase))]
-        public void Test_02_ShouldOverrideDefinitions(XDocument[]sources, XDocument expected)
+        [TestCase("Merger/OverrideSource1.xml", "Merger/OverrideSource2.xml", "Merger/OverrideExpected.xml")]
+        public void Test_02_ShouldOverrideDefinitions(string source1, string source2, string expected)
         {
             // Arrange
             IDefinitionVarifier verifier = Substitute.For<IDefinitionVarifier>();
@@ -53,6 +55,8 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             
             DefinitionMerger merger = new DefinitionMerger(verifier);
             XDocument mergeTarget = XMLUtil.DefinitionBase;
+            XDocument[] sources = { CaseReader.ReadXML(source1), CaseReader.ReadXML(source2) };
+            XDocument expectedDoc = CaseReader.ReadXML(expected);
 
             // Act
             string errorMessages = string.Empty;
@@ -65,14 +69,14 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             // Assert
             string rawSources = string.Join("\n", sources.Select(s => s.ToString()));
             string mergedPrint = mergeTarget.ToString();
-            string expectedPrint = expected.ToString();
+            string expectedPrint = expectedDoc.ToString();
             Assert.AreEqual(expectedPrint, mergedPrint, "Merged XML should match expected XML after override, expected: \n" + expectedPrint + ", actual: \n" + mergedPrint);
             Assert.IsTrue(errorMessages.Contains("Override Definition"), "Error message should contain 'Override Definition', error messages: " + errorMessages + "merged XML: " + mergedPrint + "\nRaw sources: " + rawSources);
         }
         
         [Test]
-        [TestCaseSource(typeof(DefProcessingCase_Merger), nameof(DefProcessingCase_Merger.IllegalCase))]
-        public void Test_03_ShouldRemoveIllegalDefinitions(XDocument[]sources, XDocument expected)
+        [TestCase("Merger/IllegalSource1.xml", "Merger/IllegalSource2.xml", "Merger/IllegalExpected.xml")]
+        public void Test_03_ShouldRemoveIllegalDefinitions(string source1, string source2, string expected)
         {
             // Arrange
             IDefinitionVarifier verifier = Substitute.For<IDefinitionVarifier>();
@@ -85,6 +89,8 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
                 });
             DefinitionMerger merger = new DefinitionMerger(verifier);
             XDocument mergeTarget = XMLUtil.DefinitionBase;
+            XDocument[] sources = { CaseReader.ReadXML(source1), CaseReader.ReadXML(source2) };
+            XDocument expectedDoc = CaseReader.ReadXML(expected);
             
             // Act
             string errorMessages = string.Empty;
@@ -96,7 +102,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             
             // Assert
             string mergedPrint = mergeTarget.ToString();
-            string expectedPrint = expected.ToString();
+            string expectedPrint = expectedDoc.ToString();
             Assert.AreEqual(expectedPrint, mergedPrint, "Merged XML should match expected XML after removing illegal definitions, expected: \n" + expectedPrint + ", actual: \n" + mergedPrint);
             Assert.IsTrue(errorMessages.Contains("Invalid definition"), "Error message should contain 'Invalid definition', error messages: " + errorMessages);
         }

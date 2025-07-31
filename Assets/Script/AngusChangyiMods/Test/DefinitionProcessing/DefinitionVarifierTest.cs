@@ -10,11 +10,12 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
     {
 
         [Test]
-        [TestCaseSource(typeof(DefProcessingCase_Varifier), nameof(DefProcessingCase_Varifier.SimpleCase))]
-        public void Test_01_ShouldVerifyValidDefinitions(string content)
+        [TestCase("Common/SimpleCase.xml")]
+        public void Test_01_ShouldVerifyValidDefinitions(string fileName)
         {
             // Arrange
             DefinitionVarifier varifier = new DefinitionVarifier();
+            string content = CaseReader.ReadFile(fileName);
             XElement check = XMLUtil.ParseFirstElement(content);
             
             // Act
@@ -26,11 +27,12 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
         }
 
         [Test]
-        [TestCaseSource(typeof(DefProcessingCase_Varifier), nameof(DefProcessingCase_Varifier.LostDefName))]
-        public void Test_02_ShouldReturnErrorForMissingDefName(string content)
+        [TestCase("Varifier/LostDefName.xml")]
+        public void Test_02_ShouldReturnErrorForMissingDefName(string fileName)
         {
             // Arrange
             DefinitionVarifier varifier = new DefinitionVarifier();
+            string content = CaseReader.ReadFile(fileName);
             XElement check = XMLUtil.ParseFirstElement(content);
             
             // Act
@@ -43,13 +45,14 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
         }
 
         [Test]
-        [TestCaseSource(typeof(DefProcessingCase_Varifier), nameof(DefProcessingCase_Varifier.IllegalDefName1))]
-        [TestCaseSource(typeof(DefProcessingCase_Varifier), nameof(DefProcessingCase_Varifier.IllegalDefName2))]
-        [TestCaseSource(typeof(DefProcessingCase_Varifier), nameof(DefProcessingCase_Varifier.IllegalDefName3))]
-        public void Test_03_ShouldReturnErrorForIllegalDefName(string content)
+        [TestCase("Varifier/IllegalDefName1.xml")]
+        [TestCase("Varifier/IllegalDefName2.xml")]
+        [TestCase("Varifier/IllegalDefName3.xml")]
+        public void Test_03_ShouldReturnErrorForIllegalDefName(string fileName)
         {
             // Arrange
             DefinitionVarifier varifier = new DefinitionVarifier();
+            string content = CaseReader.ReadFile(fileName);
             XElement check = XMLUtil.ParseFirstElement(content);
            
             // Act

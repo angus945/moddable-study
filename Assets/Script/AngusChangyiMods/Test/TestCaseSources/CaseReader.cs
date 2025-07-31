@@ -30,78 +30,8 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
         {
             if (!File.Exists(GetFullPath(fileName)))
                 throw new FileNotFoundException($"Test case file not found: {fileName}");
-
+            
             return XDocument.Load(GetFullPath(fileName));
         }
-
-        public static IEnumerable<TestCaseData> PathCase(string fileName)
-        {
-            yield return new TestCaseData(GetFullPath(fileName));
-        }
-        public static IEnumerable<TestCaseData> ContentCase(string fileName)
-        {
-            yield return new TestCaseData(ReadFile(fileName));
-        }
-        public static IEnumerable<TestCaseData> ContentCase(string sourceFileName, string expectedFileName)
-        {
-            XDocument source = ReadXML(sourceFileName);
-            XDocument expected = ReadXML(expectedFileName);
-            yield return new TestCaseData(source, expected);
-        }
-    }
-    
-    public static class DefProcessingCase_Loader
-    {
-        public static IEnumerable SimpleCase       => CaseReader.PathCase("Common/SimpleCase.xml");
-        public static IEnumerable EmptyDefinitions => CaseReader.PathCase("Loader/EmptyDefinitions.xml");
-        public static IEnumerable IllegalFormat    => CaseReader.PathCase("Loader/IllegalFormat.xml");
-        public static IEnumerable ComplexCase      => CaseReader. PathCase("Loader/ComplexCase.xml");
-    }
-
-    public static class DefProcessingCase_Varifier
-    {
-        public static IEnumerable SimpleCase      => CaseReader.ContentCase("Common/SimpleCase.xml");
-        public static IEnumerable LostDefName     => CaseReader.ContentCase("Varifier/LostDefName.xml");
-        public static IEnumerable IllegalDefName1 => CaseReader.ContentCase("Varifier/IllegalDefName1.xml");
-        public static IEnumerable IllegalDefName2 => CaseReader. ContentCase("Varifier/IllegalDefName2.xml");
-        public static IEnumerable IllegalDefName3 => CaseReader. ContentCase("Varifier/IllegalDefName3.xml");
-    }
-
-    public static class DefProcessingCase_Merger
-    {
-        public static IEnumerable MergeCase => ContentCase("Merger/MergeExpected.xml", "Merger/MergeSource1.xml", "Merger/MergeSource2.xml");
-        public static IEnumerable OverrideCase => ContentCase("Merger/OverrideExpected.xml", "Merger/OverrideSource1.xml", "Merger/OverrideSource2.xml");
-        public static IEnumerable IllegalCase => ContentCase("Merger/IllegalExpected.xml", "Merger/IllegalSource1.xml", "Merger/IllegalSource2.xml");
-        
-        public static IEnumerable<TestCaseData> ContentCase(string expectedFileName, params string[] sourceFileNames)
-        {
-            XDocument expected = (CaseReader.ReadXML(expectedFileName));
-            XDocument[] sources = new XDocument[sourceFileNames.Length];
-            for (int i = 0; i < sourceFileNames.Length; i++)
-            {
-                sources[i] = (CaseReader.ReadXML(sourceFileNames[i]));
-            }
-            yield return new TestCaseData(sources, expected);
-        }
-    }
-
-    public static class DefProcessingCase_Inheritance
-    {
-        public static IEnumerable PropertyCase = CaseReader.ContentCase("Inheritance/PropertySource.xml", "Inheritance/PropertyExpected.xml");
-        public static IEnumerable ListCase = CaseReader.ContentCase("Inheritance/ListSource.xml", "Inheritance/ListExpected.xml");
-        public static IEnumerable MultiLevelCase = CaseReader.ContentCase("Inheritance/MultiLevelSource.xml", "Inheritance/MultiLevelExpected.xml");
-        public static IEnumerable MultiParentCase = CaseReader.ContentCase("Inheritance/MultiParentSource.xml", "Inheritance/MultiParentExpected.xml");
-        public static IEnumerable MissingParentCase = CaseReader.ContentCase("Inheritance/ParentMissingSource.xml", "Inheritance/ParentMissingExpected.xml");
-        public static IEnumerable CircularInheritanceCase = CaseReader.ContentCase("Inheritance/CircularInheritanceSource.xml", "Inheritance/CircularInheritanceExpected.xml");
-        
-        
-        
-        
-
-        
-        
-        
-        
-        
     }
 }

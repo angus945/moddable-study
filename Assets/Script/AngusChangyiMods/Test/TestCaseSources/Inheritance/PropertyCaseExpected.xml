@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+    <TestDefinition>
+        <defName>Inheritance.Child</defName>
+        <label>Parent Definition</label>
+        <description>This is a test definition for parent.</description>
+        <intProp>900</intProp>
+        <boolProp>true</boolProp>
+    </TestDefinition>
+</Defs>

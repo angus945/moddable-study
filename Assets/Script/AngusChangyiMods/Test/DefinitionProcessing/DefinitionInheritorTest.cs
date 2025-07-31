@@ -9,8 +9,8 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
     public class DefinitionInheritorTest
     {
         [Test]
-        [TestCaseSource(typeof(DefProcessingCase_Inheritance), nameof(DefProcessingCase_Inheritance.PropertyCase))]
-        public void Test_01_ShouldInheritanceProperty(XDocument source, XDocument expected)
+        [TestCase("Inheritance/PropertyCaseSource.xml", "Inheritance/PropertyCaseExpected.xml")]
+        public void Test_01_ShouldInheritanceProperty(string source, string expected)
         {
             string message = InheritorTest(source, expected);
             
@@ -18,8 +18,8 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
         }
         
         [Test]
-        [TestCaseSource(typeof(DefProcessingCase_Inheritance), nameof(DefProcessingCase_Inheritance.ListCase))]
-        public void Test_01_ShouldInheritanceList(XDocument source, XDocument expected)
+        [TestCase("Inheritance/ListSource.xml", "Inheritance/ListExpected.xml")]
+        public void Test_02_ShouldInheritanceList(string source, string expected)
         {
             string message = InheritorTest(source, expected);
             
@@ -27,18 +27,18 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
         }
         
         [Test]
-        [TestCaseSource(typeof(DefProcessingCase_Inheritance), nameof(DefProcessingCase_Inheritance.MultiLevelCase))]
-        public void Test_02_ShouldProcessMultiLevelInheritance(XDocument source, XDocument expected)
+        [TestCase("Inheritance/MultiLevelSource.xml", "Inheritance/MultiLevelExpected.xml")]
+        public void Test_03_ShouldProcessMultiLevelInheritance(string source, string expected)
         {
             string message = InheritorTest(source, expected);
             
-            Assert.That(InheritorTest(source, expected), Does.Contain("Inherited"), "Process message should indicate inheritance processing, but got: " + message);
+            Assert.That(message, Does.Contain("Inherited"), "Process message should indicate inheritance processing, but got: " + message);
         }
 
         
         [Test]
-        [TestCaseSource(typeof(DefProcessingCase_Inheritance), nameof(DefProcessingCase_Inheritance.MultiParentCase))]
-        public void Test_03_ShouldProcessMultiParentInheritance(XDocument source, XDocument expected)
+        [TestCase("Inheritance/MultiParentSource.xml", "Inheritance/MultiParentExpected.xml")]
+        public void Test_04_ShouldProcessMultiParentInheritance(string source, string expected)
         {
             string message = InheritorTest(source, expected);
 
@@ -47,8 +47,8 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
         }
         
         [Test]
-        [TestCaseSource(typeof(DefProcessingCase_Inheritance), nameof(DefProcessingCase_Inheritance.MissingParentCase))]
-        public void Test_04_ShouldBreakInheritanceOnMissingParent(XDocument source, XDocument expected)
+        [TestCase("Inheritance/ParentMissingSource.xml", "Inheritance/ParentMissingExpected.xml")]
+        public void Test_05_ShouldBreakInheritanceOnMissingParent(string source, string expected)
         {
             string message = InheritorTest(source, expected);   
             
@@ -57,8 +57,8 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
         }
         
         [Test]
-        [TestCaseSource(typeof(DefProcessingCase_Inheritance), nameof(DefProcessingCase_Inheritance.CircularInheritanceCase))]
-        public void Test_05_ShouldHandleCircularInheritance(XDocument source, XDocument expected)
+        [TestCase("Inheritance/CircularInheritanceSource.xml", "Inheritance/CircularInheritanceExpected.xml")]
+        public void Test_06_ShouldHandleCircularInheritance(string source, string expected)
         {
             string message = InheritorTest(source, expected);
             
@@ -66,17 +66,19 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
         }
         
         
-        static string InheritorTest(XDocument source, XDocument expected)
+        static string InheritorTest(string source, string expected)
         {
             // Arrange
+            XDocument sourceDoc = CaseReader.ReadXML(source);
+            XDocument expectedDoc = CaseReader.ReadXML(expected);
             DefinitionInheritor inheritor = new DefinitionInheritor();
 
             // Act
-            XDocument result = inheritor.ProcessInheritance(source, out string message);
+            XDocument result = inheritor.ProcessInheritance(sourceDoc, out string message);
 
             // Assert
             string resultString = result.ToString();
-            string expectedString = expected.ToString();
+            string expectedString = expectedDoc.ToString();
             Assert.IsNotNull(result, "Result should not be null");
             Assert.IsNotNull(result.Root, "Result should have a root element");
             Assert.IsTrue(result.Root.Elements().Any(), "Result should contain elements");

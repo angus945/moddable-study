@@ -1,90 +1,93 @@
-﻿// using System;
-// using System.Collections.Generic;
-// using System.Linq;
-//
-// namespace AngusChangyiMods.Core
-// {
-//     public interface IModSorter
-//     {
-//         void SetMods(List<ModContentPack> contentPacks);
-//         // void SetModOrder(ModOrder order);
-//
-//         // ModOrder GetModOrder { get; }
-//     }
-//
-//     public class ModSorter : IModSorter
-//     {
-//         // private List<ModContentPack> sortedMods;
-//         // private List<ModContentPack> sortedNonRepeat;
-//         //
-//         // public List<ModContentPack> SortedMods => sortedNonRepeat;
-//         //
-//         // public void SetModOrder(List<ModContentPack> unsortedMods)
-//         // {
-//         //     sortedMods = Sorts(unsortedMods);
-//         //     sortedNonRepeat = RemoveRepetedModPackgeId(sortedMods);
-//         // }
-//         // List<ModContentPack> Sorts(List<ModContentPack> unsortedMods)
-//         // {
-//         //     Dictionary<string, ModContentPack> latest = new();
-//         //     HashSet<string> warned = new();
-//         //
-//         //     for (int i = unsortedMods.Count - 1; i >= 0; i--)
-//         //     {
-//         //         var mod = unsortedMods[i];
-//         //         if (!latest.ContainsKey(mod.Meta.PackageId))
-//         //         {
-//         //             latest[mod.Meta.PackageId] = mod;
-//         //         }
-//         //         else if (!warned.Contains(mod.Meta.PackageId))
-//         //         {
-//         //             Console.WriteLine($"[ModSorter] Duplicate PackageId '{mod.Meta.PackageId}' detected. Only the later one will be used.");
-//         //             warned.Add(mod.Meta.PackageId);
-//         //         }
-//         //     }
-//         //     
-//         //     return unsortedMods
-//         //         .Where(mod => latest.TryGetValue(mod.Meta.PackageId, out var chosen) && mod == chosen)
-//         //         .ToList();
-//         // }
-//         //
-//         // List<ModContentPack> RemoveRepetedModPackgeId(List<ModContentPack> sortedMods)
-//         // {
-//         //     List<ModContentPack> nonRepeatMods = new List<ModContentPack>(sortedMods);
-//         //     Dictionary<string, ModContentPack> registeredIds = new Dictionary<string, ModContentPack>();
-//         //
-//         //     foreach (var mod in nonRepeatMods)
-//         //     {
-//         //         if (registeredIds.TryGetValue(mod.Meta.PackageId, out ModContentPack repeated))
-//         //         {
-//         //             nonRepeatMods.Remove(repeated);
-//         //         }
-//         //    
-//         //         registeredIds[mod.Meta.PackageId] = mod;
-//         //     }
-//         //     
-//         //     return nonRepeatMods;
-//         // }
-//
-//         Dictionary<ModContentPack, ModLoadingData> LoadingDatas = new Dictionary<ModContentPack, ModLoadingData>();
-//         public void SetMods(List<ModContentPack> contentPacks, List<ModLoadingData> loadingDatas )
-//         {
-//             LoadingDatas.Clear();
-//             foreach (var contentPack in contentPacks)
-//             {
-//                 var loadingData = loadingDatas.FirstOrDefault(data => data.Matches(contentPack));
-//                 if (loadingData != null)
-//                 {
-//                     LoadingDatas[contentPack] = loadingData;
-//                 }
-//                 else
-//                 {
-//                     Console.WriteLine($"[ModSorter] No loading data found for mod: {contentPack.Meta.PackageId}");
-//                 }
-//             }
-//             
-//         }
-//     }
-//
-//
-// }
+﻿using System.Collections.Generic;
+using AngusChangyiMods.Core.SaveLoad;
+
+namespace AngusChangyiMods.Core
+{
+    public interface IModSorter
+    {
+        void LoadOrder(List<ModContentPack> loadMods, List<ModSortingData> loadSorts);
+        void SetOrder(List<ModSortingData> setSorts);
+        public List<ModSortingData> SortedMods { get; }
+    }
+
+    public class ModSorter : IModSorter
+    {
+        public List<ModSortingData> SortedMods { get; private set; }
+
+        public void LoadOrder(List<ModContentPack> loadMods, List<ModSortingData> loadSorts)
+        {
+            List<ModContentPack> mods = new List<ModContentPack>(loadMods);
+            List<ModSortingData> sorts = new List<ModSortingData>(loadSorts);
+
+            foreach (ModSortingData sortData in sorts)
+            {
+                ModContentPack related = mods.Find(mod => ModSortingData.CheckRelation(sortData, mod));
+
+                if (related != null)
+                {
+                    sortData.relatedContentPack = related;
+                    mods.Remove(related);
+                }
+            }
+
+            foreach (ModContentPack mod in mods)
+            {
+                ModSortingData sort = new ModSortingData(mod.Meta.PackageId, mod.Meta.RootDirectory);
+                sort.relatedContentPack = mod;
+                sorts.Add(sort);
+            }
+
+            SortedMods = sorts;
+        }
+
+        public void SetOrder(List<ModSortingData> setSorts)
+        {
+            SortedMods = setSorts;
+        }
+    }
+
+    public interface IModOrderSaver
+    {
+        public List<ModSortingData> LoadModOrder();
+        public void SaveModOrder(List<ModSortingData> sortedMods);
+    }
+
+    public class ModOrderSaver : IModOrderSaver
+    {
+        [System.Serializable]
+        class ModOrder
+        {
+            public List<ModSortingData> sortlist;
+
+            public ModOrder(List<ModSortingData> sortedMods)
+            {
+                sortlist = sortedMods;
+            }
+        }
+
+        const string modOrderKey = "ModSortingData";
+        IModDataSaver saver;
+
+        public ModOrderSaver(IModDataSaver saver)
+        {
+            this.saver = saver;
+        }
+
+        public List<ModSortingData> LoadModOrder()
+        {
+            if (saver.TryRead<ModOrder>(out ModOrder modOrder))
+            {
+                return modOrder.sortlist;
+            }
+            else return new List<ModSortingData>();
+        }
+
+        public void SaveModOrder(List<ModSortingData> sortedMods)
+        {
+            ModOrder order = new ModOrder(sortedMods);
+            saver.Write(order);
+        }
+    }
+
+
+}

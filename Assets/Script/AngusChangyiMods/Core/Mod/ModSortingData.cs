@@ -2,16 +2,15 @@
 
 namespace AngusChangyiMods.Core
 {
-    public class ModLoadingData
+    [System.Serializable]
+    public class ModSortingData
     {
-        public bool active;
-        
-        public int order;
-        public bool raceId;
         public readonly string packageId;
         public readonly  string rootDirectory;
+        
+        [NonSerialized] public ModContentPack relatedContentPack;
 
-        public ModLoadingData(string packageId, string rootDirectory)
+        public ModSortingData(string packageId, string rootDirectory)
         {
             this.packageId = packageId;
             this.rootDirectory = rootDirectory;
@@ -22,6 +21,14 @@ namespace AngusChangyiMods.Core
             if (contentPack == null) return false;
             
             return contentPack.Meta.PackageId == packageId && contentPack.Meta.RootDirectory == rootDirectory;
+        }
+
+        public static bool CheckRelation(ModSortingData sortdata, ModContentPack contentPack)
+        {
+            if(contentPack.Meta.PackageId != sortdata.packageId) return false;
+            if(contentPack.Meta.RootDirectory != sortdata.rootDirectory) return false;
+
+            return true;
         }
     }
 

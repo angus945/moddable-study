@@ -6,21 +6,45 @@ using Script.AngusChangyiMods.Core.Util;
 
 namespace AngusChangyiMods.Core.SaveLoad.Test
 {
-    public class SampleSettings
-    {
-        public string Name { get; set; }
-        public int Volume { get; set; }
-    }
-
-    public class NestedSettings
-    {
-        public string Name { get; set; }
-        public SampleSettings Inner { get; set; }
-    }
-
     [TestFixture]
     public class FileModDataSaverTests
     {
+        public class SampleSettings
+        {
+            public string Name { get; set; }
+            public int Volume { get; set; }
+        }
+
+        public class NestedSettings
+        {
+            public string Name { get; set; }
+            public SampleSettings Inner { get; set; }
+        }
+
+        public class NoParameterlessConstructor
+        {
+            public string Value;
+
+            public NoParameterlessConstructor(string value)
+            {
+                Value = value;
+            }
+        }
+
+        private class PrivateType
+        {
+            public string Name { get; set; }
+
+            public PrivateType()
+            {
+            }
+        }
+
+        public class FieldWithUnsupportedType
+        {
+            public System.IO.Stream stream; // not serializable
+        }
+
         private string tempDir;
         private FileModDataSaver saver;
 
@@ -49,12 +73,14 @@ namespace AngusChangyiMods.Core.SaveLoad.Test
 
             saver.Write(data);
 
-            string filePath = Path.Combine(tempDir, typeof(SampleSettings).FullName) + ModDataSaver.FileExtension;
+            string filePath = Path.Combine(tempDir, TypeFileNameConverter.GetFileNameForType(typeof(SampleSettings), ModDataSaver.FileExtension));
             Assert.That(File.Exists(filePath));
+    
             string content = File.ReadAllText(filePath);
             Assert.That(content, Does.Contain("TestName"));
             Assert.That(content, Does.Contain("42"));
         }
+
 
         [Test]
         public void Write_ListOfItems_ShouldCreateFile()
@@ -67,7 +93,7 @@ namespace AngusChangyiMods.Core.SaveLoad.Test
 
             saver.Write(data);
 
-            string expectedFile = TypeFileNameConverter.GetFileNameForType(typeof(List<SampleSettings>), ".xml");
+            string expectedFile = TypeFileNameConverter.GetFileNameForType(typeof(List<SampleSettings>), ModDataSaver.FileExtension);
             string filePath = Path.Combine(tempDir, expectedFile);
 
             Console.WriteLine("Looking for: " + expectedFile);
@@ -91,24 +117,27 @@ namespace AngusChangyiMods.Core.SaveLoad.Test
 
             saver.Write(data);
 
-            string filePath = Path.Combine(tempDir, typeof(NestedSettings).FullName) + ModDataSaver.FileExtension;
-            Assert.That(File.Exists(filePath));
+            string filePath = Path.Combine(tempDir, TypeFileNameConverter.GetFileNameForType(typeof(NestedSettings), ModDataSaver.FileExtension));
+            Assert.That(File.Exists(filePath), Is.True);
+
             string content = File.ReadAllText(filePath);
             Assert.That(content, Does.Contain("Parent"));
             Assert.That(content, Does.Contain("Child"));
         }
+
 
         [Test]
         public void FileName_ShouldMatch_TypeFullName()
         {
             saver.Write(new SampleSettings());
 
-            string expectedFile = typeof(SampleSettings).FullName + ModDataSaver.FileExtension;
+            string expectedFile = TypeFileNameConverter.GetFileNameForType(typeof(SampleSettings), ModDataSaver.FileExtension);
             string[] files = Directory.GetFiles(tempDir);
             string actualFile = Path.GetFileName(files[0]);
 
             Assert.That(actualFile, Is.EqualTo(expectedFile));
         }
+
 
         [Test]
         public void Write_ListStringAndListInt_ShouldNotShareFile()
@@ -116,12 +145,44 @@ namespace AngusChangyiMods.Core.SaveLoad.Test
             saver.Write(new List<string> { "hi" });
             saver.Write(new List<int> { 42 });
 
-            string file1 = Path.Combine(tempDir, TypeFileNameConverter.GetFileNameForType(typeof(List<string>), ".xml"));
-            string file2 = Path.Combine(tempDir, TypeFileNameConverter.GetFileNameForType(typeof(List<int>), ".xml"));
+            string file1 = Path.Combine(tempDir, TypeFileNameConverter.GetFileNameForType(typeof(List<string>), ModDataSaver.FileExtension));
+            string file2 = Path.Combine(tempDir, TypeFileNameConverter.GetFileNameForType(typeof(List<int>), ModDataSaver.FileExtension));
 
             Assert.That(File.Exists(file1), Is.True, $"Expected file1 exists: {file1}");
             Assert.That(File.Exists(file2), Is.True, $"Expected file2 exists: {file2}");
         }
 
+        [Test]
+        public void Write_ShouldThrow_WhenNoParameterlessConstructor()
+        {
+            var obj = new NoParameterlessConstructor("abc");
+
+            var ex = Assert.Throws<InvalidOperationException>(() => { saver.Write(obj); });
+
+            Assert.That(ex.Message, Does.Contain("must have a public parameterless constructor"));
+        }
+
+        [Test]
+        public void Write_ShouldThrow_WhenTypeIsPrivate()
+        {
+            var obj = new PrivateType();
+
+            var ex = Assert.Throws<InvalidOperationException>(() => { saver.Write(obj); });
+
+            Assert.That(ex.Message, Does.Contain("must be public"));
+        }
+
+        [Test]
+        public void Write_ShouldThrow_WhenFieldIsNotSerializable()
+        {
+            var obj = new FieldWithUnsupportedType
+            {
+                stream = Console.OpenStandardInput()
+            };
+
+            var ex = Assert.Throws<InvalidOperationException>(() => { saver.Write(obj); });
+
+            Assert.That(ex.Message, Does.Contain("which may not be serializable"));
+        }
     }
 }

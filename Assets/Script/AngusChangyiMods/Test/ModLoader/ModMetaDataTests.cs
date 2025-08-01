@@ -6,12 +6,6 @@ using AngusChangyiMods.Core.ModLoader;
 namespace AngusChangyiMods.Core.ModLoader.Tests
 {
     [TestFixture]
-    public class ModSorterTests
-    {
-        
-    }
-    
-    [TestFixture]
     public class ModMetaDataTests
     {
         private const string TestName = "Test Mod";

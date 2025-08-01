@@ -1,24 +1,12 @@
 ﻿using NUnit.Framework;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
-using AngusChangyiMods.Core;
-using AngusChangyiMods.Logger;
-using AngusChangyiMods.Core.ModLoader;
+using AngusChangyiMods.Core.Test;
 
 namespace AngusChangyiMods.Core.ModLoader.Tests
 {
-    public class FakeLogger : ILogger
-    {
-        public List<LogInfo> Logs = new();
-        public void Log(LogInfo logInfo)
-        {
-            Logs.Add(logInfo);
-        }
-    }
-
     [TestFixture]
     public class ModPreloaderTests
     {
@@ -37,7 +25,8 @@ namespace AngusChangyiMods.Core.ModLoader.Tests
             Directory.Delete(tempDir, true);
         }
 
-        private string CreateAboutXml(string folder, string name, string id, string author, string desc, string[] versions)
+        private string CreateAboutXml(string folder, string name, string id, string author, string desc,
+            string[] versions)
         {
             string aboutDirectory = Path.Combine(folder, ModPath.AboutDir);
             Directory.CreateDirectory(aboutDirectory);
@@ -66,7 +55,7 @@ namespace AngusChangyiMods.Core.ModLoader.Tests
             Directory.CreateDirectory(modDir);
 
             CreateAboutXml(modDir, "CoolMod", "cool.mod", "Alice", "Test mod", new[] { "1.4", "1.5" });
-            ModPreloader preloader = new ModPreloader(new FakeLogger());
+            ModPreloader preloader = new ModPreloader(new MockLogger());
 
             // Act
             ModMetaData meta = preloader.CreateModMetadata(modDir);
@@ -86,7 +75,7 @@ namespace AngusChangyiMods.Core.ModLoader.Tests
             // Arrange
             string modDir = Path.Combine(tempDir, "ModB");
             Directory.CreateDirectory(modDir);
-            ModPreloader preloader = new ModPreloader(new FakeLogger());
+            ModPreloader preloader = new ModPreloader(new MockLogger());
 
             // Act
             ModMetaData meta = preloader.CreateModMetadata(modDir);
@@ -95,7 +84,7 @@ namespace AngusChangyiMods.Core.ModLoader.Tests
             Assert.IsTrue(meta.HasError);
             Assert.That(meta.ErrorReason.StartsWith(ModPreloader.errorAboutNotFound));
         }
-        
+
         [Test]
         public void CreateModMetadata_ShouldSetErrorWhenXMLParsingFails()
         {
@@ -107,7 +96,7 @@ namespace AngusChangyiMods.Core.ModLoader.Tests
             string aboutXmlPath = Path.Combine(aboutFolder, "About.xml");
             File.WriteAllText(aboutXmlPath, "<ModMeta><Broken"); // 故意寫入損毀的 XML
 
-            ModPreloader preloader = new ModPreloader(new FakeLogger());
+            ModPreloader preloader = new ModPreloader(new MockLogger());
 
             // Act
             ModMetaData meta = preloader.CreateModMetadata(modFolder);
@@ -116,7 +105,7 @@ namespace AngusChangyiMods.Core.ModLoader.Tests
             Assert.IsTrue(meta.HasError, "Expected metadata to have error due to XML parsing failure");
             Assert.That(meta.ErrorReason.StartsWith(ModPreloader.errorXmlParsingFailed));
         }
-        
+
         [Test]
         public void PreloadAllMods_ShouldContinueOnIndividualModFailure()
         {
@@ -132,7 +121,7 @@ namespace AngusChangyiMods.Core.ModLoader.Tests
             // Skip invalid mod creation to simulate missing About.xml
             CreateAboutXml(validMod2, "GoodMod2", "good2.id", "Bob", "Another valid mod", new[] { "1.5" });
 
-            var fakeLogger = new FakeLogger();
+            var fakeLogger = new MockLogger();
             ModPreloader preloader = new ModPreloader(fakeLogger);
 
             // Act
@@ -142,13 +131,13 @@ namespace AngusChangyiMods.Core.ModLoader.Tests
             ModMetaData goodModMeta1 = preloader.PreLoadedMods[0].Meta;
             ModMetaData invalidModMeta = preloader.PreLoadedMods[1].Meta;
             ModMetaData goodModMeta2 = preloader.PreLoadedMods[2].Meta;
-            
+
             Assert.AreEqual(3, preloader.PreLoadedMods.Count);
             Assert.IsFalse(goodModMeta1.HasError, "Expected GoodMod to be valid");
             Assert.IsTrue(invalidModMeta.HasError, "Expected InvalidMod to be invalid");
             Assert.IsFalse(goodModMeta2.HasError, "Expected GoodMod2 to be valid");
         }
-        
+
         [Test]
         public void PreloadAllMods_ShouldSetErrorWhenIdRepeated()
         {
@@ -161,7 +150,7 @@ namespace AngusChangyiMods.Core.ModLoader.Tests
             CreateAboutXml(modDir1, "ModOne", "duplicate.id", "Alice", "First mod", new[] { "1.4" });
             CreateAboutXml(modDir2, "ModTwo", "duplicate.id", "Bob", "Second mod with same ID", new[] { "1.5" });
 
-            var fakeLogger = new FakeLogger();
+            var fakeLogger = new MockLogger();
             ModPreloader preloader = new ModPreloader(fakeLogger);
 
             // Act
@@ -171,8 +160,10 @@ namespace AngusChangyiMods.Core.ModLoader.Tests
             Assert.AreEqual(2, preloader.PreLoadedMods.Count);
             Assert.IsTrue(preloader.PreLoadedMods[0].Meta.HasError, "Expected Mod1 to have error due to duplicate ID");
             Assert.IsTrue(preloader.PreLoadedMods[1].Meta.HasError, "Expected Mod2 to have error due to duplicate ID");
-            Assert.That(preloader.PreLoadedMods[0].Meta.ErrorReason.StartsWith(ModPreloader.packageIdDuplicateError), "Expected error reason to start with packageIdDuplicateError");
-            Assert.That(preloader.PreLoadedMods[1].Meta.ErrorReason.StartsWith(ModPreloader.packageIdDuplicateError), "Expected error reason to start with packageIdDuplicateError");
+            Assert.That(preloader.PreLoadedMods[0].Meta.ErrorReason.StartsWith(ModPreloader.packageIdDuplicateError),
+                "Expected error reason to start with packageIdDuplicateError");
+            Assert.That(preloader.PreLoadedMods[1].Meta.ErrorReason.StartsWith(ModPreloader.packageIdDuplicateError),
+                "Expected error reason to start with packageIdDuplicateError");
         }
     }
 }

@@ -4,8 +4,7 @@
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "AngusChangyiMods.Core.Core",
-        "TNRD.NSubstitute"
+        "AngusChangyiMods.Core.Core"
     ],
     "includePlatforms": [
         "Editor"

@@ -35,6 +35,8 @@ namespace AngusChangyiMods.Core.SaveLoad
                 throw new ArgumentNullException(nameof(data));
             }
 
+            SerializationValidator.ValidateXmlSerializable(typeof(T)); // ✅ 主動檢查
+
             string fileName = TypeFileNameConverter.GetFileNameForType(typeof(T), ModDataSaver.FileExtension);
             string fullPath = Path.Combine(saveDirectory, fileName);
 
@@ -45,8 +47,11 @@ namespace AngusChangyiMods.Core.SaveLoad
             }
         }
 
+
         public T Read<T>() where T : class
         {
+            SerializationValidator.ValidateXmlSerializable(typeof(T));
+            
             string fileName = TypeFileNameConverter.GetFileNameForType(typeof(T), ModDataSaver.FileExtension);
             string fullPath = Path.Combine(saveDirectory, fileName);
 

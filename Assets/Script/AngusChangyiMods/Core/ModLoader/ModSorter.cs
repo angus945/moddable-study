@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using AngusChangyiMods.Core.SaveLoad;
 
 namespace AngusChangyiMods.Core
 {
@@ -45,49 +44,4 @@ namespace AngusChangyiMods.Core
             SortedMods = setSorts;
         }
     }
-
-    public interface IModOrderSaver
-    {
-        public List<ModSortingData> LoadModOrder();
-        public void SaveModOrder(List<ModSortingData> sortedMods);
-    }
-
-    public class ModOrderSaver : IModOrderSaver
-    {
-        [System.Serializable]
-        class ModOrder
-        {
-            public List<ModSortingData> sortlist;
-
-            public ModOrder(List<ModSortingData> sortedMods)
-            {
-                sortlist = sortedMods;
-            }
-        }
-
-        const string modOrderKey = "ModSortingData";
-        IModDataSaver saver;
-
-        public ModOrderSaver(IModDataSaver saver)
-        {
-            this.saver = saver;
-        }
-
-        public List<ModSortingData> LoadModOrder()
-        {
-            if (saver.TryRead<ModOrder>(out ModOrder modOrder))
-            {
-                return modOrder.sortlist;
-            }
-            else return new List<ModSortingData>();
-        }
-
-        public void SaveModOrder(List<ModSortingData> sortedMods)
-        {
-            ModOrder order = new ModOrder(sortedMods);
-            saver.Write(order);
-        }
-    }
-
-
 }

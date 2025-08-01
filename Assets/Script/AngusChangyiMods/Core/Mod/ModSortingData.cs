@@ -5,11 +5,16 @@ namespace AngusChangyiMods.Core
     [System.Serializable]
     public class ModSortingData
     {
-        public readonly string packageId;
-        public readonly  string rootDirectory;
+        public string packageId { get; set; }
+        public string rootDirectory { get; set; }
         
-        [NonSerialized] public ModContentPack relatedContentPack;
+        [System.Xml.Serialization.XmlIgnore] public ModContentPack relatedContentPack;
 
+        public ModSortingData()
+        {
+            packageId = string.Empty;
+            rootDirectory = string.Empty;
+        }
         public ModSortingData(string packageId, string rootDirectory)
         {
             this.packageId = packageId;

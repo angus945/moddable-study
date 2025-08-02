@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Xml.Linq;
 
 namespace AngusChangyiMods.Core
 {
@@ -12,6 +13,9 @@ namespace AngusChangyiMods.Core
         public const string IsAbstract = "abstract";
         public const string Component = "component";
         public const string Extension = "extension";
+        
+        public const string SourceMod = "sourceMod"; // the mod that defines this def, used for mod compatibility
+        public const string SourceFile = "sourceFile";
         
         public const string DefNamePattern = @"^[A-Za-z][A-Za-z0-9]*\.[A-Za-z][A-Za-z0-9]*$"; // OOO.OOO, first letter must be alphabet, only alphanumeric characters allowed
     }
@@ -27,7 +31,7 @@ namespace AngusChangyiMods.Core
         public bool isAbstract;
         
         public string sourceMod;
-        public string sourceFile; // the file this definition is loaded from, used for debugging purposes
+        public string sourceFile;
 
         public List<ComponentProperty> Components = new List<ComponentProperty>(); // every instance will have individual compProperties
         public List<DefExtension> Extensions = new List<DefExtension>(); // every instance will share the same extensions

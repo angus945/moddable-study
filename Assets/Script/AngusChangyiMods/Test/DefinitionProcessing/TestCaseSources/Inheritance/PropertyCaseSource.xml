@@ -8,7 +8,7 @@
         <intProp>42</intProp>
         <boolProp>true</boolProp>
     </TestDefinition>
-    <TestDefinition>
+    <TestDefinition parent="Inheritance.Parent">
         <defName>Inheritance.Child</defName>
         <label>Parent Definition</label>
         <description>This is a test definition for parent.</description>

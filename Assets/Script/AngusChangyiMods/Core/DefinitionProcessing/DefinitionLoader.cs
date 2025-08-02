@@ -7,11 +7,17 @@ namespace AngusChangyiMods.Core.DefinitionProcessing
 {
     public interface IDefinitionLoader
     {
-        XDocument LoadDefinition(string loadPath);
+        XDocument LoadDefinition(string loadPath, string sourceMod);
     }
 
     public class DefinitionLoader : IDefinitionLoader
     {
+        public const string warningFileNotFound = "Definition file not found";
+        public const string errorInvalidFormat = "Invalid definition file format";
+        public const string infoSuccessfullyLoaded = "Successfully loaded definition from";
+        public const string errorXmlParse = "XML parse error in";
+        public const string errorUnexpected = "Unexpected error loading";
+        
         private readonly ILogger logger;
 
         public DefinitionLoader(ILogger logger)
@@ -19,11 +25,11 @@ namespace AngusChangyiMods.Core.DefinitionProcessing
             this.logger = logger;
         }
 
-        public XDocument LoadDefinition(string loadPath)
+        public XDocument LoadDefinition(string loadPath, string sourceMod)
         {
             if (!File.Exists(loadPath))
             {
-                logger.LogWarning($"Definition file not found: {loadPath}");
+                logger.LogWarning($"{warningFileNotFound}: {loadPath}");
                 return null;
             }
 
@@ -33,21 +39,27 @@ namespace AngusChangyiMods.Core.DefinitionProcessing
 
                 if (doc.Root == null || doc.Root.Name != Def.Root)
                 {
-                    logger.LogError($"Invalid definition file format: {loadPath}");
+                    logger.LogError($"{errorInvalidFormat}: {loadPath}");
                     return null;
                 }
 
-                logger.LogInfo($"Successfully loaded definition from: {loadPath}");
+                foreach (XElement defElement in doc.Root.Elements())
+                {
+                    defElement.Add(new XElement(Def.SourceFile, loadPath));
+                    defElement.Add(new XElement(Def.SourceMod, sourceMod));
+                }
+
+                logger.LogInfo($"{infoSuccessfullyLoaded}: {loadPath}");
                 return doc;
             }
             catch (System.Xml.XmlException ex)
             {
-                logger.LogError($"XML parse error in {loadPath}: {ex.Message}");
+                logger.LogError($"{errorXmlParse} {loadPath}: {ex.Message}");
                 return null;
             }
             catch (Exception ex)
             {
-                logger.LogError($"Unexpected error loading {loadPath}: {ex.Message}");
+                logger.LogError($"{errorUnexpected} {loadPath}: {ex.Message}");
                 return null;
             }
         }

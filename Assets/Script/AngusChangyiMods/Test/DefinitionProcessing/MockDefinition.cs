@@ -3,7 +3,7 @@ using AngusChangyiMods.Core;
 
 namespace Script.AngusChangyiMods.Test.DefinitionProcessing.Old
 {
-    public class TestDefinition : DefBase
+    public class MockDefinition : DefBase
     {
         public string stringProp;
         public int intProp;

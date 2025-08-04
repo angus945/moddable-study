@@ -10,20 +10,13 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
     [TestOf(typeof(DefinitionLoader))]
     public class DefinitionLoaderTest
     {
-        private DefinitionLoader loader;
-        private MockLogger logger;
-
-        [SetUp]
-        public void SetUp()
-        {
-            logger = new MockLogger();
-            loader = new DefinitionLoader(logger);
-        }
 
         [Test]
         public void ShouldLoadValidDefinition_WithSourceInfo()
         {
             // Arrange
+            var logger = new MockLogger();
+            var loader = new DefinitionLoader(logger);
             string sourceMod = "TestMod";
 
             XDocument inputDoc = new DefBuilder()
@@ -59,6 +52,8 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
         public void ShouldFailWhenFileNotFound()
         {
             // Arrange
+            var logger = new MockLogger();
+            var loader = new DefinitionLoader(logger);
             string fakePath = Path.Combine(Path.GetTempPath(), "missing_" + Guid.NewGuid() + ".xml");
 
             // Act
@@ -71,24 +66,30 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
         }
 
         [Test]
-        public void ShouldFailWhenRootIsEmpty()
+        public void ShouldFailWhenFileIsEmpty()
         {
             // Arrange
-            string path = XmlTestUtil.SaveToTempFile(new XDocument(new XElement(Def.Root)));
+            MockLogger logger = new MockLogger();
+            DefinitionLoader loader = new DefinitionLoader(logger);
+            string path = Path.GetTempFileName();
+            File.WriteAllText(path, string.Empty);
 
             // Act
-            var result = loader.LoadDefinition(path, "Test");
+            XDocument result = loader.LoadDefinition(path, "Test");
 
             // Assert
-            TestContext.WriteLine(result.ToString());
-            Assert.IsNotNull(result);
-            Assert.IsEmpty(result.Root.Elements());
+            TestContext.WriteLine(result?.ToString()?? "null");
+            Assert.IsNull(result);
+            Assert.That(logger.Logs[0].Message, Does.Contain(DefinitionLoader.errorXmlParse), 
+                "Should log XML parse error for empty file, expected:" + DefinitionLoader.errorXmlParse + "but: " + logger.Logs[0].Message);
         }
 
         [Test]
         public void ShouldFailWhenRootIsMissingOrWrong()
         {
             // Arrange
+            MockLogger logger = new MockLogger();
+            DefinitionLoader loader = new DefinitionLoader(logger);
             string wrongRootXml = "<banana><item/></banana>";
             string path = Path.GetTempFileName();
             File.WriteAllText(path, wrongRootXml);
@@ -106,6 +107,8 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
         public void ShouldFailWhenXmlIsMalformed()
         {
             // Arrange
+            MockLogger logger = new MockLogger();
+            DefinitionLoader loader = new DefinitionLoader(logger);
             string malformedXml = "<Defs><bad></Defs>"; // missing closing tag
             string path = Path.GetTempFileName();
             File.WriteAllText(path, malformedXml);

@@ -65,21 +65,32 @@ namespace AngusChangyiMods.Core
         
         public DefBuilder AddComponent<T>() where T : ComponentProperty
         {
-            var comps = current.Element(Def.Components);
+            if (current == null)
+                throw new InvalidOperationException("Must call WithDef<T>() before adding components.");
+
+            XElement comps = current.Element(Def.Components);
             if (comps == null)
             {
                 comps = new XElement(Def.Components);
                 current.Add(comps);
             }
 
-            var li = new XElement(Def.Li);
-            li.Add(new XElement("compClass", typeof(T).FullName));
+            EnsureNoDuplicateClass(comps, typeof(T).FullName, "Component");
+            
+            XElement li = new XElement(Def.Li);
+            li.Add(new XElement(Def.Class, typeof(T).FullName));
             comps.Add(li);
 
             return this;
         }
         public DefBuilder AddComponent<T>(params TreeNode[] content) where T : ComponentProperty
         {
+            if (current == null)
+                throw new InvalidOperationException("Must call WithDef<T>() before adding components.");
+
+            if (content == null || content.Length == 0)
+                throw new ArgumentException("Component content cannot be null or empty.");
+
             var comps = current.Element(Def.Components);
             if (comps == null)
             {
@@ -87,9 +98,10 @@ namespace AngusChangyiMods.Core
                 current.Add(comps);
             }
 
+            EnsureNoDuplicateClass(comps, typeof(T).FullName, "Component");
+
             var li = new XElement(Def.Li);
             li.SetAttributeValue(Def.Class, typeof(T).FullName);
-
             foreach (var node in content)
             {
                 li.Add(ToXElement(node));
@@ -98,9 +110,14 @@ namespace AngusChangyiMods.Core
             comps.Add(li);
             return this;
         }
-        
         public DefBuilder AddExtension<T>(params TreeNode[] content) where T : DefExtension
         {
+            if (current == null)
+                throw new InvalidOperationException("Must call WithDef<T>() before adding extensions.");
+
+            if (content == null || content.Length == 0)
+                throw new ArgumentException("Extension content cannot be null or empty.");
+
             var modExts = current.Element(Def.Extensions);
             if (modExts == null)
             {
@@ -108,9 +125,10 @@ namespace AngusChangyiMods.Core
                 current.Add(modExts);
             }
 
+            EnsureNoDuplicateClass(modExts, typeof(T).FullName, "Extension");
+
             var li = new XElement(Def.Li);
             li.SetAttributeValue(Def.Class, typeof(T).FullName);
-
             foreach (var node in content)
             {
                 li.Add(ToXElement(node));
@@ -119,8 +137,16 @@ namespace AngusChangyiMods.Core
             modExts.Add(li);
             return this;
         }
+        private void EnsureNoDuplicateClass(XElement parent, string className, string context)
+        {
+            bool exists = parent.Elements(Def.Li)
+                .Any(e => e.Attribute(Def.Class)?.Value == className);
 
-
+            if (exists)
+            {
+                throw new InvalidOperationException($"{context} of type '{className}' already added.");
+            }
+        }
 
         public string Build()
         {
@@ -154,12 +180,10 @@ namespace AngusChangyiMods.Core
             }
         }
 
-
         public static TreeNode Tree(string name, object content = null)
         {
             return new TreeNode(name, content);
         }
-
 
         public static XElement ToXElement(TreeNode node)
         {

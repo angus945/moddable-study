@@ -4,10 +4,31 @@
 
 把 ModManager 關閉，先從 DataProcesser 開始重構。 
 
-DataProcessing 處裡順序
+模組系統處理順序：
 
-Load > Varify > Merge > Inherit > Patch > Deserialize > Reference
+- ModPreloader
+- ModValidator
+- ModSorter (ModOrderSaver)
 
+- LoadAssemblies
+- Initial Harmony
+
+- Defs Loader
+- Defs Validator
+- Defs Merger
+- Defs Inheritor
+- Defs Patcher
+- Defs Deserializer (Handle Cross Defs Reference)
+
+- Load Assets
+
+- Initial Mod Entry
+
+
+未定
+- ModSettings Loader
+- ModSettings Validator
+- ModSettings Merger
 
 ## 命名規則
 

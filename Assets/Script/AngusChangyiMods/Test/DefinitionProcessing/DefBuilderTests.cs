@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Xml.Linq;
 using NUnit.Framework;
 using Script.AngusChangyiMods.Test.DefinitionProcessing.Old;
@@ -196,7 +197,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             var def = doc.Root.Element(nameof(MockDefinition));
             var comps = def.Element(Def.Components);
             var li = comps?.Element(Def.Li);
-            var compClass = li?.Element("compClass")?.Value;
+            var compClass = li?.Element(Def.Class)?.Value;
 
             // Assert
             Assert.IsNotNull(comps);
@@ -245,7 +246,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             // Assert
             Assert.AreEqual(2, compList?.Count);
             Assert.AreEqual(typeof(MockComponent).FullName, compList[0].Attribute(Def.Class)?.Value);
-            Assert.AreEqual(typeof(AnotherMockComponent).FullName, compList[1].Element("compClass")?.Value);
+            Assert.AreEqual(typeof(AnotherMockComponent).FullName, compList[1].Element(Def.Class)?.Value);
 
             Assert.AreEqual(2, extList?.Count);
             Assert.AreEqual(typeof(MockExtension).FullName, extList[0].Attribute(Def.Class)?.Value);
@@ -257,6 +258,61 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             Assert.AreEqual("high", extList[1].Element("danger")?.Value);
 
             TestContext.WriteLine(doc.ToString());
+        }
+
+        [Test]
+        public void DefBuilder_ShouldThrow_When_AddComponentWithoutDef()
+        {
+            var builder = new DefBuilder();
+
+            var ex = Assert.Throws<InvalidOperationException>(() =>
+            {
+                builder.AddComponent<MockComponent>(
+                    DefBuilder.Tree("value", "1")
+                );
+            });
+
+            StringAssert.Contains("WithDef", ex.Message);
+        }
+        
+        [Test]
+        public void DefBuilder_ShouldThrow_When_ComponentClassDuplicated()
+        {
+            var builder = new DefBuilder()
+                .WithDef<MockDefinition>("Test.Duplicated");
+
+            builder.AddComponent<MockComponent>(
+                DefBuilder.Tree("range", "10")
+            );
+
+            var ex = Assert.Throws<InvalidOperationException>(() =>
+            {
+                builder.AddComponent<MockComponent>(
+                    DefBuilder.Tree("cooldown", "5")
+                );
+            });
+
+            StringAssert.Contains("already added", ex.Message);
+        }
+
+        [Test]
+        public void DefBuilder_ShouldThrow_When_ExtensionClassDuplicated()
+        {
+            var builder = new DefBuilder()
+                .WithDef<MockDefinition>("Test.Duplicated");
+
+            builder.AddExtension<MockExtension>(
+                DefBuilder.Tree("range", "10")
+            );
+
+            var ex = Assert.Throws<InvalidOperationException>(() =>
+            {
+                builder.AddExtension<MockExtension>(
+                    DefBuilder.Tree("cooldown", "5")
+                );
+            });
+
+            StringAssert.Contains("already added", ex.Message);
         }
 
 

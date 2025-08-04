@@ -148,12 +148,9 @@ namespace AngusChangyiMods.Core
             }
         }
 
-        public string Build()
+        public XDocument Build()
         {
-            var doc = new XDocument(new XElement(Def.Root, defs));
-            string tempPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.xml");
-            doc.Save(tempPath);
-            return tempPath;
+            return new XDocument(new XElement(Def.Root, defs));
         }
 
         // ==========================

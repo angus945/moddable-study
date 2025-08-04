@@ -13,7 +13,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
         public void DefBuilder_ShouldBuild_ValidDefFile()
         {
             // Arrange
-            string path = new DefBuilder()
+            XDocument doc = new DefBuilder()
                 .WithDef<MockDefinition>("Test.Foo").Label("LabelFoo").Description("This is a test definition.")
                 .AddProperty("stringProp", "Some string")
                 .AddProperty("intProp", "123")
@@ -22,7 +22,6 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
                 .Build();
 
             // Act
-            XDocument doc = XDocument.Load(path);
             XElement def = doc.Root.Elements().First();
 
             // Assert
@@ -43,14 +42,13 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
         public void DefBuilder_ShouldBuild_AbstractDefinition_WithExpectedAttributes()
         {
             // Arrange
-            string path = new DefBuilder()
+            XDocument doc = new DefBuilder()
                 .WithDef<MockDefinition>("Test.Abstract", isAbstract: true)
                 .Label("Abstract Label")
                 .Description("This is an abstract def")
                 .Build();
 
             // Act
-            XDocument doc = XDocument.Load(path);
             XElement def = doc.Root.Element("MockDefinition");
 
             // Assert
@@ -76,10 +74,9 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
                 .Label("Child Label")
                 .AddProperty("intProp", "42");
 
-            string path = builder.Build();
+            XDocument doc = builder.Build();
 
             // Act
-            XDocument doc = XDocument.Load(path);
             XElement child = doc.Root.Elements("MockDefinition")
                 .FirstOrDefault(e => e.Element("defName")?.Value == "Test.Child");
 
@@ -96,7 +93,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
         public void DefBuilder_ShouldBuildNestedTreeStructure()
         {
             // Arrange
-            string path = new DefBuilder()
+            XDocument doc = new DefBuilder()
                 .WithDef<MockDefinition>("Test.Advanced", isAbstract: true)
                 .Label("高階定義")
                 .InheritFrom("Test.Base")
@@ -111,7 +108,6 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
                 .Build();
 
             // Act
-            var doc = XDocument.Load(path);
             var root = doc.Root.Element("MockDefinition");
             var stats = root.Element("stats");
             var meta = stats.Element("meta");
@@ -130,7 +126,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
         public void DefBuilder_ShouldBuildExtension()
         {
             // Arrange
-            string path = new DefBuilder()
+            XDocument doc = new DefBuilder()
                 .WithDef<MockDefinition>("Test.WithExtension")
                 .Label("擴充範例")
                 .AddExtension<MockExtension>(
@@ -140,7 +136,6 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
                 .Build();
 
             // Act
-            var doc = XDocument.Load(path);
             var def = doc.Root.Element("MockDefinition");
             var extensions = def.Element(Def.Extensions);
             var li = extensions?.Element(Def.Li);
@@ -158,7 +153,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
         public void DefBuilder_ShouldBuildComponent()
         {
             // Arrange
-            string path = new DefBuilder()
+            XDocument doc = new DefBuilder()
                 .WithDef<MockDefinition>("Test.WithComponent")
                 .Label("組件範例")
                 .AddComponent<MockComponent>(
@@ -168,7 +163,6 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
                 .Build();
 
             // Act
-            var doc = XDocument.Load(path);
             var def = doc.Root.Element(nameof(MockDefinition));
             var comps = def.Element(Def.Components);
             var li = comps?.Element(Def.Li);
@@ -186,14 +180,13 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
         public void DefBuilder_ShouldBuildComponent_WithoutParameters()
         {
             // Arrange
-            string path = new DefBuilder()
+            XDocument doc = new DefBuilder()
                 .WithDef<MockDefinition>("Test.NoParams")
                 .Label("無參數元件")
                 .AddComponent<MockComponent>()
                 .Build();
 
             // Act
-            var doc = XDocument.Load(path);
             var def = doc.Root.Element(nameof(MockDefinition));
             var comps = def.Element(Def.Components);
             var li = comps?.Element(Def.Li);
@@ -210,7 +203,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
         public void DefBuilder_ShouldBuildMultipleCompsAndExtensions()
         {
             // Arrange
-            string path = new DefBuilder()
+            XDocument doc = new DefBuilder()
                 .WithDef<MockDefinition>("Test.Multi")
                 .Label("複合測試")
 
@@ -234,7 +227,6 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
                 .Build();
 
             // Act
-            var doc = XDocument.Load(path);
             var def = doc.Root.Element(nameof(MockDefinition));
 
             var comps = def.Element(Def.Components);

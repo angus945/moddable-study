@@ -11,9 +11,12 @@ namespace AngusChangyiMods.Core
         public const string Description = "description";
         public const string Parent = "parent";
         public const string IsAbstract = "abstract";
-        public const string Component = "component";
-        public const string Extension = "extension";
-        
+        public const string Components = "components";
+        public const string Extensions = "extensions";
+
+        public const string Li = "li";
+        public const string Class = "class";
+            
         public const string SourceMod = "sourceMod"; // the mod that defines this def, used for mod compatibility
         public const string SourceFile = "sourceFile";
         
@@ -33,7 +36,7 @@ namespace AngusChangyiMods.Core
         public string sourceMod;
         public string sourceFile;
 
-        public List<ComponentProperty> Components = new List<ComponentProperty>(); // every instance will have individual compProperties
-        public List<DefExtension> Extensions = new List<DefExtension>(); // every instance will share the same extensions
+        public List<ComponentProperty> components = new List<ComponentProperty>(); // every instance will have individual compProperties
+        public List<DefExtension> extensions = new List<DefExtension>(); // every instance will share the same extensions
     }
 }

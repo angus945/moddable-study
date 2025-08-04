@@ -50,24 +50,77 @@ namespace AngusChangyiMods.Core
             return this;
         }
 
-        public DefBuilder ListProp(string name, params string[] items)
+        public DefBuilder AddList(string name, params string[] items)
         {
             var list = new XElement(name, items.Select(i => new XElement("li", i)));
             current?.Add(list);
             return this;
         }
-
-        public DefBuilder Add(XElement element)
-        {
-            current?.Add(element);
-            return this;
-        }
-
-        public DefBuilder Add(TreeNode node)
+        
+        public DefBuilder AddNested(TreeNode node)
         {
             current?.Add(ToXElement(node));
             return this;
         }
+        
+        public DefBuilder AddComponent<T>() where T : ComponentProperty
+        {
+            var comps = current.Element(Def.Components);
+            if (comps == null)
+            {
+                comps = new XElement(Def.Components);
+                current.Add(comps);
+            }
+
+            var li = new XElement(Def.Li);
+            li.Add(new XElement("compClass", typeof(T).FullName));
+            comps.Add(li);
+
+            return this;
+        }
+        public DefBuilder AddComponent<T>(params TreeNode[] content) where T : ComponentProperty
+        {
+            var comps = current.Element(Def.Components);
+            if (comps == null)
+            {
+                comps = new XElement(Def.Components);
+                current.Add(comps);
+            }
+
+            var li = new XElement(Def.Li);
+            li.SetAttributeValue(Def.Class, typeof(T).FullName);
+
+            foreach (var node in content)
+            {
+                li.Add(ToXElement(node));
+            }
+
+            comps.Add(li);
+            return this;
+        }
+        
+        public DefBuilder AddExtension<T>(params TreeNode[] content) where T : DefExtension
+        {
+            var modExts = current.Element(Def.Extensions);
+            if (modExts == null)
+            {
+                modExts = new XElement(Def.Extensions);
+                current.Add(modExts);
+            }
+
+            var li = new XElement(Def.Li);
+            li.SetAttributeValue(Def.Class, typeof(T).FullName);
+
+            foreach (var node in content)
+            {
+                li.Add(ToXElement(node));
+            }
+
+            modExts.Add(li);
+            return this;
+        }
+
+
 
         public string Build()
         {

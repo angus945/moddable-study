@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+    <TestDefinition abstract="true">
+        <defName>Inheritance.Parent</defName>
+        <label>Parent Definition</label>
+        <description>This is a test definition for parent.</description>
+        <stringProp>Example String</stringProp>
+        <intProp>42</intProp>
+        <boolProp>true</boolProp>
+    </TestDefinition>
+    <TestDefinition parent="Inheritance.Parent">
+        <defName>Inheritance.Child</defName>
+        <label>Parent Definition</label>
+        <description>This is a test definition for parent.</description>
+        <intProp>900</intProp>
+        
+        <components>
+            <li Class="MyMod.AutoProduceComponent">
+                <resourceDefName>Steel</resourceDefName>
+                <intervalTicks>2500</intervalTicks>
+            </li>
+        </components>
+        <modExtensions>
+            <li Class="MyMod.AutoProduceExtension">
+                <resourceDefName>Steel</resourceDefName>
+                <intervalTicks>2500</intervalTicks>
+            </li>
+        </modExtensions>
+    </TestDefinition>
+</Defs>

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using AngusChangyiMods.Core;
 
-namespace Script.AngusChangyiMods.Test.DefinitionProcessing.Old
+namespace AngusChangyiMods.Core.DefinitionProcessing.Test
 {
     public class MockDefinition : DefBase
     {
@@ -11,4 +11,12 @@ namespace Script.AngusChangyiMods.Test.DefinitionProcessing.Old
 
         public List<string> listProp;
     }
+    
+    public class MockExtension : DefExtension { }
+    
+    public class AnotherMockExtension : DefExtension { }
+    
+    public class MockComponent : ComponentProperty { }
+    
+    public class AnotherMockComponent : ComponentProperty {  }
 }

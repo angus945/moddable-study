@@ -17,7 +17,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
                 .AddProperty("stringProp", "Some string")
                 .AddProperty("intProp", "123")
                 .AddProperty("boolProp", "true")
-                .ListProp("listProp", "A", "B")
+                .AddList("listProp", "A", "B")
                 .Build();
 
             // Act
@@ -99,7 +99,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
                 .WithDef<MockDefinition>("Test.Advanced", isAbstract: true)
                 .Label("高階定義")
                 .InheritFrom("Test.Base")
-                .Add(DefBuilder.Tree("stats").WithChildren(
+                .AddNested(DefBuilder.Tree("stats").WithChildren(
                     DefBuilder.Tree("hp", 100),
                     DefBuilder.Tree("speed", 5.5),
                     DefBuilder.Tree("meta").WithChildren(
@@ -124,5 +124,142 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             Assert.AreEqual("elite", meta.Element("tag")?.Value);
             Assert.AreEqual("3", meta.Element("level")?.Value);
         }
+        
+        [Test]
+        public void DefBuilder_ShouldBuildExtension()
+        {
+            // Arrange
+            string path = new DefBuilder()
+                .WithDef<MockDefinition>("Test.WithExtension")
+                .Label("擴充範例")
+                .AddExtension<MockExtension>(
+                    DefBuilder.Tree("canSwim", "true"),
+                    DefBuilder.Tree("extraDamage", "5")
+                )
+                .Build();
+
+            // Act
+            var doc = XDocument.Load(path);
+            var def = doc.Root.Element("MockDefinition");
+            var extensions = def.Element(Def.Extensions);
+            var li = extensions?.Element(Def.Li);
+
+            // Assert
+            TestContext.WriteLine(doc.ToString());
+            
+            Assert.IsNotNull(extensions);
+            Assert.AreEqual(typeof(MockExtension).FullName, li?.Attribute(Def.Class)?.Value);
+            Assert.AreEqual("true", li.Element("canSwim")?.Value);
+            Assert.AreEqual("5", li.Element("extraDamage")?.Value);
+        }
+        
+        [Test]
+        public void DefBuilder_ShouldBuildComponent()
+        {
+            // Arrange
+            string path = new DefBuilder()
+                .WithDef<MockDefinition>("Test.WithComponent")
+                .Label("組件範例")
+                .AddComponent<MockComponent>(
+                    DefBuilder.Tree("range", "12"),
+                    DefBuilder.Tree("cooldown", "3.5")
+                )
+                .Build();
+
+            // Act
+            var doc = XDocument.Load(path);
+            var def = doc.Root.Element(nameof(MockDefinition));
+            var comps = def.Element(Def.Components);
+            var li = comps?.Element(Def.Li);
+
+            // Assert
+            Assert.IsNotNull(comps);
+            Assert.AreEqual(typeof(MockComponent).FullName, li?.Attribute(Def.Class)?.Value);
+            Assert.AreEqual("12", li.Element("range")?.Value);
+            Assert.AreEqual("3.5", li.Element("cooldown")?.Value);
+
+            TestContext.WriteLine(doc.ToString());
+        }
+        
+        [Test]
+        public void DefBuilder_ShouldBuildComponent_WithoutParameters()
+        {
+            // Arrange
+            string path = new DefBuilder()
+                .WithDef<MockDefinition>("Test.NoParams")
+                .Label("無參數元件")
+                .AddComponent<MockComponent>()
+                .Build();
+
+            // Act
+            var doc = XDocument.Load(path);
+            var def = doc.Root.Element(nameof(MockDefinition));
+            var comps = def.Element(Def.Components);
+            var li = comps?.Element(Def.Li);
+            var compClass = li?.Element("compClass")?.Value;
+
+            // Assert
+            Assert.IsNotNull(comps);
+            Assert.AreEqual(typeof(MockComponent).FullName, compClass);
+
+            TestContext.WriteLine(doc.ToString());
+        }
+
+        [Test]
+        public void DefBuilder_ShouldBuildMultipleCompsAndExtensions()
+        {
+            // Arrange
+            string path = new DefBuilder()
+                .WithDef<MockDefinition>("Test.Multi")
+                .Label("複合測試")
+
+                // --- Components ---
+                .AddComponent<MockComponent>(
+                    DefBuilder.Tree("range", "10"),
+                    DefBuilder.Tree("cooldown", "2.5")
+                )
+                .AddComponent<AnotherMockComponent>() // 沒有參數，使用 compClass
+
+                // --- Extensions ---
+                .AddExtension<MockExtension>(
+                    DefBuilder.Tree("canSwim", "true"),
+                    DefBuilder.Tree("bonusSpeed", "0.2")
+                )
+                .AddExtension<AnotherMockExtension>(
+                    DefBuilder.Tree("tag", "beast"),
+                    DefBuilder.Tree("danger", "high")
+                )
+
+                .Build();
+
+            // Act
+            var doc = XDocument.Load(path);
+            var def = doc.Root.Element(nameof(MockDefinition));
+
+            var comps = def.Element(Def.Components);
+            var compList = comps?.Elements(Def.Li).ToList();
+
+            var exts = def.Element(Def.Extensions);
+            var extList = exts?.Elements(Def.Li).ToList();
+
+            // Assert
+            Assert.AreEqual(2, compList?.Count);
+            Assert.AreEqual(typeof(MockComponent).FullName, compList[0].Attribute(Def.Class)?.Value);
+            Assert.AreEqual(typeof(AnotherMockComponent).FullName, compList[1].Element("compClass")?.Value);
+
+            Assert.AreEqual(2, extList?.Count);
+            Assert.AreEqual(typeof(MockExtension).FullName, extList[0].Attribute(Def.Class)?.Value);
+            Assert.AreEqual("true", extList[0].Element("canSwim")?.Value);
+            Assert.AreEqual("0.2", extList[0].Element("bonusSpeed")?.Value);
+
+            Assert.AreEqual(typeof(AnotherMockExtension).FullName, extList[1].Attribute(Def.Class)?.Value);
+            Assert.AreEqual("beast", extList[1].Element("tag")?.Value);
+            Assert.AreEqual("high", extList[1].Element("danger")?.Value);
+
+            TestContext.WriteLine(doc.ToString());
+        }
+
+
+
     }
 }

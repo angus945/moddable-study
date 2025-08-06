@@ -26,13 +26,13 @@ namespace AngusChangyiMods.Core.DefinitionProcessing
         {
             if (mergeTo == null)
             {
-                logger.LogError("Merge target document is null", "DefinitionMerger");
+                logger.LogError("Merge target document is null");
                 return false;
             }
 
             if (source == null || source.Root == null || source.Root.Name != Def.Root)
             {
-                logger.LogError($"Invalid source document: {source?.ToString() ?? "null"}", "DefinitionMerger");
+                logger.LogError($"Invalid source document: {source?.ToString() ?? "null"}");
                 return false;
             }
 
@@ -46,7 +46,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing
                 {
                     if (RemoveExisting(element, mergeTo, out string overrideType, out string overrideName))
                     {
-                        logger.LogWarning($"Override Definition, Type {overrideType}, DefName {overrideName}", "DefinitionMerger");
+                        logger.LogWarning($"Override Definition, Type {overrideType}, DefName {overrideName}");
                         overrideCount++;
                     }
 
@@ -55,12 +55,12 @@ namespace AngusChangyiMods.Core.DefinitionProcessing
                 }
                 else
                 {
-                    logger.LogError($"Invalid definition {element.Name}: verification failed", "DefinitionMerger");
+                    logger.LogError($"Invalid definition {element.Name}: verification failed");
                     hasErrors = true;
                 }
             }
 
-            logger.LogInfo($"Merge completed: {processedCount} definitions processed, {overrideCount} overrides", "DefinitionMerger");
+            logger.LogInfo($"Merge completed: {processedCount} definitions processed, {overrideCount} overrides");
             return !hasErrors;
         }
 

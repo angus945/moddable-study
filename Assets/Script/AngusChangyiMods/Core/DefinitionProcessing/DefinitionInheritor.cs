@@ -7,109 +7,131 @@ namespace AngusChangyiMods.Core
 {
     public interface IDefinitionInheritor
     {
-        XDocument ProcessInheritance(XDocument source);
+        List<XElement> ProcessInheritance(XDocument source);
     }
-    
+
     public class DefinitionInheritor : IDefinitionInheritor
     {
+        public const string errorCircularReference = "Circular reference detected in definition inheritance.";
+        public const string errorParentNotFound = "Parent definition not found for inheritance.";
+        public const string errorMergeFailed = "Failed to merge parent definition during inheritance.";
+
+        struct DefLookUpKey
+        {
+            public string defname;
+            public string type;
+
+            public DefLookUpKey(string defname, string type)
+            {
+                this.defname = defname;
+                this.type = type;
+            }
+
+            public override string ToString()
+            {
+                return $"({type}){defname}";
+            }
+        }
+
         private readonly ILogger logger;
-        
-        private Dictionary<string, XElement> defLookup;
-        private List<XElement> inheritedElements;
+
+        private Dictionary<DefLookUpKey, XElement> defLookup;
+        // private List<XElement> inheritedElements;
 
         public DefinitionInheritor(ILogger logger)
         {
             this.logger = logger;
         }
-        
-        public XDocument ProcessInheritance(XDocument source)
+
+        public List<XElement> ProcessInheritance(XDocument source)
         {
-            var result = new XDocument(source);
-            var root = result.Root;
-            
-            if (root == null)
-            {
-                logger.LogError("Source document has no root element.", "DefinitionInheritor");
-                return result;
-            }
+            XDocument result = new XDocument(source);
+            XElement root = result.Root;
+            List<XElement> inheritedElements = new List<XElement>();
 
             defLookup = CreateDefLookUp(root);
-            inheritedElements = ListInheritedElements(root);
 
-            logger.LogInfo($"Processing {inheritedElements.Count} inherited elements.", "DefinitionInheritor");
-
-            foreach (var element in inheritedElements)
+            foreach (XElement element in root.Elements())
             {
-                string parentId = element.Attribute(Def.Parent)?.Value;
-                string elementName = element.Element(Def.DefName)?.Value ?? "Unknown";
-                
-                if (parentId == null || !defLookup.ContainsKey(parentId))
+                if (element.Attribute(Def.IsAbstract)?.Value == "true") continue;
+
+                if (DeepCloneAndMerge(element, new HashSet<DefLookUpKey>(), out XElement inheritedElement))
                 {
-                    logger.LogWarning($"Element '{elementName}' has no valid parent definition '{parentId}'.", "DefinitionInheritor");
-                    continue;
-                }
-
-                var merged = DeepCloneAndMerge(parentId, new HashSet<string>());
-                if (merged == null)
-                {
-                    logger.LogError($"Failed to merge definition for '{elementName}' with parent '{parentId}'. Possible circular reference.", "DefinitionInheritor");
-                    continue;
-                }
-
-                MergeElementData(merged, element);
-                element.ReplaceWith(merged);
-                logger.LogInfo($"Successfully inherited '{elementName}' from '{parentId}'.", "DefinitionInheritor");
-            }
-
-            RemoveAbstractDefinition(root);
-            logger.LogInfo("Definition inheritance processing completed.", "DefinitionInheritor");
-
-            return result;
-        }
-
-        private static Dictionary<string, XElement> CreateDefLookUp(XElement root)
-        {
-            return root.Elements()
-                .Where(e => e.Element(Def.DefName) != null)
-                .ToDictionary(e => e.Element(Def.DefName)!.Value, e => e);
-        }
-        
-        private static List<XElement> ListInheritedElements(XElement root)
-        {
-            return root.Elements()
-                .Where(e => e.Attribute(Def.Parent) != null && e.Attribute(Def.IsAbstract)?.Value != "true")
-                .ToList();
-        }
-
-        private XElement DeepCloneAndMerge(string defId, HashSet<string> visited)
-        {
-            if (visited.Contains(defId)) 
-            {
-                logger.LogError($"Circular reference detected for definition '{defId}'.", "DefinitionInheritor");
-                return null;
-            }
-            
-            visited.Add(defId);
-
-            if (!defLookup.TryGetValue(defId, out var baseElement)) 
-            {
-                logger.LogError($"Definition '{defId}' not found in lookup.", "DefinitionInheritor");
-                return null;
-            }
-
-            var clone = new XElement(baseElement);
-            string parentId = baseElement.Attribute(Def.Parent)?.Value;
-            if (parentId != null && defLookup.ContainsKey(parentId))
-            {
-                var parentClone = DeepCloneAndMerge(parentId, visited);
-                if (parentClone != null)
-                {
-                    MergeElementData(parentClone, clone);
-                    return parentClone;
+                    inheritedElements.Add(inheritedElement);
                 }
             }
 
-            return clone;
+            return inheritedElements;
+        }
+
+        private static Dictionary<DefLookUpKey, XElement> CreateDefLookUp(XElement root)
+        {
+            return root.Elements().ToDictionary((e) => ConvertToKey(e), e => e);
+        }
+        private static DefLookUpKey ConvertToKey(XElement e)
+        {
+            string defName = e.Element(Def.DefName)?.Value;
+            string type = e.Name.LocalName;
+            return new DefLookUpKey(defName, type);
+        }
+        private static bool GetParentLookUpKey(XElement e, out DefLookUpKey key)
+        {
+            string parentName = e.Attribute(Def.Parent)?.Value;
+            string type = e.Name.LocalName;
+            if (string.IsNullOrEmpty(parentName))
+            {
+                key = default;
+                return false;
+            }
+            else
+            {
+                key = new DefLookUpKey(parentName, type);
+                return true;
+            }
+        }
+
+        private bool DeepCloneAndMerge(XElement child, HashSet<DefLookUpKey> visited, out XElement inherited)
+        {
+            DefLookUpKey defKey = ConvertToKey(child);
+
+            if (visited.Contains(defKey))
+            {
+                logger.LogError($"{errorCircularReference} '{defKey}'.");
+                inherited = null;
+                return false;
+            }
+
+            visited.Add(defKey);
+
+            if (GetParentLookUpKey(child, out var parentKey))
+            {
+                if (defLookup.TryGetValue(parentKey, out XElement parent))
+                {
+                    if (DeepCloneAndMerge(parent, visited, out XElement inheritedParent))
+                    {
+                        MergeElementData(inheritedParent, child);
+                        inherited = inheritedParent;
+                        return true;
+                    }
+                    else
+                    {
+                        logger.LogError($"{errorMergeFailed} '{parentKey}' for '{defKey}'.");
+                        inherited = null;
+                        return false;
+                    }
+                }
+                else
+                {
+                    logger.LogWarning($"{errorParentNotFound} '{parentKey}' for '{defKey}'.");
+                    inherited = null;
+                    return false;
+                }
+            }
+            else
+            {
+                inherited = new XElement(child);
+                return true;
+            }
         }
 
         private void MergeElementData(XElement baseElement, XElement childElement)
@@ -118,8 +140,13 @@ namespace AngusChangyiMods.Core
             {
                 var baseNode = baseElement.Element(childNode.Name);
 
-                // 如果是列表（以 <tag> 為例�� → 合併
-                if (IsListNode(childNode))
+                // 特殊處理 components 和 extensions 的合併
+                if (childNode.Name == Def.Components || childNode.Name == Def.Extensions)
+                {
+                    MergeComponentsOrExtensions(baseElement, baseNode, childNode);
+                }
+                // 如果是列表（以 <tag> 為例） → 合併
+                else if (IsListNode(childNode))
                 {
                     var mergedList = new XElement(childNode.Name);
                     var baseTags = baseNode?.Elements().Select(e => e.Value).ToHashSet() ?? new HashSet<string>();
@@ -143,13 +170,75 @@ namespace AngusChangyiMods.Core
             baseElement.SetAttributeValue(Def.Parent, null);
             baseElement.SetAttributeValue(Def.IsAbstract, null);
         }
-        
-        private static void RemoveAbstractDefinition(XElement root)
+
+        private void MergeComponentsOrExtensions(XElement baseElement, XElement baseNode, XElement childNode)
         {
-            root.Elements()
-                .Where(e => e.Attribute(Def.IsAbstract)?.Value == "true")
-                .ToList()
-                .ForEach(e => e.Remove());
+            // 如果父級沒有這個節點，直接添加子級的
+            if (baseNode == null)
+            {
+                baseElement.Add(new XElement(childNode));
+                return;
+            }
+
+            // 創建合併後的節點
+            var mergedNode = new XElement(childNode.Name);
+
+            // 收集所有 li 元素，按照 class 屬性分組
+            var baseItems = baseNode.Elements(Def.Li).ToList();
+            var childItems = childNode.Elements(Def.Li).ToList();
+
+            // 建立一個以 class 為鍵的字典來避免重複
+            var mergedItems = new Dictionary<string, XElement>();
+
+            // 先添加父級的項目
+            foreach (var item in baseItems)
+            {
+                var classValue = GetClassValue(item);
+                if (!string.IsNullOrEmpty(classValue))
+                {
+                    mergedItems[classValue] = new XElement(item);
+                }
+            }
+
+            // 再添加子級的項目（會覆蓋同 class 的父級項目）
+            foreach (var item in childItems)
+            {
+                var classValue = GetClassValue(item);
+                if (!string.IsNullOrEmpty(classValue))
+                {
+                    mergedItems[classValue] = new XElement(item);
+                }
+            }
+
+            // 將合併後的項目添加到節點中
+            foreach (var item in mergedItems.Values)
+            {
+                mergedNode.Add(item);
+            }
+
+            // 替換原有節點
+            baseNode.Remove();
+            baseElement.Add(mergedNode);
+        }
+
+        private static string GetClassValue(XElement item)
+        {
+            // 嘗試從 class 屬性獲取
+            var classAttr = item.Attribute(Def.Class);
+            if (classAttr != null)
+                return classAttr.Value;
+
+            // 嘗試從 <compClass> 子元素獲取（component 可能的格式）
+            var classElement = item.Element("compClass");
+            if (classElement != null)
+                return classElement.Value;
+
+            // 對於 components，還可能在 <class> 子元素中
+            var classChildElement = item.Element(Def.Class);
+            if (classChildElement != null)
+                return classChildElement.Value;
+
+            return null;
         }
 
         private bool IsListNode(XElement node)

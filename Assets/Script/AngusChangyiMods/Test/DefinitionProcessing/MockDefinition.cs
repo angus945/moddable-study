@@ -11,12 +11,21 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
 
         public List<string> listProp;
     }
-    
+
+    public class AnotherMockDefinition : DefBase
+    {
+        public string anotherStringProp;
+        public int anotherIntProp;
+        public bool anotherBoolProp;
+
+        public List<string> anotherListProp;
+    }
+
     public class MockExtension : DefExtension { }
-    
+
     public class AnotherMockExtension : DefExtension { }
-    
+
     public class MockComponent : ComponentProperty { }
-    
-    public class AnotherMockComponent : ComponentProperty {  }
+
+    public class AnotherMockComponent : ComponentProperty { }
 }

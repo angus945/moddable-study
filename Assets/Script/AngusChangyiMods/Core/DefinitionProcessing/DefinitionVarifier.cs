@@ -32,14 +32,14 @@ namespace AngusChangyiMods.Core.DefinitionProcessing
             XElement defNameElement = element.Element(Def.DefName);
             if (defNameElement == null)
             {
-                logger.LogError(error_lostDefName, nameof(DefinitionVarifier));
+                logger.LogError(error_lostDefName);
                 return false;
             }
 
             string defname = defNameElement.Value;
             if (!Regex.IsMatch(defname, Def.DefNamePattern))
             {
-                logger.LogError($"{error_illegalDefName} Got: '{defname}'", nameof(DefinitionVarifier));
+                logger.LogError($"{error_illegalDefName} Got: '{defname}'");
                 return false;
             }
 
@@ -47,7 +47,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing
             XAttribute parentAttr = element.Attribute(Def.Parent);
             if (parentAttr != null && !Regex.IsMatch(parentAttr.Value, Def.DefNamePattern))
             {
-                logger.LogError($"{error_illegalParent} Got: '{parentAttr.Value}'", nameof(DefinitionVarifier));
+                logger.LogError($"{error_illegalParent} Got: '{parentAttr.Value}'");
                 return false;
             }
 
@@ -62,7 +62,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing
 
                     if (!hasClassAttr && !hasCompClassElement)
                     {
-                        logger.LogError(error_componentMissingClass, nameof(DefinitionVarifier));
+                        logger.LogError(error_componentMissingClass);
                         return false;
                     }
                 }
@@ -76,7 +76,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing
                 {
                     if (li.Attribute(Def.Class) == null)
                     {
-                        logger.LogError(error_extensionMissingClass, nameof(DefinitionVarifier));
+                        logger.LogError(error_extensionMissingClass);
                         return false;
                     }
                 }

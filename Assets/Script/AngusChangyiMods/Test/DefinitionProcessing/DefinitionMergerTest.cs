@@ -13,7 +13,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
         {
             public bool VerifyDefinitions(XElement element)
             {
-                return element.Element(Def.DefName) != null;
+                return element.Element(XDef.DefName) != null;
             }
         }
 
@@ -48,7 +48,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
                 .AddList("listProp", "Item1", "Item2", "Item3")
                 .Build();
 
-            var mergeTarget = new XDocument(new XElement(Def.Root));
+            var mergeTarget = new XDocument(new XElement(XDef.Root));
 
             // Act
             merger.MergeDefinitions(source1, mergeTarget);
@@ -89,7 +89,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
                 .AddProperty("extra", "value")
                 .Build();
 
-            var mergeTarget = new XDocument(new XElement(Def.Root));
+            var mergeTarget = new XDocument(new XElement(XDef.Root));
 
             // Act
             merger.MergeDefinitions(source1, mergeTarget);
@@ -111,7 +111,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             var logger = new MockLogger();
             var merger = new DefinitionMerger(verifier, logger);
 
-            var source1 = new XDocument(new XElement(Def.Root,
+            var source1 = new XDocument(new XElement(XDef.Root,
                 new XElement("MockDefinition", // ❌ Missing defName
                     new XElement("label", "No defName")
                 ),
@@ -121,7 +121,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
                 )
             ));
 
-            var source2 = new XDocument(new XElement(Def.Root,
+            var source2 = new XDocument(new XElement(XDef.Root,
                 new XElement("MockDefinition",
                     new XElement("defName", "Legal.Two"),
                     new XElement("stringProp", "B")
@@ -136,7 +136,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
                 .WithDef<MockDefinition>("Legal.Two").AddProperty("stringProp", "B")
                 .Build();
 
-            var mergeTarget = new XDocument(new XElement(Def.Root));
+            var mergeTarget = new XDocument(new XElement(XDef.Root));
 
             // Act
             merger.MergeDefinitions(source1, mergeTarget);
@@ -149,7 +149,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             Assert.AreEqual(expectedText, actual);
             Assert.That(logger.Logs.Count(log => log.Message.Contains("Invalid definition")), Is.EqualTo(2));
         }
-        
+
         [Test]
         public void ShouldFail_WhenSourceIsInvalidRoot()
         {
@@ -159,7 +159,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             var merger = new DefinitionMerger(verifier, logger);
 
             var invalidSource = new XDocument(new XElement("NotDefs"));
-            var mergeTarget = new XDocument(new XElement(Def.Root));
+            var mergeTarget = new XDocument(new XElement(XDef.Root));
 
             // Act
             bool result = merger.MergeDefinitions(invalidSource, mergeTarget);
@@ -178,7 +178,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             var logger = new MockLogger();
             var merger = new DefinitionMerger(verifier, logger);
 
-            var source = new XDocument(new XElement(Def.Root));
+            var source = new XDocument(new XElement(XDef.Root));
 
             // Act
             bool result = merger.MergeDefinitions(source, null);
@@ -196,17 +196,17 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             var logger = new MockLogger();
             var merger = new DefinitionMerger(verifier, logger);
 
-            var source = new XDocument(new XElement(Def.Root,
+            var source = new XDocument(new XElement(XDef.Root,
                 new XElement("ThingDef", new XElement("defName", "My.Thing")),
                 new XElement("PawnKindDef", new XElement("defName", "My.Pawn"))
             ));
 
-            var expected = new XDocument(new XElement(Def.Root,
+            var expected = new XDocument(new XElement(XDef.Root,
                 new XElement("ThingDef", new XElement("defName", "My.Thing")),
                 new XElement("PawnKindDef", new XElement("defName", "My.Pawn"))
             ));
 
-            var mergeTarget = new XDocument(new XElement(Def.Root));
+            var mergeTarget = new XDocument(new XElement(XDef.Root));
 
             // Act
             bool result = merger.MergeDefinitions(source, mergeTarget);
@@ -216,7 +216,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             Assert.IsTrue(result);
             Assert.AreEqual(expected.ToString(), mergeTarget.ToString());
         }
-        
+
         [Test]
         public void ShouldNotOverrideAcrossTypes()
         {
@@ -225,11 +225,11 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             var logger = new MockLogger();
             var merger = new DefinitionMerger(verifier, logger);
 
-            var target = new XDocument(new XElement(Def.Root,
+            var target = new XDocument(new XElement(XDef.Root,
                 new XElement("ThingDef", new XElement("defName", "My.SharedName"))
             ));
 
-            var source = new XDocument(new XElement(Def.Root,
+            var source = new XDocument(new XElement(XDef.Root,
                 new XElement("PawnKindDef", new XElement("defName", "My.SharedName"))
             ));
 
@@ -242,7 +242,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             Assert.AreEqual(2, target.Root.Elements().Count(), "應該保留兩種不同類型定義");
             Assert.IsEmpty(logger.Logs.Where(l => l.Message.Contains("Override")));
         }
-        
+
         [Test]
         public void ShouldOverrideDuplicateDefsInSource()
         {
@@ -263,7 +263,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
                 .AddProperty("stringProp", "Second") // 最後一個定義應該被保留
                 .Build();
 
-            var target = new XDocument(new XElement(Def.Root));
+            var target = new XDocument(new XElement(XDef.Root));
 
             // Act
             bool result = merger.MergeDefinitions(source, target);

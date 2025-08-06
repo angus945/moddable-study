@@ -5,27 +5,30 @@ using AngusChangyiMods.Logger;
 
 namespace AngusChangyiMods.Core.DefinitionProcessing
 {
-    public interface IDefinitionLoader
+
+    public interface IXMLoader
     {
-        XDocument LoadDefinition(string loadPath, string sourceMod);
+        XDocument LoadXML(string loadPath, string sourceMod);
     }
 
-    public class DefinitionLoader : IDefinitionLoader
+    public class XMLLoader : IXMLoader
     {
         public const string warningFileNotFound = "Definition file not found";
         public const string errorInvalidFormat = "Invalid definition file format";
         public const string infoSuccessfullyLoaded = "Successfully loaded definition from";
         public const string errorXmlParse = "XML parse error in";
         public const string errorUnexpected = "Unexpected error loading";
-        
-        private readonly ILogger logger;
 
-        public DefinitionLoader(ILogger logger)
+        private readonly ILogger logger;
+        private readonly string root;
+
+        public XMLLoader(ILogger logger, string root)
         {
             this.logger = logger;
+            this.root = root;
         }
 
-        public XDocument LoadDefinition(string loadPath, string sourceMod)
+        public XDocument LoadXML(string loadPath, string sourceMod)
         {
             if (!File.Exists(loadPath))
             {
@@ -37,7 +40,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing
             {
                 XDocument doc = XDocument.Load(loadPath);
 
-                if (doc.Root == null || doc.Root.Name != Def.Root)
+                if (doc.Root == null || doc.Root.Name != root)
                 {
                     logger.LogError($"{errorInvalidFormat}: {loadPath}");
                     return null;
@@ -45,8 +48,8 @@ namespace AngusChangyiMods.Core.DefinitionProcessing
 
                 foreach (XElement defElement in doc.Root.Elements())
                 {
-                    defElement.Add(new XElement(Def.SourceFile, loadPath));
-                    defElement.Add(new XElement(Def.SourceMod, sourceMod));
+                    defElement.Add(new XElement(XBase.SourceFile, loadPath));
+                    defElement.Add(new XElement(XBase.SourceMod, sourceMod));
                 }
 
                 logger.LogInfo($"{infoSuccessfullyLoaded}: {loadPath}");

@@ -19,10 +19,10 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
                 .WithDef<MockDefinition>("MyMod.Valid")
                 .InheritFrom("Base.Def") // parent 合法格式
                 .AddComponent<MockComponent>(
-                    DefBuilder.Tree("range", "5")
+                    TreeNode.Tree("range", "5")
                 )
                 .AddExtension<MockExtension>(
-                    DefBuilder.Tree("flag", "true")
+                    TreeNode.Tree("flag", "true")
                 )
                 .Build()
                 .Root
@@ -67,12 +67,12 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             var logger = new MockLogger();
             var varifier = new DefinitionVarifier(logger);
 
-            XElement li = new XElement(Def.Li,
+            XElement li = new XElement(XDef.Li,
                 new XElement("range", 10) // ❌ 沒有 class 或 compClass
             );
             XElement element = new XElement(nameof(MockDefinition),
-                new XElement(Def.DefName, "MyMod.BadComp"),
-                new XElement(Def.Components, li)
+                new XElement(XDef.DefName, "MyMod.BadComp"),
+                new XElement(XDef.Components, li)
             );
 
             // Act
@@ -91,12 +91,12 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             var logger = new MockLogger();
             var varifier = new DefinitionVarifier(logger);
 
-            XElement li = new XElement(Def.Li,
+            XElement li = new XElement(XDef.Li,
                 new XElement("flag", "true") // ❌ 沒有 class 屬性
             );
             XElement element = new XElement(nameof(MockDefinition),
-                new XElement(Def.DefName, "MyMod.BadExt"),
-                new XElement(Def.Extensions, li)
+                new XElement(XDef.DefName, "MyMod.BadExt"),
+                new XElement(XDef.Extensions, li)
             );
 
             // Act

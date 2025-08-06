@@ -2,10 +2,10 @@ using System.Xml.Linq;
 using AngusChangyiMods.Core;
 using NUnit.Framework;
 
-namespace Script.AngusChangyiMods.Test.DefinitionProcessing.Old.PatchOperation
+namespace AngusChangyiMods.Core.DefinitionProcessing.PatchOperation.Test
 {
     [TestFixture]
-    public class Test_PatchOperationReplace
+    public class PatchOperationReplaceTest
     {
         [Test]
         public void Test_01_PatchOperationReplace_ShouldReplaceElement()

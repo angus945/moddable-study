@@ -2,7 +2,7 @@
 
 ## Unit Testing Refactoring
 
-把 ModManager 關閉，先從 DataProcesser 開始重構。 
+把 ModManager 關閉，先從 DataProcesser 開始重構。
 
 模組系統處理順序：
 
@@ -16,16 +16,16 @@
 - Defs Loader
 - Defs Validator
 - Defs Merger
+- Defs Patcher (在繼承前才能 Patch abstract Defs)
 - Defs Inheritor
-- Defs Patcher
 - Defs Deserializer (Handle Cross Defs Reference)
 
 - Load Assets
 
 - Initial Mod Entry
 
-
 未定
+
 - ModSettings Loader
 - ModSettings Validator
 - ModSettings Merger

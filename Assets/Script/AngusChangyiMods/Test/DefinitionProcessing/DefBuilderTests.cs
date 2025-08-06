@@ -97,12 +97,12 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
                 .WithDef<MockDefinition>("Test.Advanced", isAbstract: true)
                 .Label("高階定義")
                 .InheritFrom("Test.Base")
-                .AddNested(DefBuilder.Tree("stats").WithChildren(
-                    DefBuilder.Tree("hp", 100),
-                    DefBuilder.Tree("speed", 5.5),
-                    DefBuilder.Tree("meta").WithChildren(
-                        DefBuilder.Tree("tag", "elite"),
-                        DefBuilder.Tree("level", 3)
+                .AddNested(TreeNode.Tree("stats").WithChildren(
+                    TreeNode.Tree("hp", 100),
+                    TreeNode.Tree("speed", 5.5),
+                    TreeNode.Tree("meta").WithChildren(
+                        TreeNode.Tree("tag", "elite"),
+                        TreeNode.Tree("level", 3)
                     )
                 ))
                 .Build();
@@ -121,7 +121,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             Assert.AreEqual("elite", meta.Element("tag")?.Value);
             Assert.AreEqual("3", meta.Element("level")?.Value);
         }
-        
+
         [Test]
         public void DefBuilder_ShouldBuildExtension()
         {
@@ -130,25 +130,25 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
                 .WithDef<MockDefinition>("Test.WithExtension")
                 .Label("擴充範例")
                 .AddExtension<MockExtension>(
-                    DefBuilder.Tree("canSwim", "true"),
-                    DefBuilder.Tree("extraDamage", "5")
+                    TreeNode.Tree("canSwim", "true"),
+                    TreeNode.Tree("extraDamage", "5")
                 )
                 .Build();
 
             // Act
             var def = doc.Root.Element("MockDefinition");
-            var extensions = def.Element(Def.Extensions);
-            var li = extensions?.Element(Def.Li);
+            var extensions = def.Element(XDef.Extensions);
+            var li = extensions?.Element(XDef.Li);
 
             // Assert
             TestContext.WriteLine(doc.ToString());
-            
+
             Assert.IsNotNull(extensions);
-            Assert.AreEqual(typeof(MockExtension).FullName, li?.Attribute(Def.Class)?.Value);
+            Assert.AreEqual(typeof(MockExtension).FullName, li?.Attribute(XDef.Class)?.Value);
             Assert.AreEqual("true", li.Element("canSwim")?.Value);
             Assert.AreEqual("5", li.Element("extraDamage")?.Value);
         }
-        
+
         [Test]
         public void DefBuilder_ShouldBuildComponent()
         {
@@ -157,25 +157,25 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
                 .WithDef<MockDefinition>("Test.WithComponent")
                 .Label("組件範例")
                 .AddComponent<MockComponent>(
-                    DefBuilder.Tree("range", "12"),
-                    DefBuilder.Tree("cooldown", "3.5")
+                    TreeNode.Tree("range", "12"),
+                    TreeNode.Tree("cooldown", "3.5")
                 )
                 .Build();
 
             // Act
             var def = doc.Root.Element(nameof(MockDefinition));
-            var comps = def.Element(Def.Components);
-            var li = comps?.Element(Def.Li);
+            var comps = def.Element(XDef.Components);
+            var li = comps?.Element(XDef.Li);
 
             // Assert
             Assert.IsNotNull(comps);
-            Assert.AreEqual(typeof(MockComponent).FullName, li?.Attribute(Def.Class)?.Value);
+            Assert.AreEqual(typeof(MockComponent).FullName, li?.Attribute(XDef.Class)?.Value);
             Assert.AreEqual("12", li.Element("range")?.Value);
             Assert.AreEqual("3.5", li.Element("cooldown")?.Value);
 
             TestContext.WriteLine(doc.ToString());
         }
-        
+
         [Test]
         public void DefBuilder_ShouldBuildComponent_WithoutParameters()
         {
@@ -188,9 +188,9 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
 
             // Act
             var def = doc.Root.Element(nameof(MockDefinition));
-            var comps = def.Element(Def.Components);
-            var li = comps?.Element(Def.Li);
-            var compClass = li?.Element(Def.Class)?.Value;
+            var comps = def.Element(XDef.Components);
+            var li = comps?.Element(XDef.Li);
+            var compClass = li?.Element(XDef.Class)?.Value;
 
             // Assert
             Assert.IsNotNull(comps);
@@ -209,19 +209,19 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
 
                 // --- Components ---
                 .AddComponent<MockComponent>(
-                    DefBuilder.Tree("range", "10"),
-                    DefBuilder.Tree("cooldown", "2.5")
+                    TreeNode.Tree("range", "10"),
+                    TreeNode.Tree("cooldown", "2.5")
                 )
                 .AddComponent<AnotherMockComponent>() // 沒有參數，使用 compClass
 
                 // --- Extensions ---
                 .AddExtension<MockExtension>(
-                    DefBuilder.Tree("canSwim", "true"),
-                    DefBuilder.Tree("bonusSpeed", "0.2")
+                    TreeNode.Tree("canSwim", "true"),
+                    TreeNode.Tree("bonusSpeed", "0.2")
                 )
                 .AddExtension<AnotherMockExtension>(
-                    DefBuilder.Tree("tag", "beast"),
-                    DefBuilder.Tree("danger", "high")
+                    TreeNode.Tree("tag", "beast"),
+                    TreeNode.Tree("danger", "high")
                 )
 
                 .Build();
@@ -229,23 +229,23 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             // Act
             var def = doc.Root.Element(nameof(MockDefinition));
 
-            var comps = def.Element(Def.Components);
-            var compList = comps?.Elements(Def.Li).ToList();
+            var comps = def.Element(XDef.Components);
+            var compList = comps?.Elements(XDef.Li).ToList();
 
-            var exts = def.Element(Def.Extensions);
-            var extList = exts?.Elements(Def.Li).ToList();
+            var exts = def.Element(XDef.Extensions);
+            var extList = exts?.Elements(XDef.Li).ToList();
 
             // Assert
             Assert.AreEqual(2, compList?.Count);
-            Assert.AreEqual(typeof(MockComponent).FullName, compList[0].Attribute(Def.Class)?.Value);
-            Assert.AreEqual(typeof(AnotherMockComponent).FullName, compList[1].Element(Def.Class)?.Value);
+            Assert.AreEqual(typeof(MockComponent).FullName, compList[0].Attribute(XDef.Class)?.Value);
+            Assert.AreEqual(typeof(AnotherMockComponent).FullName, compList[1].Element(XDef.Class)?.Value);
 
             Assert.AreEqual(2, extList?.Count);
-            Assert.AreEqual(typeof(MockExtension).FullName, extList[0].Attribute(Def.Class)?.Value);
+            Assert.AreEqual(typeof(MockExtension).FullName, extList[0].Attribute(XDef.Class)?.Value);
             Assert.AreEqual("true", extList[0].Element("canSwim")?.Value);
             Assert.AreEqual("0.2", extList[0].Element("bonusSpeed")?.Value);
 
-            Assert.AreEqual(typeof(AnotherMockExtension).FullName, extList[1].Attribute(Def.Class)?.Value);
+            Assert.AreEqual(typeof(AnotherMockExtension).FullName, extList[1].Attribute(XDef.Class)?.Value);
             Assert.AreEqual("beast", extList[1].Element("tag")?.Value);
             Assert.AreEqual("high", extList[1].Element("danger")?.Value);
 
@@ -260,13 +260,13 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             var ex = Assert.Throws<InvalidOperationException>(() =>
             {
                 builder.AddComponent<MockComponent>(
-                    DefBuilder.Tree("value", "1")
+                    TreeNode.Tree("value", "1")
                 );
             });
 
             StringAssert.Contains("WithDef", ex.Message);
         }
-        
+
         [Test]
         public void DefBuilder_ShouldThrow_When_ComponentClassDuplicated()
         {
@@ -274,13 +274,13 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
                 .WithDef<MockDefinition>("Test.Duplicated");
 
             builder.AddComponent<MockComponent>(
-                DefBuilder.Tree("range", "10")
+                TreeNode.Tree("range", "10")
             );
 
             var ex = Assert.Throws<InvalidOperationException>(() =>
             {
                 builder.AddComponent<MockComponent>(
-                    DefBuilder.Tree("cooldown", "5")
+                    TreeNode.Tree("cooldown", "5")
                 );
             });
 
@@ -294,13 +294,13 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
                 .WithDef<MockDefinition>("Test.Duplicated");
 
             builder.AddExtension<MockExtension>(
-                DefBuilder.Tree("range", "10")
+                TreeNode.Tree("range", "10")
             );
 
             var ex = Assert.Throws<InvalidOperationException>(() =>
             {
                 builder.AddExtension<MockExtension>(
-                    DefBuilder.Tree("cooldown", "5")
+                    TreeNode.Tree("cooldown", "5")
                 );
             });
 

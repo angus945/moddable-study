@@ -1,9 +1,9 @@
 using System.Xml.Linq;
 using System.Xml.XPath;
 
-namespace AngusChangyiMods.Core
+namespace AngusChangyiMods.Core.DefinitionProcessing.PatchOperation
 {
-    public class PatchOperationReplace : IPatchOperation
+    public class PatchOperationAddAfter : IPatchOperation
     {
         public string xpath;
         public XElement value;
@@ -12,7 +12,7 @@ namespace AngusChangyiMods.Core
         {
             foreach (XElement element in doc.XPathSelectElements(xpath))
             {
-                element.ReplaceWith(new XElement(value));
+                element.AddAfterSelf(new XElement(value));
             }
         }
     }

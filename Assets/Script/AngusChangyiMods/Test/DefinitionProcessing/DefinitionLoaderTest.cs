@@ -7,8 +7,8 @@ using AngusChangyiMods.Core.Test;
 namespace AngusChangyiMods.Core.DefinitionProcessing.Test
 {
     [TestFixture]
-    [TestOf(typeof(DefinitionLoader))]
-    public class DefinitionLoaderTest
+    [TestOf(typeof(XMLLoader))]
+    public class XMLLoaderTest
     {
 
         [Test]
@@ -16,7 +16,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
         {
             // Arrange
             var logger = new MockLogger();
-            var loader = new DefinitionLoader(logger);
+            var loader = new XMLLoader(logger, XDef.Root);
             string sourceMod = "TestMod";
 
             XDocument inputDoc = new DefBuilder()
@@ -33,19 +33,19 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
                 .Label("範例")
                 .Description("測試用")
                 .AddProperty("someValue", "123")
-                .AddProperty(Def.SourceFile, inputPath)
-                .AddProperty(Def.SourceMod, sourceMod)
+                .AddProperty(XDef.SourceFile, inputPath)
+                .AddProperty(XDef.SourceMod, sourceMod)
                 .Build();
 
             // Act
-            XDocument result = loader.LoadDefinition(inputPath, sourceMod);
+            XDocument result = loader.LoadXML(inputPath, sourceMod);
 
             // Assert
             TestContext.WriteLine(result.ToString());
 
             Assert.IsNotNull(result);
             Assert.AreEqual(expectedDoc.ToString(), result.ToString());
-            Assert.That(logger.Logs[0].Message, Does.Contain(DefinitionLoader.infoSuccessfullyLoaded));
+            Assert.That(logger.Logs[0].Message, Does.Contain(XMLLoader.infoSuccessfullyLoaded));
         }
 
         [Test]
@@ -53,16 +53,16 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
         {
             // Arrange
             var logger = new MockLogger();
-            var loader = new DefinitionLoader(logger);
+            var loader = new XMLLoader(logger, XDef.Root);
             string fakePath = Path.Combine(Path.GetTempPath(), "missing_" + Guid.NewGuid() + ".xml");
 
             // Act
-            var result = loader.LoadDefinition(fakePath, "Test");
+            var result = loader.LoadXML(fakePath, "Test");
 
             // Assert
             TestContext.WriteLine(result?.ToString() ?? "null");
             Assert.IsNull(result);
-            Assert.That(logger.Logs[0].Message, Does.Contain(DefinitionLoader.warningFileNotFound));
+            Assert.That(logger.Logs[0].Message, Does.Contain(XMLLoader.warningFileNotFound));
         }
 
         [Test]
@@ -70,18 +70,18 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
         {
             // Arrange
             MockLogger logger = new MockLogger();
-            DefinitionLoader loader = new DefinitionLoader(logger);
+            XMLLoader loader = new XMLLoader(logger, XDef.Root);
             string path = Path.GetTempFileName();
             File.WriteAllText(path, string.Empty);
 
             // Act
-            XDocument result = loader.LoadDefinition(path, "Test");
+            XDocument result = loader.LoadXML(path, "Test");
 
             // Assert
-            TestContext.WriteLine(result?.ToString()?? "null");
+            TestContext.WriteLine(result?.ToString() ?? "null");
             Assert.IsNull(result);
-            Assert.That(logger.Logs[0].Message, Does.Contain(DefinitionLoader.errorXmlParse), 
-                "Should log XML parse error for empty file, expected:" + DefinitionLoader.errorXmlParse + "but: " + logger.Logs[0].Message);
+            Assert.That(logger.Logs[0].Message, Does.Contain(XMLLoader.errorXmlParse),
+                "Should log XML parse error for empty file, expected:" + XMLLoader.errorXmlParse + "but: " + logger.Logs[0].Message);
         }
 
         [Test]
@@ -89,18 +89,18 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
         {
             // Arrange
             MockLogger logger = new MockLogger();
-            DefinitionLoader loader = new DefinitionLoader(logger);
+            XMLLoader loader = new XMLLoader(logger, XDef.Root);
             string wrongRootXml = "<banana><item/></banana>";
             string path = Path.GetTempFileName();
             File.WriteAllText(path, wrongRootXml);
 
             // Act
-            var result = loader.LoadDefinition(path, "Test");
+            var result = loader.LoadXML(path, "Test");
 
             // Assert
             TestContext.WriteLine(result?.ToString() ?? "null");
             Assert.IsNull(result);
-            Assert.That(logger.Logs[0].Message, Does.Contain(DefinitionLoader.errorInvalidFormat));
+            Assert.That(logger.Logs[0].Message, Does.Contain(XMLLoader.errorInvalidFormat));
         }
 
         [Test]
@@ -108,18 +108,18 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
         {
             // Arrange
             MockLogger logger = new MockLogger();
-            DefinitionLoader loader = new DefinitionLoader(logger);
+            XMLLoader loader = new XMLLoader(logger, XDef.Root);
             string malformedXml = "<Defs><bad></Defs>"; // missing closing tag
             string path = Path.GetTempFileName();
             File.WriteAllText(path, malformedXml);
 
             // Act
-            var result = loader.LoadDefinition(path, "Test");
+            var result = loader.LoadXML(path, "Test");
 
             // Assert
             TestContext.WriteLine(result?.ToString() ?? "null");
             Assert.IsNull(result);
-            Assert.That(logger.Logs[0].Message, Does.Contain(DefinitionLoader.errorXmlParse));
+            Assert.That(logger.Logs[0].Message, Does.Contain(XMLLoader.errorXmlParse));
         }
     }
 }

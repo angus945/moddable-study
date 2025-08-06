@@ -6,6 +6,7 @@ using System.Xml.Linq;
 
 namespace AngusChangyiMods.Core
 {
+
     public class DefBuilder
     {
         private readonly List<XElement> defs = new List<XElement>();
@@ -14,12 +15,12 @@ namespace AngusChangyiMods.Core
         public DefBuilder WithDef<T>(string defName, bool isAbstract = false) where T : DefBase
         {
             current = new XElement(typeof(T).Name,
-                new XElement(Def.DefName, defName)
+                new XElement(XDef.DefName, defName)
             );
 
             if (isAbstract)
             {
-                current.SetAttributeValue(Def.IsAbstract, "true");
+                current.SetAttributeValue(XDef.IsAbstract, "true");
             }
 
             defs.Add(current);
@@ -28,19 +29,19 @@ namespace AngusChangyiMods.Core
 
         public DefBuilder InheritFrom(string parent)
         {
-            current?.SetAttributeValue(Def.Parent, parent);
+            current?.SetAttributeValue(XDef.Parent, parent);
             return this;
         }
 
         public DefBuilder Label(string label)
         {
-            current?.Add(new XElement(Def.Label, label));
+            current?.Add(new XElement(XDef.Label, label));
             return this;
         }
 
         public DefBuilder Description(string description)
         {
-            current?.Add(new XElement(Def.Description, description));
+            current?.Add(new XElement(XDef.Description, description));
             return this;
         }
 
@@ -56,29 +57,29 @@ namespace AngusChangyiMods.Core
             current?.Add(list);
             return this;
         }
-        
+
         public DefBuilder AddNested(TreeNode node)
         {
-            current?.Add(ToXElement(node));
+            current?.Add(TreeNode.ToXElement(node));
             return this;
         }
-        
+
         public DefBuilder AddComponent<T>() where T : ComponentProperty
         {
             if (current == null)
                 throw new InvalidOperationException("Must call WithDef<T>() before adding components.");
 
-            XElement comps = current.Element(Def.Components);
+            XElement comps = current.Element(XDef.Components);
             if (comps == null)
             {
-                comps = new XElement(Def.Components);
+                comps = new XElement(XDef.Components);
                 current.Add(comps);
             }
 
             EnsureNoDuplicateClass(comps, typeof(T).FullName, "Component");
-            
-            XElement li = new XElement(Def.Li);
-            li.Add(new XElement(Def.Class, typeof(T).FullName));
+
+            XElement li = new XElement(XDef.Li);
+            li.Add(new XElement(XDef.Class, typeof(T).FullName));
             comps.Add(li);
 
             return this;
@@ -91,20 +92,20 @@ namespace AngusChangyiMods.Core
             if (content == null || content.Length == 0)
                 throw new ArgumentException("Component content cannot be null or empty.");
 
-            var comps = current.Element(Def.Components);
+            var comps = current.Element(XDef.Components);
             if (comps == null)
             {
-                comps = new XElement(Def.Components);
+                comps = new XElement(XDef.Components);
                 current.Add(comps);
             }
 
             EnsureNoDuplicateClass(comps, typeof(T).FullName, "Component");
 
-            var li = new XElement(Def.Li);
-            li.SetAttributeValue(Def.Class, typeof(T).FullName);
+            var li = new XElement(XDef.Li);
+            li.SetAttributeValue(XDef.Class, typeof(T).FullName);
             foreach (var node in content)
             {
-                li.Add(ToXElement(node));
+                li.Add(TreeNode.ToXElement(node));
             }
 
             comps.Add(li);
@@ -118,20 +119,20 @@ namespace AngusChangyiMods.Core
             if (content == null || content.Length == 0)
                 throw new ArgumentException("Extension content cannot be null or empty.");
 
-            var modExts = current.Element(Def.Extensions);
+            var modExts = current.Element(XDef.Extensions);
             if (modExts == null)
             {
-                modExts = new XElement(Def.Extensions);
+                modExts = new XElement(XDef.Extensions);
                 current.Add(modExts);
             }
 
             EnsureNoDuplicateClass(modExts, typeof(T).FullName, "Extension");
 
-            var li = new XElement(Def.Li);
-            li.SetAttributeValue(Def.Class, typeof(T).FullName);
+            var li = new XElement(XDef.Li);
+            li.SetAttributeValue(XDef.Class, typeof(T).FullName);
             foreach (var node in content)
             {
-                li.Add(ToXElement(node));
+                li.Add(TreeNode.ToXElement(node));
             }
 
             modExts.Add(li);
@@ -139,8 +140,8 @@ namespace AngusChangyiMods.Core
         }
         private void EnsureNoDuplicateClass(XElement parent, string className, string context)
         {
-            bool exists = parent.Elements(Def.Li)
-                .Any(e => e.Attribute(Def.Class)?.Value == className);
+            bool exists = parent.Elements(XDef.Li)
+                .Any(e => e.Attribute(XDef.Class)?.Value == className);
 
             if (exists)
             {
@@ -150,54 +151,14 @@ namespace AngusChangyiMods.Core
 
         public XDocument Build()
         {
-            return new XDocument(new XElement(Def.Root, defs));
+            return new XDocument(new XElement(XDef.Root, defs));
         }
 
         // ==========================
         // 巢狀結構支援
         // ==========================
 
-        public class TreeNode
-        {
-            public string Name { get; private set; }
-            public object Content { get; private set; }
-            public List<TreeNode> Children { get; private set; }
 
-            public TreeNode(string name, object content = null)
-            {
-                Name = name;
-                Content = content;
-                Children = new List<TreeNode>();
-            }
-
-            public TreeNode WithChildren(params TreeNode[] children)
-            {
-                Children.AddRange(children);
-                return this;
-            }
-        }
-
-        public static TreeNode Tree(string name, object content = null)
-        {
-            return new TreeNode(name, content);
-        }
-
-        public static XElement ToXElement(TreeNode node)
-        {
-            var element = new XElement(node.Name);
-
-            foreach (var child in node.Children)
-            {
-                element.Add(ToXElement(child));
-            }
-
-            if (node.Content != null && node.Children.Count == 0)
-            {
-                element.Value = node.Content.ToString();
-            }
-
-            return element;
-        }
 
 
     }

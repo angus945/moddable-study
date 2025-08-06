@@ -30,7 +30,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing
                 return false;
             }
 
-            if (source == null || source.Root == null || source.Root.Name != Def.Root)
+            if (source == null || source.Root == null || source.Root.Name != XDef.Root)
             {
                 logger.LogError($"Invalid source document: {source?.ToString() ?? "null"}");
                 return false;
@@ -66,7 +66,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing
 
         private bool RemoveExisting(XElement source, XDocument removeTarget, out string overrideType, out string overrideName)
         {
-            string defName = source.Element(Def.DefName)?.Value;
+            string defName = source.Element(XDef.DefName)?.Value;
             string defType = source.Name.LocalName;
 
             if (string.IsNullOrEmpty(defName))

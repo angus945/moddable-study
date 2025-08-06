@@ -2,21 +2,20 @@ using System.Xml.Linq;
 using AngusChangyiMods.Core;
 using NUnit.Framework;
 
-namespace Script.AngusChangyiMods.Test.DefinitionProcessing.Old.PatchOperation
+namespace AngusChangyiMods.Core.DefinitionProcessing.PatchOperation.Test
 {
-
     [TestFixture]
-    public class Test_PatchOperationInsert
+    public class PatchOperationAddAfterTest
     {
         [Test]
-        public void Test_01_PatchOperationInsert_ShouldInsertElement()
+        public void Test_01_PatchOperationAddAfter_ShouldAddElementAfterTarget()
         {
             // Arrange
             var xml = @"<root><element>Test</element></root>";
             var doc = XDocument.Parse(xml);
-            var operation = new PatchOperationInsert
+            var operation = new PatchOperationAddAfter
             {
-                xpath = "/root",
+                xpath = "/root/element",
                 value = new XElement("newElement", "New Value")
             };
 
@@ -30,60 +29,12 @@ namespace Script.AngusChangyiMods.Test.DefinitionProcessing.Old.PatchOperation
         }
 
         [Test]
-        public void Test_02_PatchOperationInsert_ShouldInsertInElement()
+        public void Test_02_PatchOperationAddAfter_ShouldNotAddElementIfTargetNotFound()
         {
             // Arrange
             var xml = @"<root><element>Test</element></root>";
             var doc = XDocument.Parse(xml);
-            var operation = new PatchOperationInsert
-            {
-                xpath = "/root",
-                value = new XElement("newElement", "New Value")
-            };
-
-            // Act
-            operation.Apply(doc);
-
-            // Assert
-            var result = doc.ToString(SaveOptions.DisableFormatting);
-            var expected = "<root><element>Test</element><newElement>New Value</newElement></root>";
-            StringAssert.Contains(expected, result);
-        }
-
-        [Test]
-        public void Test_03_PatchOperationInsert_ShouldInsertMultipleElements()
-        {
-            // Arrange
-            var xml = @"<root><element>Test</element></root>";
-            var doc = XDocument.Parse(xml);
-            var operationA = new PatchOperationInsert
-            {
-                xpath = "/root",
-                value = new XElement("newElement", "New Value")
-            };
-            var operationB = new PatchOperationInsert
-            {
-                xpath = "/root",
-                value = new XElement("newElement", "Another Value")
-            };
-
-            // Act
-            operationA.Apply(doc);
-            operationB.Apply(doc); // Apply again to insert another element
-
-            // Assert
-            var result = doc.ToString(SaveOptions.DisableFormatting);
-            var expected = "<root><element>Test</element><newElement>New Value</newElement><newElement>Another Value</newElement></root>";
-            StringAssert.Contains(expected, result);
-        }
-
-        [Test]
-        public void Test_04_PatchOperationInsert_ShouldNotInsertIfTargetNotFound()
-        {
-            // Arrange
-            var xml = @"<root><element>Test</element></root>";
-            var doc = XDocument.Parse(xml);
-            var operation = new PatchOperationInsert
+            var operation = new PatchOperationAddAfter
             {
                 xpath = "/root/nonexistent",
                 value = new XElement("newElement", "New Value")
@@ -99,7 +50,34 @@ namespace Script.AngusChangyiMods.Test.DefinitionProcessing.Old.PatchOperation
         }
 
         [Test]
-        public void Test_05_PatchOperationInsert_ShouldInsertByDefID()
+        public void Test_03_PatchOperationAddAfter_ShouldModifyMultipleTimes()
+        {
+            // Arrange
+            var xml = @"<root><element>Test</element></root>";
+            var doc = XDocument.Parse(xml);
+            var operationFirst = new PatchOperationAddAfter
+            {
+                xpath = "/root/element",
+                value = new XElement("newElement", "New Value")
+            };
+            var operationSecond = new PatchOperationAddAfter
+            {
+                xpath = "/root/element",
+                value = new XElement("newElement", "Another Value")
+            };
+
+            // Act
+            operationFirst.Apply(doc);
+            operationSecond.Apply(doc); // Apply again to add another element
+
+            // Assert
+            var result = doc.ToString(SaveOptions.DisableFormatting);
+            var expected = "<root><element>Test</element><newElement>Another Value</newElement><newElement>New Value</newElement></root>";
+            StringAssert.Contains(expected, result);
+        }
+
+        [Test]
+        public void Test_04_PatchOperationAddAfter_ShouldAddElementWithDefID()
         {
             // Arrange
             var xml = @"
@@ -116,9 +94,9 @@ namespace Script.AngusChangyiMods.Test.DefinitionProcessing.Old.PatchOperation
                 </things>
             </root>";
             var doc = XDocument.Parse(xml);
-            var operation = new PatchOperationInsert
+            var operation = new PatchOperationAddAfter
             {
-                xpath = "/root/things/thing[defID='TestDef']",
+                xpath = "/root/things/thing[defID='TestDef']/element",
                 value = new XElement("newElement", "New Value")
             };
 

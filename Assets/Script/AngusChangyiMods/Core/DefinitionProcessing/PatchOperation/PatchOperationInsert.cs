@@ -1,7 +1,7 @@
 using System.Xml.Linq;
 using System.Xml.XPath;
 
-namespace AngusChangyiMods.Core
+namespace AngusChangyiMods.Core.DefinitionProcessing.PatchOperation
 {
     public class PatchOperationInsert : IPatchOperation
     {

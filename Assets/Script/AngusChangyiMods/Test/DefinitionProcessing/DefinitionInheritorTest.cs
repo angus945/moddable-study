@@ -38,14 +38,14 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             Assert.AreEqual(1, result.Count); // 只有非抽象的會被處理
 
             var childDef = result[0];
-            Assert.AreEqual("Child.Example", childDef.Element(Def.DefName)?.Value);
-            Assert.AreEqual("子級範例", childDef.Element(Def.Label)?.Value);
-            Assert.AreEqual("這是基礎定義", childDef.Element(Def.Description)?.Value); // 繼承自父級
+            Assert.AreEqual("Child.Example", childDef.Element(XDef.DefName)?.Value);
+            Assert.AreEqual("子級範例", childDef.Element(XDef.Label)?.Value);
+            Assert.AreEqual("這是基礎定義", childDef.Element(XDef.Description)?.Value); // 繼承自父級
             Assert.AreEqual("42", childDef.Element("defaultValue")?.Value); // 繼承自父級
             Assert.AreEqual("100", childDef.Element("childValue")?.Value); // 子級自有
 
-            Assert.IsNull(childDef.Attribute(Def.Parent)); // 繼承屬性應被移除
-            Assert.IsNull(childDef.Attribute(Def.IsAbstract));
+            Assert.IsNull(childDef.Attribute(XDef.Parent)); // 繼承屬性應被移除
+            Assert.IsNull(childDef.Attribute(XDef.IsAbstract));
         }
 
         [Test]
@@ -115,8 +115,8 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             Assert.AreEqual(1, result.Count);
 
             var finalDef = result[0];
-            Assert.AreEqual("Final.Concrete", finalDef.Element(Def.DefName)?.Value);
-            Assert.AreEqual("最終定義", finalDef.Element(Def.Label)?.Value);
+            Assert.AreEqual("Final.Concrete", finalDef.Element(XDef.DefName)?.Value);
+            Assert.AreEqual("最終定義", finalDef.Element(XDef.Label)?.Value);
 
             // 應該繼承所有層級的屬性
             Assert.AreEqual("1", finalDef.Element("rootValue")?.Value);
@@ -154,7 +154,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
 
             // 子級的覆蓋應該優先
             Assert.AreEqual("override", finalDef.Element("value")?.Value);
-            Assert.AreEqual("最終標籤", finalDef.Element(Def.Label)?.Value); // 最終的覆蓋
+            Assert.AreEqual("最終標籤", finalDef.Element(XDef.Label)?.Value); // 最終的覆蓋
         }
 
         [Test]
@@ -166,16 +166,16 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
 
             XDocument source = new DefBuilder()
                 .WithDef<MockDefinition>("Base.Complex", isAbstract: true)
-                .AddNested(DefBuilder.Tree("stats").WithChildren(
-                    DefBuilder.Tree("health", "100"),
-                    DefBuilder.Tree("armor", "5")
+                .AddNested(TreeNode.Tree("stats").WithChildren(
+                    TreeNode.Tree("health", "100"),
+                    TreeNode.Tree("armor", "5")
                 ))
 
                 .WithDef<MockDefinition>("Child.Complex")
                 .InheritFrom("Base.Complex")
-                .AddNested(DefBuilder.Tree("stats").WithChildren(
-                    DefBuilder.Tree("health", "150"), // 覆蓋父級
-                    DefBuilder.Tree("speed", "10")     // 新增屬性
+                .AddNested(TreeNode.Tree("stats").WithChildren(
+                    TreeNode.Tree("health", "150"), // 覆蓋父級
+                    TreeNode.Tree("speed", "10")     // 新增屬性
                 ))
                 .Build();
 
@@ -202,14 +202,14 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             XDocument source = new DefBuilder()
                 .WithDef<MockDefinition>("Base.WithExt", isAbstract: true)
                 .AddExtension<MockExtension>(
-                    DefBuilder.Tree("baseFlag", "true"),
-                    DefBuilder.Tree("value", "10")
+                    TreeNode.Tree("baseFlag", "true"),
+                    TreeNode.Tree("value", "10")
                 )
 
                 .WithDef<MockDefinition>("Child.WithExt")
                 .InheritFrom("Base.WithExt")
                 .AddExtension<AnotherMockExtension>(
-                    DefBuilder.Tree("childFlag", "false")
+                    TreeNode.Tree("childFlag", "false")
                 )
                 .Build();
 
@@ -219,22 +219,22 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             // Assert
             TestContext.WriteLine($"source: \n{source} \n result: \n{string.Join("\n", result.Select(e => e.ToString()))} \n");
             var childDef = result[0];
-            var extensions = childDef.Element(Def.Extensions);
+            var extensions = childDef.Element(XDef.Extensions);
 
             Assert.IsNotNull(extensions);
-            var extList = extensions.Elements(Def.Li).ToList();
+            var extList = extensions.Elements(XDef.Li).ToList();
             Assert.AreEqual(2, extList.Count); // 應該有兩個擴展
 
             // 驗證父級擴展被繼承
             var parentExt = extList.FirstOrDefault(e =>
-                e.Attribute(Def.Class)?.Value == typeof(MockExtension).FullName);
+                e.Attribute(XDef.Class)?.Value == typeof(MockExtension).FullName);
             Assert.IsNotNull(parentExt);
             Assert.AreEqual("true", parentExt.Element("baseFlag")?.Value);
             Assert.AreEqual("10", parentExt.Element("value")?.Value);
 
             // 驗證子級擴展存在
             var childExt = extList.FirstOrDefault(e =>
-                e.Attribute(Def.Class)?.Value == typeof(AnotherMockExtension).FullName);
+                e.Attribute(XDef.Class)?.Value == typeof(AnotherMockExtension).FullName);
             Assert.IsNotNull(childExt);
             Assert.AreEqual("false", childExt.Element("childFlag")?.Value);
         }
@@ -249,8 +249,8 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             XDocument source = new DefBuilder()
                 .WithDef<MockDefinition>("Base.WithComp", isAbstract: true)
                 .AddComponent<MockComponent>(
-                    DefBuilder.Tree("range", "15"),
-                    DefBuilder.Tree("cooldown", "2.0")
+                    TreeNode.Tree("range", "15"),
+                    TreeNode.Tree("cooldown", "2.0")
                 )
 
                 .WithDef<MockDefinition>("Child.WithComp")
@@ -265,22 +265,22 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             TestContext.WriteLine($"source: \n{source} \n result: \n{string.Join("\n", result.Select(e => e.ToString()))} \n");
 
             var childDef = result[0];
-            var components = childDef.Element(Def.Components);
+            var components = childDef.Element(XDef.Components);
 
             Assert.IsNotNull(components);
-            var compList = components.Elements(Def.Li).ToList();
+            var compList = components.Elements(XDef.Li).ToList();
             Assert.AreEqual(2, compList.Count); // 應該有兩個組件
 
             // 驗證父級組件被繼承
             var parentComp = compList.FirstOrDefault(c =>
-                c.Attribute(Def.Class)?.Value == typeof(MockComponent).FullName);
+                c.Attribute(XDef.Class)?.Value == typeof(MockComponent).FullName);
             Assert.IsNotNull(parentComp);
             Assert.AreEqual("15", parentComp.Element("range")?.Value);
             Assert.AreEqual("2.0", parentComp.Element("cooldown")?.Value);
 
             // 驗證子級組件存在
             var childComp = compList.FirstOrDefault(c =>
-                c.Element(Def.Class)?.Value == typeof(AnotherMockComponent).FullName);
+                c.Element(XDef.Class)?.Value == typeof(AnotherMockComponent).FullName);
             Assert.IsNotNull(childComp);
         }
 
@@ -292,21 +292,21 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             var inheritor = new DefinitionInheritor(logger);
 
             // 建立包含不同定義類型的文檔，確保它們不會互相影響
-            XDocument source = new XDocument(new XElement(Def.Root,
+            XDocument source = new XDocument(new XElement(XDef.Root,
                 new XElement("MockDefinition",
-                    new XElement(Def.DefName, "Mock.Parent"),
-                    new XAttribute(Def.IsAbstract, "true"),
-                    new XElement(Def.Label, "Mock Parent")
+                    new XElement(XDef.DefName, "Mock.Parent"),
+                    new XAttribute(XDef.IsAbstract, "true"),
+                    new XElement(XDef.Label, "Mock Parent")
                 ),
                 new XElement("MockDefinition",
-                    new XElement(Def.DefName, "Mock.Child"),
-                    new XAttribute(Def.Parent, "Mock.Parent"),
-                    new XElement(Def.Label, "Mock Child")
+                    new XElement(XDef.DefName, "Mock.Child"),
+                    new XAttribute(XDef.Parent, "Mock.Parent"),
+                    new XElement(XDef.Label, "Mock Child")
                 ),
                 new XElement("AnotherDefinitionType",
-                    new XElement(Def.DefName, "Another.Child"),
-                    new XAttribute(Def.Parent, "Mock.Parent"), // 嘗試繼承不同類型的父級
-                    new XElement(Def.Label, "Another Child")
+                    new XElement(XDef.DefName, "Another.Child"),
+                    new XAttribute(XDef.Parent, "Mock.Parent"), // 嘗試繼承不同類型的父級
+                    new XElement(XDef.Label, "Another Child")
                 )
             ));
 
@@ -319,12 +319,12 @@ namespace AngusChangyiMods.Core.DefinitionProcessing.Test
             Assert.AreEqual(1, result.Count); // 只有 MockDefinition Mock.Child 會被成功處理
 
             var mockChild = result.FirstOrDefault(e =>
-                e.Name == "MockDefinition" && e.Element(Def.DefName)?.Value == "Mock.Child");
+                e.Name == "MockDefinition" && e.Element(XDef.DefName)?.Value == "Mock.Child");
 
             Assert.IsNotNull(mockChild);
 
             // MockDefinition 應該成功繼承同類型的父級
-            Assert.AreEqual("Mock Child", mockChild.Element(Def.Label)?.Value);
+            Assert.AreEqual("Mock Child", mockChild.Element(XDef.Label)?.Value);
 
             // 應該有警告日誌表示 AnotherDefinitionType 找不到父級
             Assert.That(logger.Logs.Any(log => log.Message.Contains(DefinitionInheritor.errorParentNotFound)));

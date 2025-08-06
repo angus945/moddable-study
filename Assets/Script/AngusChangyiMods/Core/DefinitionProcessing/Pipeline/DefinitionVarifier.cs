@@ -29,7 +29,7 @@ namespace AngusChangyiMods.Core.DefinitionProcessing
         public bool VerifyDefinitions(XElement element)
         {
             // defName 驗證
-            XElement defNameElement = element.Element(Def.DefName);
+            XElement defNameElement = element.Element(XDef.DefName);
             if (defNameElement == null)
             {
                 logger.LogError(error_lostDefName);
@@ -37,27 +37,27 @@ namespace AngusChangyiMods.Core.DefinitionProcessing
             }
 
             string defname = defNameElement.Value;
-            if (!Regex.IsMatch(defname, Def.DefNamePattern))
+            if (!Regex.IsMatch(defname, XDef.DefNamePattern))
             {
                 logger.LogError($"{error_illegalDefName} Got: '{defname}'");
                 return false;
             }
 
             // parent 驗證
-            XAttribute parentAttr = element.Attribute(Def.Parent);
-            if (parentAttr != null && !Regex.IsMatch(parentAttr.Value, Def.DefNamePattern))
+            XAttribute parentAttr = element.Attribute(XDef.Parent);
+            if (parentAttr != null && !Regex.IsMatch(parentAttr.Value, XDef.DefNamePattern))
             {
                 logger.LogError($"{error_illegalParent} Got: '{parentAttr.Value}'");
                 return false;
             }
 
             // Component 驗證
-            XElement comps = element.Element(Def.Components);
+            XElement comps = element.Element(XDef.Components);
             if (comps != null)
             {
-                foreach (XElement li in comps.Elements(Def.Li))
+                foreach (XElement li in comps.Elements(XDef.Li))
                 {
-                    bool hasClassAttr = li.Attribute(Def.Class) != null;
+                    bool hasClassAttr = li.Attribute(XDef.Class) != null;
                     bool hasCompClassElement = li.Element("compClass") != null;
 
                     if (!hasClassAttr && !hasCompClassElement)
@@ -69,12 +69,12 @@ namespace AngusChangyiMods.Core.DefinitionProcessing
             }
 
             // Extension 驗證
-            XElement exts = element.Element(Def.Extensions);
+            XElement exts = element.Element(XDef.Extensions);
             if (exts != null)
             {
-                foreach (XElement li in exts.Elements(Def.Li))
+                foreach (XElement li in exts.Elements(XDef.Li))
                 {
-                    if (li.Attribute(Def.Class) == null)
+                    if (li.Attribute(XDef.Class) == null)
                     {
                         logger.LogError(error_extensionMissingClass);
                         return false;
